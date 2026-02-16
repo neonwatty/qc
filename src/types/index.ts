@@ -1,6 +1,3 @@
-export type SubscriptionPlan = 'free' | 'pro'
-export type SubscriptionStatus = 'active' | 'canceled' | 'past_due' | 'trialing'
-
 // Re-export all database row types
 export type {
   DbCouple,
@@ -60,20 +57,8 @@ export interface Profile {
   email: string
   displayName: string | null
   avatarUrl: string | null
-  plan: SubscriptionPlan
+  plan: string
   coupleId: string | null
-  createdAt: string
-  updatedAt: string
-}
-
-export interface Subscription {
-  id: string
-  userId: string
-  plan: SubscriptionPlan
-  status: SubscriptionStatus
-  stripeCustomerId: string | null
-  stripeSubscriptionId: string | null
-  currentPeriodEnd: string | null
   createdAt: string
   updatedAt: string
 }

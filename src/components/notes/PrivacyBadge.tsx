@@ -15,6 +15,7 @@ const CONFIG: Record<NotePrivacy, { label: string; color: string }> = {
 }
 
 export function PrivacyBadge({ privacy, compact = false, className }: Props) {
+  // eslint-disable-next-line security/detect-object-injection -- privacy is typed as NotePrivacy union ('private' | 'shared' | 'draft')
   const { label, color } = CONFIG[privacy]
 
   return (

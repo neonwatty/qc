@@ -28,7 +28,6 @@
     "src/components/ui/SwipeGesturesHook.tsx",
     "src/components/ui/TouchButton.tsx",
     "src/lib/haptics.ts",
-    "src/lib/touch-interactions.ts",
-    "src/lib/stripe/client.ts"
+    "src/lib/touch-interactions.ts"
   ]
 }

@@ -49,6 +49,7 @@ export function triggerHaptic(intensity: HapticIntensity): void {
     return
   }
 
+  // eslint-disable-next-line security/detect-object-injection -- intensity is typed as HapticIntensity ('light' | 'medium' | 'heavy')
   const pattern = HAPTIC_PATTERNS[intensity]
   navigator.vibrate(pattern)
 }

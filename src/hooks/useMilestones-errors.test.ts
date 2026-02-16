@@ -23,6 +23,7 @@ describe('useMilestones – error handling', () => {
     vi.clearAllMocks()
     for (const key of Object.keys(mockSupabase._queryBuilder)) {
       if (key !== 'single' && key !== 'maybeSingle' && key !== 'order') {
+        // eslint-disable-next-line security/detect-object-injection -- key is from Object.keys() of the same mock object
         mockSupabase._queryBuilder[key].mockReturnThis()
       }
     }

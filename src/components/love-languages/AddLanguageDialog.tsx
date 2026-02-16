@@ -59,6 +59,7 @@ function ExamplesEditor({
             value={example}
             onChange={(e) => {
               const next = [...examples]
+              // eslint-disable-next-line security/detect-object-injection -- index is a numeric iterator from .map()
               next[index] = e.target.value
               onChange(next)
             }}

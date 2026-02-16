@@ -115,6 +115,7 @@ const TouchButton = React.forwardRef<HTMLButtonElement, TouchButtonProps>(
     const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
       if (hapticFeedbackProp && 'vibrate' in navigator) {
         const patterns = { light: 10, medium: 50, heavy: 100 }
+        // eslint-disable-next-line security/detect-object-injection -- hapticFeedbackProp is typed as 'light' | 'medium' | 'heavy'
         navigator.vibrate(patterns[hapticFeedbackProp])
       }
       onClick?.(e)

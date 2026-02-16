@@ -1,14 +1,12 @@
 # nextjs-supabase-template
 
-Production-ready Next.js 16 template with Supabase auth, Stripe payments, Resend email, and a full Claude Code development setup.
+Production-ready Next.js 16 template with Supabase auth, Resend email, and a full Claude Code development setup.
 
 ## What's Included
 
 - **Next.js 16** with App Router, React 19, TypeScript strict mode, Turbopack
 - **Supabase** auth (SSR cookies), Postgres with RLS, local dev environment
-- **Stripe** subscription management with webhook handlers (free/pro tiers)
 - **Resend** transactional email with React Email templates
-- **Zustand** state management with request deduplication
 - **Zod** schema validation for all external inputs
 - **Tailwind CSS 4** with oklch color system and dark mode
 - **Capacitor** for iOS app builds (dual build mode: server for Vercel, static export for iOS)
@@ -63,7 +61,6 @@ src/
     api/
       health/            Health check endpoint
       cron/              Vercel cron jobs
-      stripe/webhook/    Stripe webhook handler
       email/webhook/     Resend webhook handler
     auth/callback/       OAuth callback handler
   components/            Shared UI components
@@ -71,13 +68,10 @@ src/
   lib/
     auth.ts              requireAuth(), getUserOrNull()
     email/               Resend client, send helpers, templates
-    stripe/              Stripe client, plan config
-    subscription/        Server-side subscription checks
     supabase/            Client trio (browser, server, admin) + middleware
     utils.ts             cn(), case transforms
     validation.ts        Zod schemas, validate() helper
   middleware.ts          Auth session refresh, route protection, security headers
-  store/                 Zustand stores
   test/                  Test setup and mocks
   types/                 Shared TypeScript types
 supabase/
@@ -96,7 +90,7 @@ Three clients for different contexts -- never mix them:
 | ------------------- | ------------------------ | ------------------------- | ------------ |
 | `createClient`      | `lib/supabase/client.ts` | Client components         | Cookie       |
 | `createClient`      | `lib/supabase/server.ts` | Server components/actions | Cookie       |
-| `createAdminClient` | `lib/supabase/admin.ts`  | Webhooks, cron jobs       | Service role |
+| `createAdminClient` | `lib/supabase/admin.ts`  | Cron jobs, admin tasks    | Service role |
 
 ### Auth Flow
 
@@ -104,15 +98,6 @@ Three clients for different contexts -- never mix them:
 2. Protected routes redirect to `/login?redirect=<path>` when unauthenticated
 3. `requireAuth()` returns `{ user, supabase }` for server components
 4. OAuth callback at `/auth/callback` exchanges code for session
-
-### Subscription Tiers
-
-| Plan | Limits     | Price  |
-| ---- | ---------- | ------ |
-| Free | 10 items   | $0/mo  |
-| Pro  | 1000 items | $10/mo |
-
-Configure in `src/lib/stripe/client.ts`.
 
 ## Commands
 
@@ -186,8 +171,6 @@ All secrets managed via [Doppler](https://www.doppler.com/). See `.env.example` 
 | `NEXT_PUBLIC_SUPABASE_URL`      | Supabase project URL                |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key              |
 | `SUPABASE_SERVICE_ROLE_KEY`     | Supabase service role (server-only) |
-| `STRIPE_SECRET_KEY`             | Stripe API key                      |
-| `STRIPE_WEBHOOK_SECRET`         | Stripe webhook signing secret       |
 | `RESEND_API_KEY`                | Resend email API key                |
 | `CRON_SECRET`                   | Authenticates Vercel cron requests  |
 

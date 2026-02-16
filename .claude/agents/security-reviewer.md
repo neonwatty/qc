@@ -38,7 +38,6 @@ Audit code and infrastructure for security vulnerabilities in a Next.js + Supaba
 ### Webhook Signature Verification
 
 - All incoming webhooks must verify signatures before processing
-- Stripe: verify `stripe-signature` header with `stripe.webhooks.constructEvent()`
 - Supabase: verify webhook secrets
 - Generic: HMAC verification with timing-safe comparison
 - Never process webhook payloads without signature verification

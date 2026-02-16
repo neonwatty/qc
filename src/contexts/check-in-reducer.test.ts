@@ -79,6 +79,7 @@ describe('createInitialSession', () => {
     const session = createInitialSession(['a', 'b', 'c'], 'couple-1')
     expect(session.categoryProgress).toHaveLength(3)
     session.categoryProgress.forEach((cp, i) => {
+      // eslint-disable-next-line security/detect-object-injection -- i is the forEach index over a fixed-length array
       expect(cp.categoryId).toBe(['a', 'b', 'c'][i])
       expect(cp.isCompleted).toBe(false)
       expect(cp.notes).toEqual([])

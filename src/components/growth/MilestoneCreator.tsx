@@ -57,7 +57,6 @@ export function MilestoneCreator({
 
   async function handleSubmit(): Promise<void> {
     if (!validateForm()) return
-
     try {
       await onSubmit({
         title: formData.title,
@@ -84,7 +83,7 @@ export function MilestoneCreator({
     setShowCelebration(false)
     onClose()
   }
-
+  /* eslint-disable security/detect-object-injection -- field is typed as keyof MilestoneFormData */
   function updateField(field: keyof MilestoneFormData, value: unknown): void {
     setFormData((prev) => ({ ...prev, [field]: value }))
     if (errors[field]) {
@@ -95,6 +94,7 @@ export function MilestoneCreator({
       })
     }
   }
+  /* eslint-enable security/detect-object-injection */
 
   if (!isOpen) return null
 

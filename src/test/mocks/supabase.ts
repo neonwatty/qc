@@ -33,6 +33,7 @@ function createChainableMock() {
   ]
 
   for (const method of methods) {
+    // eslint-disable-next-line security/detect-object-injection -- method is from a hardcoded local string array
     mock[method] = vi.fn().mockReturnThis()
   }
 

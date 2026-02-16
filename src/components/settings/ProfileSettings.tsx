@@ -54,11 +54,6 @@ export function ProfileSettings({ profile, userEmail }: Props): React.ReactEleme
             />
           </div>
 
-          <div className="space-y-2">
-            <Label>Current Plan</Label>
-            <p className="text-sm font-medium capitalize">{profile?.plan ?? 'free'}</p>
-          </div>
-
           {formState.error && <p className="text-sm text-destructive">{formState.error}</p>}
           {formState.success && <p className="text-sm text-green-600">Profile updated successfully</p>}
 

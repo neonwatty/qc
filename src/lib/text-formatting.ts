@@ -144,9 +144,11 @@ export function toHTML(richText: string): string {
     .replace(/\n/g, '<br/>')
 
   html = html.replace(/^[\u2022\-*]\s+(.*)$/gm, '<li>$1</li>')
+  // eslint-disable-next-line security/detect-unsafe-regex -- no catastrophic backtracking: greedy .* is bounded by line-level input and non-overlapping alternatives
   html = html.replace(/(<li>.*<\/li>)(<br\/?>)?/g, '<ul>$1</ul>')
 
   html = html.replace(/^\d+\.\s+(.*)$/gm, '<li>$1</li>')
+  // eslint-disable-next-line security/detect-unsafe-regex -- same pattern as above, bounded .* with non-overlapping groups
   html = html.replace(/(<li>.*<\/li>)(<br\/?>)?/g, '<ol>$1</ol>')
 
   return html
@@ -203,11 +205,15 @@ export function validateLength(
  * Text sanitization for security
  */
 export function sanitizeText(text: string): string {
-  return text
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-    .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
-    .replace(/on\w+\s*=\s*"[^"]*"/gi, '')
-    .replace(/on\w+\s*=\s*'[^']*'/gi, '')
-    .replace(/javascript:/gi, '')
-    .replace(/data:text\/html/gi, '')
+  return (
+    text
+      // eslint-disable-next-line security/detect-unsafe-regex -- unrolled loop pattern: [^<]* and (?!...)<[^<]* are non-overlapping, no catastrophic backtracking
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+      // eslint-disable-next-line security/detect-unsafe-regex -- unrolled loop pattern: same safe structure as script tag regex above
+      .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
+      .replace(/on\w+\s*=\s*"[^"]*"/gi, '')
+      .replace(/on\w+\s*=\s*'[^']*'/gi, '')
+      .replace(/javascript:/gi, '')
+      .replace(/data:text\/html/gi, '')
+  )
 }

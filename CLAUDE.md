@@ -4,7 +4,7 @@ Project reference for Claude Code. Read this file first before making any change
 
 ## Project Overview
 
-QC (Quality Couple) -- a relationship wellness app for couples to check in, track growth, and strengthen their connection. Built on Next.js with Supabase auth, real-time sync, Stripe payments, Resend email, and Zustand state management. Deployed on Vercel with Doppler for secrets.
+QC (Quality Couple) -- a relationship wellness app for couples to check in, track growth, and strengthen their connection. Built on Next.js with Supabase auth, real-time sync, and Resend email. Deployed on Vercel with Doppler for secrets.
 
 ## Tech Stack
 
@@ -14,9 +14,8 @@ QC (Quality Couple) -- a relationship wellness app for couples to check in, trac
 | Language   | TypeScript 5.9 (strict mode)         |
 | Auth       | Supabase Auth (SSR cookies)          |
 | Database   | Supabase (Postgres + RLS)            |
-| Payments   | Stripe (webhooks + checkout)         |
 | Email      | Resend + React Email                 |
-| State      | Zustand 5 + React Context            |
+| State      | React Context                        |
 | Realtime   | Supabase Realtime (postgres_changes) |
 | Animations | Framer Motion                        |
 | UI         | Radix UI + shadcn/ui                 |
@@ -49,7 +48,6 @@ src/
     api/
       health/            # Health check endpoint
       cron/send-reminders/ # Reminder email cron (Vercel cron)
-      stripe/webhook/    # Stripe webhook handler
       email/webhook/     # Resend webhook handler
     auth/callback/       # OAuth callback handler
     globals.css          # Tailwind + QC pink/coral theme
@@ -79,13 +77,10 @@ src/
     useRealtimeCouple.ts # Supabase Realtime subscription by couple_id
     useMilestones.ts     # Milestone CRUD + photo upload
     useNoteEditor.ts     # Rich text note editing
-    useNoteTags.ts       # Note tag management
   lib/
     auth.ts              # requireAuth(), getUserOrNull()
     couples.ts           # Couple CRUD, invite logic, partner lookup
     email/               # Resend client, send helpers, templates
-    stripe/              # Stripe client, QC plan config (free/pro)
-    subscription/        # Server-side subscription limit checks
     supabase/            # Supabase client trio + middleware
     utils.ts             # cn(), case transforms
     validation.ts        # Zod schemas, validate() helper
@@ -93,7 +88,6 @@ src/
     text-formatting.ts   # Markdown parsing, sanitization
     haptics.ts           # Capacitor haptic feedback patterns
   middleware.ts          # Auth session refresh, onboarding redirect
-  store/                 # Zustand stores
   test/                  # Test setup and mocks
   types/
     index.ts             # QC domain types + type unions
@@ -153,12 +147,12 @@ Three Supabase clients for different contexts -- never mix them:
 | ------------------- | ------------------------ | ------------------------- | ------------ |
 | `createClient`      | `lib/supabase/server.ts` | Server components/actions | Cookie       |
 | `createClient`      | `lib/supabase/client.ts` | Client components         | Cookie       |
-| `createAdminClient` | `lib/supabase/admin.ts`  | Webhooks, cron jobs       | Service role |
+| `createAdminClient` | `lib/supabase/admin.ts`  | Cron jobs, admin tasks    | Service role |
 
 ### Auth Flow
 
 1. Middleware (`src/middleware.ts`) refreshes session on every request
-2. Public routes: `/`, `/login`, `/signup`, `/auth/callback`, `/api/health`, `/onboarding`, `/invite`, webhooks, cron
+2. Public routes: `/`, `/login`, `/signup`, `/auth/callback`, `/api/health`, `/onboarding`, `/invite`, cron
 3. Protected routes redirect to `/login?redirect=<original_path>` when unauthenticated
 4. Authenticated users without a `couple_id` are redirected to `/onboarding`
 5. After onboarding: couple is created, partner invite sent via email
@@ -256,12 +250,11 @@ Privacy-filtered tables (`notes`, `love_languages`) add `AND (privacy = 'shared'
 
 Trigger functions use `SECURITY DEFINER SET search_path = ''` for safety.
 
-### Tables (12 total, 8 migrations)
+### Tables (11 total, 8 migrations)
 
 | Table              | Scope       | Migration | Description                              |
 | ------------------ | ----------- | --------- | ---------------------------------------- |
 | `profiles`         | user        | 00001     | Auto-created on signup, has `couple_id`  |
-| `subscriptions`    | user        | 00002     | Stripe subscription status               |
 | `couples`          | couple      | 00003     | Couple entity + settings JSONB           |
 | `couple_invites`   | couple      | 00003     | Partner invite tokens (pending/accepted) |
 | `check_ins`        | couple      | 00004     | Check-in sessions with mood tracking     |
@@ -338,7 +331,6 @@ All secrets live in Doppler. See `.env.example` for the full list:
 
 - `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` -- public Supabase config
 - `SUPABASE_SERVICE_ROLE_KEY` -- server-only admin access
-- `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` -- Stripe config
 - `RESEND_API_KEY` -- email service
 - `CRON_SECRET` -- authenticates Vercel cron requests
 
@@ -372,7 +364,7 @@ Runs on push to `main` and pull requests:
 
 - **Retry limit**: max 3 attempts on any failing operation before stopping
 - **Never edit existing migrations**: create a new migration instead (enforced by hook)
-- **Never expose service role key**: only use in `lib/supabase/admin.ts`, webhooks, and cron
+- **Never expose service role key**: only use in `lib/supabase/admin.ts` and cron
 - **Never commit `.env` files**: use Doppler (enforced by hook)
 - **Never use `any`**: use `unknown` with type guards
 - **Never skip auth checks**: every API route and server action starts with `requireAuth()`
