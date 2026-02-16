@@ -1,0 +1,6 @@
+-- Seed file for local development
+-- Add test data below as needed
+--
+-- Example:
+-- INSERT INTO public.profiles (id, email, display_name, plan)
+-- VALUES ('00000000-0000-0000-0000-000000000001', 'test@example.com', 'Test User', 'free');
