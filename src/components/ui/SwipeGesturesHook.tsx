@@ -11,13 +11,7 @@ export function useSwipeGestures(options?: {
   onSwipeDown?: () => void
   threshold?: number
 }) {
-  const {
-    onSwipeLeft,
-    onSwipeRight,
-    onSwipeUp,
-    onSwipeDown,
-    threshold = 50,
-  } = options || {}
+  const { onSwipeLeft, onSwipeRight, onSwipeUp, onSwipeDown, threshold = 50 } = options || {}
 
   const touchStart = React.useRef<{ x: number; y: number } | null>(null)
   const touchEnd = React.useRef<{ x: number; y: number } | null>(null)

@@ -1,16 +1,7 @@
 'use client'
 
-import React, { ReactNode } from 'react'
-import {
-  AlertCircle,
-  RefreshCw,
-  Home,
-  WifiOff,
-  AlertTriangle,
-  FileX,
-  UserX,
-  Settings,
-} from 'lucide-react'
+import { ReactNode } from 'react'
+import { AlertCircle, RefreshCw, Home, WifiOff, AlertTriangle, FileX, UserX, Settings } from 'lucide-react'
 import Link from 'next/link'
 
 import { Button } from '@/components/ui/button'
@@ -133,8 +124,8 @@ export function FallbackUI({
         {children}
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          {action && (
-            action.href ? (
+          {action &&
+            (action.href ? (
               <Link href={action.href}>
                 <Button className="w-full sm:w-auto">{action.label}</Button>
               </Link>
@@ -142,8 +133,7 @@ export function FallbackUI({
               <Button onClick={action.onClick} className="w-full sm:w-auto">
                 {action.label}
               </Button>
-            )
-          )}
+            ))}
 
           {showHomeButton && (
             <Link href="/dashboard">
@@ -191,22 +181,10 @@ export function OfflineFallback({ className }: { className?: string }) {
 }
 
 export function UnauthorizedFallback({ className }: { className?: string }) {
-  return (
-    <FallbackUI
-      type="unauthorized"
-      action={{ label: 'Sign In', href: '/auth/signin' }}
-      className={className}
-    />
-  )
+  return <FallbackUI type="unauthorized" action={{ label: 'Sign In', href: '/auth/signin' }} className={className} />
 }
 
-export function MaintenanceFallback({
-  estimatedTime,
-  className,
-}: {
-  estimatedTime?: string
-  className?: string
-}) {
+export function MaintenanceFallback({ estimatedTime, className }: { estimatedTime?: string; className?: string }) {
   return (
     <FallbackUI
       type="maintenance"

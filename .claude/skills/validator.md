@@ -13,18 +13,18 @@ You are a CI/CD pipeline running locally. Your job is to detect the project type
 
 Check for these files to identify the project:
 
-| File | Language/Framework |
-|------|-------------------|
-| `package.json` | Node.js / TypeScript / JavaScript |
-| `tsconfig.json` | TypeScript |
-| `pyproject.toml` | Python (modern) |
-| `setup.py` | Python (legacy) |
-| `requirements.txt` | Python |
-| `Gemfile` | Ruby |
-| `Cargo.toml` | Rust |
-| `go.mod` | Go |
-| `pom.xml` | Java (Maven) |
-| `build.gradle` | Java/Kotlin (Gradle) |
+| File               | Language/Framework                |
+| ------------------ | --------------------------------- |
+| `package.json`     | Node.js / TypeScript / JavaScript |
+| `tsconfig.json`    | TypeScript                        |
+| `pyproject.toml`   | Python (modern)                   |
+| `setup.py`         | Python (legacy)                   |
+| `requirements.txt` | Python                            |
+| `Gemfile`          | Ruby                              |
+| `Cargo.toml`       | Rust                              |
+| `go.mod`           | Go                                |
+| `pom.xml`          | Java (Maven)                      |
+| `build.gradle`     | Java/Kotlin (Gradle)              |
 
 If multiple are found (e.g., `package.json` + `tsconfig.json`), use the most specific (TypeScript in this case).
 
@@ -33,6 +33,7 @@ If multiple are found (e.g., `package.json` + `tsconfig.json`), use the most spe
 For the detected project type, read the config file to identify available scripts:
 
 **Node.js/TypeScript:** Read `package.json` -> check `scripts` for:
+
 - `lint`, `eslint`, `check`
 - `typecheck`, `tsc`, `type-check`
 - `test`, `jest`, `vitest`, `playwright`
@@ -63,6 +64,7 @@ npx knip              # if installed
 ### Step 4: Collect and Parse Results
 
 For each command:
+
 1. Capture stdout and stderr
 2. Note the exit code (0 = pass, non-zero = fail)
 3. Parse output to extract:
@@ -84,23 +86,29 @@ Present results in this format:
 ---
 
 ### Linting
+
 **Status:** PASS / FAIL
 **Command:** `npm run lint`
+
 - Errors: 0
 - Warnings: 3
 
 ---
 
 ### Type Checking
+
 **Status:** PASS
 **Command:** `npx tsc --noEmit`
+
 - No type errors found.
 
 ---
 
 ### Tests
+
 **Status:** PASS
 **Command:** `npm run test`
+
 - Total: 47
 - Passed: 47
 - Failed: 0
@@ -109,20 +117,22 @@ Present results in this format:
 ---
 
 ### Dead Code Detection
+
 **Status:** SKIPPED (knip not installed)
 
 ---
 
 ## Summary
 
-| Check | Status | Issues |
-|-------|--------|--------|
-| Linting | PASS | 3 warnings |
-| Type Check | PASS | 0 |
-| Tests | PASS | 47/47 passed |
-| Dead Code | - | skipped |
+| Check      | Status | Issues       |
+| ---------- | ------ | ------------ |
+| Linting    | PASS   | 3 warnings   |
+| Type Check | PASS   | 0            |
+| Tests      | PASS   | 47/47 passed |
+| Dead Code  | -      | skipped      |
 
 ### Recommended Actions
+
 1. Consider fixing the 3 linting warnings
 2. Install `knip` for dead code detection: `npm i -D knip`
 ```
@@ -130,15 +140,18 @@ Present results in this format:
 ## Error Handling
 
 **Command not found:**
+
 - Note as "SKIPPED - tool not installed"
 - Suggest installation command
 
 **Command fails:**
+
 - Still report as FAIL with output
 - Continue to next check
 - Include error output in report
 
 **Timeout:**
+
 - If a command takes >2 minutes, note as "TIMEOUT"
 - Tests may take longer - use appropriate timeout
 

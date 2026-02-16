@@ -92,11 +92,11 @@ supabase/
 
 Three clients for different contexts -- never mix them:
 
-| Client | File | Context | Auth |
-|--------|------|---------|------|
-| `createClient` | `lib/supabase/client.ts` | Client components | Cookie |
-| `createClient` | `lib/supabase/server.ts` | Server components/actions | Cookie |
-| `createAdminClient` | `lib/supabase/admin.ts` | Webhooks, cron jobs | Service role |
+| Client              | File                     | Context                   | Auth         |
+| ------------------- | ------------------------ | ------------------------- | ------------ |
+| `createClient`      | `lib/supabase/client.ts` | Client components         | Cookie       |
+| `createClient`      | `lib/supabase/server.ts` | Server components/actions | Cookie       |
+| `createAdminClient` | `lib/supabase/admin.ts`  | Webhooks, cron jobs       | Service role |
 
 ### Auth Flow
 
@@ -107,10 +107,10 @@ Three clients for different contexts -- never mix them:
 
 ### Subscription Tiers
 
-| Plan | Limits | Price |
-|------|--------|-------|
-| Free | 10 items | $0/mo |
-| Pro | 1000 items | $10/mo |
+| Plan | Limits     | Price  |
+| ---- | ---------- | ------ |
+| Free | 10 items   | $0/mo  |
+| Pro  | 1000 items | $10/mo |
 
 Configure in `src/lib/stripe/client.ts`.
 
@@ -181,15 +181,15 @@ See `make help` for the full list of Makefile targets.
 
 All secrets managed via [Doppler](https://www.doppler.com/). See `.env.example` for the full list:
 
-| Variable | Description |
-|----------|-------------|
-| `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL |
-| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key |
-| `SUPABASE_SERVICE_ROLE_KEY` | Supabase service role (server-only) |
-| `STRIPE_SECRET_KEY` | Stripe API key |
-| `STRIPE_WEBHOOK_SECRET` | Stripe webhook signing secret |
-| `RESEND_API_KEY` | Resend email API key |
-| `CRON_SECRET` | Authenticates Vercel cron requests |
+| Variable                        | Description                         |
+| ------------------------------- | ----------------------------------- |
+| `NEXT_PUBLIC_SUPABASE_URL`      | Supabase project URL                |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase anonymous key              |
+| `SUPABASE_SERVICE_ROLE_KEY`     | Supabase service role (server-only) |
+| `STRIPE_SECRET_KEY`             | Stripe API key                      |
+| `STRIPE_WEBHOOK_SECRET`         | Stripe webhook signing secret       |
+| `RESEND_API_KEY`                | Resend email API key                |
+| `CRON_SECRET`                   | Authenticates Vercel cron requests  |
 
 ## CI Pipeline
 

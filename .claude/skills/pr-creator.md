@@ -20,22 +20,26 @@ git log --oneline -5
 ```
 
 **Verify before proceeding:**
+
 - There are changes to commit (staged or unstaged)
 - You're on a feature branch (not main/master) OR need to create one
 - The branch is not already ahead with unpushed commits that have a PR
 
 **If no changes exist:**
+
 - Inform the user: "No changes detected. Nothing to commit."
 - Stop here.
 
 ### Step 2: Create Branch (if needed)
 
 If currently on main/master:
+
 ```bash
 git checkout -b <descriptive-branch-name>
 ```
 
 Branch naming convention:
+
 - `feat/short-description` for features
 - `fix/short-description` for bug fixes
 - `refactor/short-description` for refactoring
@@ -55,6 +59,7 @@ EOF
 ```
 
 **Commit message guidelines:**
+
 - Use conventional commits: `feat:`, `fix:`, `refactor:`, `docs:`, `test:`, `chore:`
 - First line: 50 chars max, imperative mood
 - Body: wrap at 72 chars, explain what and why
@@ -98,6 +103,7 @@ gh run watch <run-id>
 
 - **STOP HERE** - do not merge
 - Report to user:
+
   ```
   PR is ready for review!
 
@@ -111,6 +117,7 @@ gh run watch <run-id>
 #### If CI Fails:
 
 1. **Get failure details:**
+
    ```bash
    gh run view <run-id> --log-failed
    ```
@@ -145,12 +152,12 @@ gh run watch <run-id>
 
 **Common failures and fixes:**
 
-| Failure | Likely Cause | Fix |
-|---------|--------------|-----|
-| Lint errors | Code style violations | Run `npm run lint -- --fix` or equivalent |
-| Type errors | TypeScript issues | Fix type annotations |
-| Test failures | Broken tests | Fix tests or update snapshots |
-| Build failures | Compilation errors | Fix syntax/import errors |
-| Timeout | Slow tests | Optimize or increase timeout |
+| Failure        | Likely Cause          | Fix                                       |
+| -------------- | --------------------- | ----------------------------------------- |
+| Lint errors    | Code style violations | Run `npm run lint -- --fix` or equivalent |
+| Type errors    | TypeScript issues     | Fix type annotations                      |
+| Test failures  | Broken tests          | Fix tests or update snapshots             |
+| Build failures | Compilation errors    | Fix syntax/import errors                  |
+| Timeout        | Slow tests            | Optimize or increase timeout              |
 
 **Read the logs carefully** - the error message usually tells you exactly what's wrong.

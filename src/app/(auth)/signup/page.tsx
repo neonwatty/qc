@@ -1,14 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 
 import { createClient } from '@/lib/supabase/client'
 
 export default function SignupPage() {
-  const router = useRouter()
-
   const [displayName, setDisplayName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
@@ -22,8 +19,7 @@ export default function SignupPage() {
     setLoading(true)
 
     const supabase = createClient()
-    const appUrl =
-      process.env.NEXT_PUBLIC_APP_URL ?? window.location.origin
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? window.location.origin
 
     const { error: signUpError } = await supabase.auth.signUp({
       email,
@@ -50,18 +46,12 @@ export default function SignupPage() {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
         <div className="w-full max-w-sm space-y-4 text-center">
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">
-            Check your email
-          </h1>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Check your email</h1>
           <p className="text-sm text-gray-600">
-            We sent a confirmation link to{' '}
-            <span className="font-medium">{email}</span>. Click the link to
-            activate your account.
+            We sent a confirmation link to <span className="font-medium">{email}</span>. Click the link to activate your
+            account.
           </p>
-          <Link
-            href="/login"
-            className="inline-block text-sm font-medium text-blue-600 hover:text-blue-500"
-          >
+          <Link href="/login" className="inline-block text-sm font-medium text-blue-600 hover:text-blue-500">
             Back to sign in
           </Link>
         </div>
@@ -73,32 +63,20 @@ export default function SignupPage() {
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center">
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">
-            Create your account
-          </h1>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Create your account</h1>
           <p className="mt-2 text-sm text-gray-600">
             Already have an account?{' '}
-            <Link
-              href="/login"
-              className="font-medium text-blue-600 hover:text-blue-500"
-            >
+            <Link href="/login" className="font-medium text-blue-600 hover:text-blue-500">
               Sign in
             </Link>
           </p>
         </div>
 
-        {error && (
-          <div className="rounded-md bg-red-50 p-3 text-sm text-red-700">
-            {error}
-          </div>
-        )}
+        {error && <div className="rounded-md bg-red-50 p-3 text-sm text-red-700">{error}</div>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label
-              htmlFor="display-name"
-              className="block text-sm font-medium text-gray-700"
-            >
+            <label htmlFor="display-name" className="block text-sm font-medium text-gray-700">
               Display name
             </label>
             <input
@@ -113,10 +91,7 @@ export default function SignupPage() {
           </div>
 
           <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
-            >
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
               Email
             </label>
             <input
@@ -131,10 +106,7 @@ export default function SignupPage() {
           </div>
 
           <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
-            >
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
               Password
             </label>
             <input

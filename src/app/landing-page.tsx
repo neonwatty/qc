@@ -1,0 +1,39 @@
+'use client'
+
+import Link from 'next/link'
+import { Heart } from 'lucide-react'
+import { Hero } from '@/components/Landing/Hero'
+import { FeatureGrid } from '@/components/Landing/FeatureGrid'
+
+export function LandingPage(): React.ReactNode {
+  return (
+    <main className="overflow-hidden">
+      {/* Minimal landing header */}
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-b border-gray-200/50 dark:border-gray-800/50">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
+          <div className="flex items-center gap-2">
+            <Heart className="w-6 h-6 text-pink-500 fill-current" />
+            <span className="text-xl font-semibold text-gray-900 dark:text-white">QC</span>
+          </div>
+          <div className="flex gap-3">
+            <Link
+              href="/login"
+              className="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            >
+              Sign In
+            </Link>
+            <Link
+              href="/signup"
+              className="rounded-lg bg-[hsl(var(--primary))] px-4 py-2 text-sm font-medium text-white transition-opacity hover:opacity-90"
+            >
+              Sign Up
+            </Link>
+          </div>
+        </div>
+      </nav>
+
+      <Hero />
+      <FeatureGrid />
+    </main>
+  )
+}

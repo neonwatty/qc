@@ -95,10 +95,12 @@ export const SwipeNavigation: React.FC<SwipeNavigationProps> = ({
         <div className="absolute inset-0 pointer-events-none">
           {dragOffset > 0 && enableBackSwipe && (
             <div className="absolute left-4 top-1/2 -translate-y-1/2">
-              <div className={cn(
-                'flex items-center justify-center w-12 h-12 bg-gray-100 rounded-full transition-all',
-                dragOffset > swipeThreshold ? 'bg-green-100 text-green-600 scale-110' : 'text-gray-400',
-              )}>
+              <div
+                className={cn(
+                  'flex items-center justify-center w-12 h-12 bg-gray-100 rounded-full transition-all',
+                  dragOffset > swipeThreshold ? 'bg-green-100 text-green-600 scale-110' : 'text-gray-400',
+                )}
+              >
                 <ArrowLeft className="h-6 w-6" />
               </div>
             </div>
@@ -106,10 +108,12 @@ export const SwipeNavigation: React.FC<SwipeNavigationProps> = ({
 
           {dragOffset < 0 && onSwipeLeft && (
             <div className="absolute right-4 top-1/2 -translate-y-1/2">
-              <div className={cn(
-                'flex items-center justify-center w-12 h-12 bg-gray-100 rounded-full transition-all',
-                Math.abs(dragOffset) > swipeThreshold ? 'bg-green-100 text-green-600 scale-110' : 'text-gray-400',
-              )}>
+              <div
+                className={cn(
+                  'flex items-center justify-center w-12 h-12 bg-gray-100 rounded-full transition-all',
+                  Math.abs(dragOffset) > swipeThreshold ? 'bg-green-100 text-green-600 scale-110' : 'text-gray-400',
+                )}
+              >
                 <ArrowRight className="h-6 w-6" />
               </div>
             </div>
@@ -143,14 +147,19 @@ export const CardStack: React.FC<CardStackProps> = ({
   const [currentCards, setCurrentCards] = React.useState(cards)
   const [exitDirection, setExitDirection] = React.useState<'left' | 'right' | null>(null)
 
-  React.useEffect(() => { setCurrentCards(cards) }, [cards])
+  React.useEffect(() => {
+    setCurrentCards(cards)
+  }, [cards])
 
   const handleSwipeLeft = () => {
     if (currentCards.length === 0) return
     const card = currentCards[0]
     setExitDirection('left')
     onSwipeLeft(card)
-    setTimeout(() => { setCurrentCards(prev => prev.slice(1)); setExitDirection(null) }, 300)
+    setTimeout(() => {
+      setCurrentCards((prev) => prev.slice(1))
+      setExitDirection(null)
+    }, 300)
   }
 
   const handleSwipeRight = () => {
@@ -158,7 +167,10 @@ export const CardStack: React.FC<CardStackProps> = ({
     const card = currentCards[0]
     setExitDirection('right')
     onSwipeRight(card)
-    setTimeout(() => { setCurrentCards(prev => prev.slice(1)); setExitDirection(null) }, 300)
+    setTimeout(() => {
+      setCurrentCards((prev) => prev.slice(1))
+      setExitDirection(null)
+    }, 300)
   }
 
   const visibleCards = currentCards.slice(0, maxVisible)
@@ -180,7 +192,11 @@ export const CardStack: React.FC<CardStackProps> = ({
               if (index !== 0) return
               const threshold = 100
               if (Math.abs(info.offset.x) > threshold || Math.abs(info.velocity.x) > 500) {
-                if (info.offset.x > 0) { handleSwipeRight() } else { handleSwipeLeft() }
+                if (info.offset.x > 0) {
+                  handleSwipeRight()
+                } else {
+                  handleSwipeLeft()
+                }
               }
             }}
             className="absolute inset-0 bg-white rounded-2xl shadow-lg border border-gray-200 cursor-grab active:cursor-grabbing"

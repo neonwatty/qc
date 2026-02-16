@@ -14,32 +14,26 @@ const PUBLIC_ROUTES = [
 ]
 
 function isPublicRoute(pathname: string): boolean {
-  return PUBLIC_ROUTES.some(
-    (route) => pathname === route || pathname.startsWith(route + '/'),
-  )
+  return PUBLIC_ROUTES.some((route) => pathname === route || pathname.startsWith(route + '/'))
 }
 
 function isAppRoute(pathname: string): boolean {
-  return pathname.startsWith('/dashboard')
-    || pathname.startsWith('/settings')
-    || pathname.startsWith('/check-in')
-    || pathname.startsWith('/notes')
-    || pathname.startsWith('/milestones')
-    || pathname.startsWith('/photos')
-    || pathname.startsWith('/love-languages')
+  return (
+    pathname.startsWith('/dashboard') ||
+    pathname.startsWith('/settings') ||
+    pathname.startsWith('/check-in') ||
+    pathname.startsWith('/notes') ||
+    pathname.startsWith('/milestones') ||
+    pathname.startsWith('/photos') ||
+    pathname.startsWith('/love-languages')
+  )
 }
 
 function addSecurityHeaders(response: NextResponse): void {
   response.headers.set('X-Frame-Options', 'DENY')
   response.headers.set('X-Content-Type-Options', 'nosniff')
-  response.headers.set(
-    'Referrer-Policy',
-    'strict-origin-when-cross-origin',
-  )
-  response.headers.set(
-    'Permissions-Policy',
-    'camera=(), microphone=(), geolocation=()',
-  )
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
+  response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()')
 }
 
 export async function updateSession(request: NextRequest) {
@@ -86,11 +80,7 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (user && (isAppRoute(pathname) || pathname === '/onboarding')) {
-    const { data: profile } = await supabase
-      .from('profiles')
-      .select('couple_id')
-      .eq('id', user.id)
-      .single()
+    const { data: profile } = await supabase.from('profiles').select('couple_id').eq('id', user.id).single()
 
     const hasCoupleId = !!profile?.couple_id
 

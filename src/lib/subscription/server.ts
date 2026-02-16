@@ -2,14 +2,7 @@ import type { Subscription, SubscriptionPlan } from '@/types'
 import { PLAN_CONFIG } from '@/lib/stripe/client'
 import { createClient } from '@/lib/supabase/server'
 
-type ActionType =
-  | 'check-in'
-  | 'note'
-  | 'milestone'
-  | 'photo-upload'
-  | 'reminder-email'
-  | 'love-language'
-  | 'export'
+type ActionType = 'check-in' | 'note' | 'milestone' | 'photo-upload' | 'reminder-email' | 'love-language' | 'export'
 
 interface ServerSubscription {
   plan: SubscriptionPlan
@@ -30,15 +23,9 @@ interface ServerSubscription {
 export async function getServerSubscription(userId: string): Promise<ServerSubscription> {
   const supabase = await createClient()
 
-  const { data } = await supabase
-    .from('subscriptions')
-    .select('*')
-    .eq('user_id', userId)
-    .single()
+  const { data } = await supabase.from('subscriptions').select('*').eq('user_id', userId).single()
 
-  const plan: SubscriptionPlan = data?.plan === 'pro' && data?.status === 'active'
-    ? 'pro'
-    : 'free'
+  const plan: SubscriptionPlan = data?.plan === 'pro' && data?.status === 'active' ? 'pro' : 'free'
 
   const config = PLAN_CONFIG[plan]
 
@@ -61,29 +48,29 @@ export async function getServerSubscription(userId: string): Promise<ServerSubsc
 
 const ACTION_LIMIT_MAP: Record<ActionType, keyof ServerSubscription['limits'] | null> = {
   'check-in': 'maxCheckInsPerMonth',
-  'note': 'maxNotes',
-  'milestone': 'maxMilestones',
+  note: 'maxNotes',
+  milestone: 'maxMilestones',
   'photo-upload': 'maxPhotoUploads',
   'reminder-email': 'maxReminderEmails',
   'love-language': 'maxLoveLanguages',
-  'export': null,
+  export: null,
 }
 
 const ACTION_LABELS: Record<ActionType, string> = {
   'check-in': 'check-ins this month',
-  'note': 'notes',
-  'milestone': 'milestones',
+  note: 'notes',
+  milestone: 'milestones',
   'photo-upload': 'photo uploads',
   'reminder-email': 'reminder emails',
   'love-language': 'love languages',
-  'export': 'exports',
+  export: 'exports',
 }
 
 export async function canUserDoAction(
   userId: string,
   action: ActionType,
   currentCount: number,
-): Promise<{ allowed: boolean, reason?: string }> {
+): Promise<{ allowed: boolean; reason?: string }> {
   const { limits, plan } = await getServerSubscription(userId)
 
   if (action === 'export') {

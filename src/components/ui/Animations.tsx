@@ -1,9 +1,6 @@
 'use client'
 
-import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-
-import { cn } from '@/lib/utils'
 
 export const HoverLift: React.FC<{
   children: React.ReactNode
@@ -17,11 +14,7 @@ export const HoverLift: React.FC<{
   }
 
   return (
-    <motion.div
-      className={className}
-      whileHover={liftValues[lift]}
-      transition={{ duration: 0.2, ease: 'easeOut' }}
-    >
+    <motion.div className={className} whileHover={liftValues[lift]} transition={{ duration: 0.2, ease: 'easeOut' }}>
       {children}
     </motion.div>
   )
@@ -33,11 +26,7 @@ export const TapScale: React.FC<{
   scale?: number
 }> = ({ children, className, scale = 0.95 }) => {
   return (
-    <motion.div
-      className={className}
-      whileTap={{ scale }}
-      transition={{ duration: 0.1 }}
-    >
+    <motion.div className={className} whileTap={{ scale }} transition={{ duration: 0.1 }}>
       {children}
     </motion.div>
   )
@@ -188,11 +177,7 @@ export const PulseGlow: React.FC<{
     <motion.div
       className={className}
       animate={{
-        boxShadow: [
-          `0 0 0 0px ${color}00`,
-          `0 0 0 8px ${color}20`,
-          `0 0 0 0px ${color}00`,
-        ],
+        boxShadow: [`0 0 0 0px ${color}00`, `0 0 0 8px ${color}20`, `0 0 0 0px ${color}00`],
       }}
       transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
     >

@@ -12,17 +12,8 @@ export const CountUp: React.FC<{
   className?: string
 }> = ({ to, duration = 1, className }) => {
   return (
-    <motion.span
-      className={className}
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      transition={{ duration: 0.2 }}
-    >
-      <motion.span
-        initial={{ scale: 0.8 }}
-        animate={{ scale: 1 }}
-        transition={{ duration, ease: 'easeOut' }}
-      >
+    <motion.span className={className} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
+      <motion.span initial={{ scale: 0.8 }} animate={{ scale: 1 }} transition={{ duration, ease: 'easeOut' }}>
         {to}
       </motion.span>
     </motion.span>
@@ -85,10 +76,7 @@ export const TypewriterText: React.FC<{
   return (
     <span className={className}>
       {displayedText}
-      <motion.span
-        animate={{ opacity: [1, 0] }}
-        transition={{ duration: 0.8, repeat: Infinity }}
-      >
+      <motion.span animate={{ opacity: [1, 0] }} transition={{ duration: 0.8, repeat: Infinity }}>
         |
       </motion.span>
     </span>
@@ -108,12 +96,7 @@ export const ProgressCircle: React.FC<{
 
   return (
     <div className={cn('relative', className)} style={{ width: size, height: size }}>
-      <svg
-        width={size}
-        height={size}
-        viewBox={`0 0 ${size} ${size}`}
-        className="transform -rotate-90"
-      >
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="transform -rotate-90">
         <circle
           cx={size / 2}
           cy={size / 2}

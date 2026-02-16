@@ -14,12 +14,15 @@ const touchButtonVariants = cva(
     variants: {
       variant: {
         default: 'bg-primary text-primary-foreground shadow hover:bg-primary/90 active:bg-primary/95',
-        destructive: 'bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 active:bg-destructive/95',
-        outline: 'border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground active:bg-accent/80',
+        destructive:
+          'bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90 active:bg-destructive/95',
+        outline:
+          'border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground active:bg-accent/80',
         secondary: 'bg-secondary text-secondary-foreground shadow-sm hover:bg-secondary/80 active:bg-secondary/90',
         ghost: 'hover:bg-accent hover:text-accent-foreground active:bg-accent/80',
         link: 'text-primary underline-offset-4 hover:underline active:underline',
-        floating: 'bg-primary text-primary-foreground shadow-lg hover:shadow-xl hover:bg-primary/90 active:bg-primary/95',
+        floating:
+          'bg-primary text-primary-foreground shadow-lg hover:shadow-xl hover:bg-primary/90 active:bg-primary/95',
         rounded: 'rounded-full bg-primary text-primary-foreground shadow hover:bg-primary/90 active:bg-primary/95',
       },
       size: {
@@ -55,8 +58,7 @@ const touchButtonVariants = cva(
 )
 
 export interface TouchButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
-    VariantProps<typeof touchButtonVariants> {
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>, VariantProps<typeof touchButtonVariants> {
   asChild?: boolean
   loading?: boolean
   leftIcon?: React.ReactNode
@@ -65,32 +67,38 @@ export interface TouchButtonProps
 }
 
 const TouchButton = React.forwardRef<HTMLButtonElement, TouchButtonProps>(
-  ({
-    className,
-    variant,
-    size,
-    pressStyle = 'scale',
-    haptic,
-    asChild = false,
-    loading = false,
-    leftIcon,
-    rightIcon,
-    hapticFeedback: hapticFeedbackProp,
-    children,
-    onClick,
-    ...props
-  }, ref) => {
+  (
+    {
+      className,
+      variant,
+      size,
+      pressStyle = 'scale',
+      haptic,
+      asChild = false,
+      loading = false,
+      leftIcon,
+      rightIcon,
+      hapticFeedback: hapticFeedbackProp,
+      children,
+      onClick,
+      ...props
+    },
+    ref,
+  ) => {
     const Comp = asChild ? Slot : 'button'
     const buttonRef = React.useRef<HTMLButtonElement>(null)
 
-    const combinedRef = React.useCallback((node: HTMLButtonElement) => {
-      buttonRef.current = node
-      if (typeof ref === 'function') {
-        ref(node)
-      } else if (ref) {
-        ref.current = node
-      }
-    }, [ref])
+    const combinedRef = React.useCallback(
+      (node: HTMLButtonElement) => {
+        buttonRef.current = node
+        if (typeof ref === 'function') {
+          ref(node)
+        } else if (ref) {
+          ref.current = node
+        }
+      },
+      [ref],
+    )
 
     React.useEffect(() => {
       const element = buttonRef.current
@@ -123,15 +131,9 @@ const TouchButton = React.forwardRef<HTMLButtonElement, TouchButtonProps>(
         {loading && (
           <div className="animate-spin rounded-full h-4 w-4 border-2 border-current border-t-transparent mr-2" />
         )}
-        {leftIcon && !loading && (
-          <span className="flex-shrink-0">{leftIcon}</span>
-        )}
-        <span className="flex-1 truncate">
-          {children}
-        </span>
-        {rightIcon && (
-          <span className="flex-shrink-0">{rightIcon}</span>
-        )}
+        {leftIcon && !loading && <span className="flex-shrink-0">{leftIcon}</span>}
+        <span className="flex-1 truncate">{children}</span>
+        {rightIcon && <span className="flex-shrink-0">{rightIcon}</span>}
       </Comp>
     )
 
@@ -167,13 +169,7 @@ FAB.displayName = 'FAB'
 
 const IconButton = React.forwardRef<HTMLButtonElement, TouchButtonProps>(
   ({ className, size = 'icon', variant = 'ghost', ...props }, ref) => (
-    <TouchButton
-      ref={ref}
-      className={cn('flex-shrink-0', className)}
-      size={size}
-      variant={variant}
-      {...props}
-    />
+    <TouchButton ref={ref} className={cn('flex-shrink-0', className)} size={size} variant={variant} {...props} />
   ),
 )
 IconButton.displayName = 'IconButton'
@@ -194,22 +190,9 @@ PrimaryButton.displayName = 'PrimaryButton'
 
 const MobileButton = React.forwardRef<HTMLButtonElement, TouchButtonProps>(
   ({ className, size = 'lg', pressStyle = 'scale', ...props }, ref) => (
-    <TouchButton
-      ref={ref}
-      className={cn('w-full', className)}
-      size={size}
-      pressStyle={pressStyle}
-      {...props}
-    />
+    <TouchButton ref={ref} className={cn('w-full', className)} size={size} pressStyle={pressStyle} {...props} />
   ),
 )
 MobileButton.displayName = 'MobileButton'
 
-export {
-  TouchButton,
-  FAB,
-  IconButton,
-  PrimaryButton,
-  MobileButton,
-  touchButtonVariants,
-}
+export { TouchButton, FAB, IconButton, PrimaryButton, MobileButton, touchButtonVariants }

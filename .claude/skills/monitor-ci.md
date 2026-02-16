@@ -28,16 +28,16 @@ gh run view <run-id> --log-failed
 
    **Common failure patterns and fixes:**
 
-   | Pattern | Cause | Fix |
-   |---------|-------|-----|
-   | `npm ci` fails | Lock file mismatch | Run `npm install` and commit `package-lock.json` |
-   | ESLint errors | Code style violations | Run `npx eslint --fix .` |
-   | Type errors | TypeScript strictness | Fix the reported type issues |
-   | Test failures | Broken tests or logic | Check test output for assertion failures |
-   | Build failures | Import/export issues | Check for missing modules or circular deps |
-   | Playwright failures | E2E test flakes | Check screenshots, retry flaky tests |
-   | Supabase start fails | Port conflicts | Check if local Supabase is running |
-   | OOM errors | Memory limits | Optimize build or increase Node memory |
+   | Pattern              | Cause                 | Fix                                              |
+   | -------------------- | --------------------- | ------------------------------------------------ |
+   | `npm ci` fails       | Lock file mismatch    | Run `npm install` and commit `package-lock.json` |
+   | ESLint errors        | Code style violations | Run `npx eslint --fix .`                         |
+   | Type errors          | TypeScript strictness | Fix the reported type issues                     |
+   | Test failures        | Broken tests or logic | Check test output for assertion failures         |
+   | Build failures       | Import/export issues  | Check for missing modules or circular deps       |
+   | Playwright failures  | E2E test flakes       | Check screenshots, retry flaky tests             |
+   | Supabase start fails | Port conflicts        | Check if local Supabase is running               |
+   | OOM errors           | Memory limits         | Optimize build or increase Node memory           |
 
 5. Output format:
 

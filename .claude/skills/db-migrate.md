@@ -7,9 +7,11 @@ Create a new Supabase database migration and apply it locally.
 ## Instructions
 
 1. Generate a timestamped SQL migration file in `supabase/migrations/` using the format:
+
    ```
    YYYYMMDDHHMMSS_description.sql
    ```
+
    Use the current UTC timestamp and a snake_case description of the change.
 
 2. Write the SQL migration with:
@@ -23,6 +25,7 @@ Create a new Supabase database migration and apply it locally.
    - Appropriate indexes for foreign keys and frequently queried columns
 
 3. Apply the migration locally:
+
    ```bash
    supabase db push
    ```

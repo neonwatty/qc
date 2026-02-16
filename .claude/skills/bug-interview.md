@@ -26,6 +26,7 @@ Use AskUserQuestion repeatedly to diagnose the bug from multiple angles. **Do no
 #### Question Categories (explore all relevant ones):
 
 **Reproduction**
+
 - Exact steps to reproduce—what's the minimum path?
 - Does it happen every time or intermittently?
 - Can you reproduce in incognito/fresh browser?
@@ -33,6 +34,7 @@ Use AskUserQuestion repeatedly to diagnose the bug from multiple angles. **Do no
 - Is there a specific sequence of actions that triggers it?
 
 **Environment & Context**
+
 - Which browsers/devices have you tested?
 - Local dev, staging, or production?
 - Any browser extensions that might interfere?
@@ -40,6 +42,7 @@ Use AskUserQuestion repeatedly to diagnose the bug from multiple angles. **Do no
 - Screen size or zoom level relevant?
 
 **Timing & Patterns**
+
 - When did this start happening?
 - What changed recently? (deploys, dependencies, data)
 - Does it happen after specific user actions?
@@ -47,6 +50,7 @@ Use AskUserQuestion repeatedly to diagnose the bug from multiple angles. **Do no
 - Does refreshing fix it? For how long?
 
 **Observed Behavior**
+
 - What exactly do you see? (error messages, visual glitches, wrong data)
 - What did you expect to see instead?
 - Any console errors or network failures?
@@ -54,6 +58,7 @@ Use AskUserQuestion repeatedly to diagnose the bug from multiple angles. **Do no
 - Is data actually wrong, or just displayed wrong?
 
 **Impact & Scope**
+
 - How many users are affected?
 - Is there a workaround?
 - What's blocked by this bug?
@@ -61,6 +66,7 @@ Use AskUserQuestion repeatedly to diagnose the bug from multiple angles. **Do no
 - Any related symptoms you've noticed?
 
 **Prior Investigation**
+
 - What have you already tried?
 - Any theories on what might be causing it?
 - Have you seen similar bugs before?
@@ -68,6 +74,7 @@ Use AskUserQuestion repeatedly to diagnose the bug from multiple angles. **Do no
 - Relevant logs or error messages you've captured?
 
 **Isolation**
+
 - Does it happen with specific data or all data?
 - If you simplify the scenario, does it still happen?
 - Can you trigger it with dev tools open?
@@ -76,6 +83,7 @@ Use AskUserQuestion repeatedly to diagnose the bug from multiple angles. **Do no
 ### Phase 3: Synthesis
 
 After gathering enough information (typically 4-8 rounds of questions), summarize:
+
 1. Confirmed symptoms
 2. Reproduction steps (if known)
 3. Environmental factors
@@ -124,30 +132,34 @@ Create a detailed investigation/fix plan at `.claude/plans/bug-<bug-name>.md` us
 ## Investigation Plan
 
 ### Phase 1: Confirm & Isolate
+
 1. [ ] Reproduce locally with exact steps
 2. [ ] Check console/network for errors
 3. [ ] Identify minimal reproduction case
 
 ### Phase 2: Locate Root Cause
+
 1. [ ] Examine [suspected component/file]
 2. [ ] Add logging at [specific points]
 3. [ ] Check for [specific conditions]
 
 ### Phase 3: Fix & Verify
+
 1. [ ] Implement fix in [location]
 2. [ ] Verify fix resolves reproduction case
 3. [ ] Test related scenarios for regression
 
 ## Hypotheses
 
-| Theory | Evidence For | Evidence Against | Test |
-|--------|--------------|------------------|------|
-| Theory 1 | Evidence | Counter-evidence | How to verify |
-| Theory 2 | Evidence | Counter-evidence | How to verify |
+| Theory   | Evidence For | Evidence Against | Test          |
+| -------- | ------------ | ---------------- | ------------- |
+| Theory 1 | Evidence     | Counter-evidence | How to verify |
+| Theory 2 | Evidence     | Counter-evidence | How to verify |
 
 ## Affected Code
 
 Files likely involved:
+
 - `path/to/file.ts` - [Why suspected]
 - `path/to/other.ts` - [Why suspected]
 
@@ -182,6 +194,7 @@ Files likely involved:
 ## When to Stop Interviewing
 
 Stop when:
+
 - You have a clear reproduction path
 - You have enough context to start investigating code
 - You've identified the likely area of the codebase

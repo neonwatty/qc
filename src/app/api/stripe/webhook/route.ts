@@ -14,11 +14,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   let event: Stripe.Event
   try {
-    event = stripe.webhooks.constructEvent(
-      body,
-      signature,
-      process.env.STRIPE_WEBHOOK_SECRET!,
-    )
+    event = stripe.webhooks.constructEvent(body, signature, process.env.STRIPE_WEBHOOK_SECRET!)
   } catch {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 400 })
   }
@@ -53,7 +49,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         .from('subscriptions')
         .update({
           status,
-          current_period_end: new Date(subscription.current_period_end * 1000).toISOString(),
+          current_period_end: new Date(
+            (subscription as unknown as { current_period_end: number }).current_period_end * 1000,
+          ).toISOString(),
           updated_at: new Date().toISOString(),
         })
         .eq('stripe_subscription_id', subscription.id)

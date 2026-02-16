@@ -26,6 +26,7 @@ Use AskUserQuestion repeatedly to explore the feature from multiple angles. **Do
 #### Question Categories (explore all relevant ones):
 
 **Technical Architecture**
+
 - How does this interact with existing state/data flows?
 - What happens if this operation fails halfway through?
 - Are there race conditions or timing issues to consider?
@@ -33,6 +34,7 @@ Use AskUserQuestion repeatedly to explore the feature from multiple angles. **Do
 - Performance implications at scale?
 
 **User Experience**
+
 - What's the user's mental model here? Does our UI match it?
 - What happens on slow connections or failed requests?
 - How do we handle undo/recovery?
@@ -41,18 +43,21 @@ Use AskUserQuestion repeatedly to explore the feature from multiple angles. **Do
 - Mobile vs desktop behavior differences?
 
 **Edge Cases**
+
 - What if the user has no data? Too much data?
 - What if they're mid-action and navigate away?
 - Multiple users/tabs editing simultaneously?
 - What are the invalid states we need to prevent?
 
 **Scope & Tradeoffs**
+
 - What's explicitly out of scope for v1?
 - If you had to cut 50% of this feature, what stays?
 - What's the simplest version that still delivers value?
 - Are there existing patterns in the codebase we should follow?
 
 **Integration & Dependencies**
+
 - How does this affect existing features?
 - Will this require API changes?
 - Testing strategy—what's hard to test here?
@@ -61,6 +66,7 @@ Use AskUserQuestion repeatedly to explore the feature from multiple angles. **Do
 ### Phase 3: Synthesis
 
 After gathering enough information (typically 5-10 rounds of questions), summarize:
+
 1. Core feature requirements
 2. Key design decisions made
 3. Edge cases to handle
@@ -85,47 +91,56 @@ Create a detailed implementation plan at `.claude/plans/<feature-name>.md` using
 ## Requirements
 
 ### Must Have
+
 - [ ] Requirement 1
 - [ ] Requirement 2
 
 ### Should Have
+
 - [ ] Requirement 1
 
 ### Out of Scope
+
 - Item 1
 - Item 2
 
 ## Technical Design
 
 ### Architecture
+
 [How this fits into existing system, data flow, state changes]
 
 ### Key Components
+
 [Components to create/modify with responsibilities]
 
 ### Data Model
+
 [Schema changes, new types, state shape]
 
 ## Implementation Plan
 
 ### Phase 1: [Foundation]
+
 1. Step 1
 2. Step 2
 
 ### Phase 2: [Core Feature]
+
 1. Step 1
 2. Step 2
 
 ### Phase 3: [Polish]
+
 1. Step 1
 2. Step 2
 
 ## Edge Cases & Error Handling
 
 | Scenario | Handling |
-|----------|----------|
-| Case 1 | Approach |
-| Case 2 | Approach |
+| -------- | -------- |
+| Case 1   | Approach |
+| Case 2   | Approach |
 
 ## Testing Strategy
 
@@ -140,9 +155,9 @@ Create a detailed implementation plan at `.claude/plans/<feature-name>.md` using
 
 ## Design Decisions Log
 
-| Decision | Rationale | Alternatives Considered |
-|----------|-----------|------------------------|
-| Decision 1 | Why | What else |
+| Decision   | Rationale | Alternatives Considered |
+| ---------- | --------- | ----------------------- |
+| Decision 1 | Why       | What else               |
 ```
 
 ## Interview Style Guidelines
@@ -157,6 +172,7 @@ Create a detailed implementation plan at `.claude/plans/<feature-name>.md` using
 ## When to Stop Interviewing
 
 Stop when:
+
 - You have enough detail to write the implementation plan
 - Further questions would be speculative or premature optimization
 - The user signals they want to move to planning

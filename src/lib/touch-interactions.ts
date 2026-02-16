@@ -1,13 +1,15 @@
-// Touch interaction utilities for mobile optimization
-
-export function optimizeForTouch(element: HTMLElement, options?: {
-  enableRipple?: boolean
-  preventContextMenu?: boolean
-}) {
-  // Mock implementation
-  return () => {} // cleanup function
+export function optimizeForTouch(
+  element: HTMLElement,
+  options?: {
+    enableRipple?: boolean
+    preventContextMenu?: boolean
+  },
+): () => void {
+  void element
+  void options
+  return () => {}
 }
 
-export function ensureTouchTarget(element: HTMLElement) {
-  // Mock implementation
+export function ensureTouchTarget(element: HTMLElement): void {
+  void element
 }

@@ -13,29 +13,29 @@ Generate Vitest unit tests for a given source file. Uses @testing-library/react 
 2. For utility/library tests:
 
 ```typescript
-import { describe, it, expect, vi } from "vitest";
-import { myFunction } from "./my-module";
+import { describe, it, expect, vi } from 'vitest'
+import { myFunction } from './my-module'
 
-describe("myFunction", () => {
-  it("should handle the expected case", () => {
+describe('myFunction', () => {
+  it('should handle the expected case', () => {
     // Arrange
-    const input = "test-input";
+    const input = 'test-input'
 
     // Act
-    const result = myFunction(input);
+    const result = myFunction(input)
 
     // Assert
-    expect(result).toBe("expected-output");
-  });
+    expect(result).toBe('expected-output')
+  })
 
-  it("should handle edge cases", () => {
+  it('should handle edge cases', () => {
     // Arrange
-    const input = "";
+    const input = ''
 
     // Act & Assert
-    expect(() => myFunction(input)).toThrow("Invalid input");
-  });
-});
+    expect(() => myFunction(input)).toThrow('Invalid input')
+  })
+})
 ```
 
 3. For React component tests:

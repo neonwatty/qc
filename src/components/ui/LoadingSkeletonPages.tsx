@@ -1,7 +1,5 @@
 'use client'
 
-import React from 'react'
-
 import { Skeleton, CardSkeleton, ListItemSkeleton } from '@/components/ui/LoadingSkeleton'
 
 export function DashboardSkeleton() {

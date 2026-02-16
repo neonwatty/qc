@@ -6,40 +6,35 @@ import { motion } from 'framer-motion'
 
 import { cn } from '@/lib/utils'
 
-const cardVariants = cva(
-  'rounded-lg border bg-card text-card-foreground shadow-sm transition-all duration-200',
-  {
-    variants: {
-      variant: {
-        default: 'border-border',
-        elevated: 'shadow-md hover:shadow-lg',
-        interactive: 'cursor-pointer hover:shadow-md active:scale-[0.98] transition-transform',
-        outlined: 'border-2 border-primary/20 hover:border-primary/40',
-        filled: 'bg-primary/5 border-primary/20',
-      },
-      padding: {
-        default: '',
-        compact: '[&>*]:px-4 [&>*]:py-3',
-        comfortable: '[&>*]:px-6 [&>*]:py-6',
-        spacious: '[&>*]:px-8 [&>*]:py-8',
-      },
-      touchTarget: {
-        default: '',
-        large: 'min-h-[44px]',
-        xl: 'min-h-[56px]',
-      },
+const cardVariants = cva('rounded-lg border bg-card text-card-foreground shadow-sm transition-all duration-200', {
+  variants: {
+    variant: {
+      default: 'border-border',
+      elevated: 'shadow-md hover:shadow-lg',
+      interactive: 'cursor-pointer hover:shadow-md active:scale-[0.98] transition-transform',
+      outlined: 'border-2 border-primary/20 hover:border-primary/40',
+      filled: 'bg-primary/5 border-primary/20',
     },
-    defaultVariants: {
-      variant: 'default',
-      padding: 'default',
-      touchTarget: 'default',
+    padding: {
+      default: '',
+      compact: '[&>*]:px-4 [&>*]:py-3',
+      comfortable: '[&>*]:px-6 [&>*]:py-6',
+      spacious: '[&>*]:px-8 [&>*]:py-8',
+    },
+    touchTarget: {
+      default: '',
+      large: 'min-h-[44px]',
+      xl: 'min-h-[56px]',
     },
   },
-)
+  defaultVariants: {
+    variant: 'default',
+    padding: 'default',
+    touchTarget: 'default',
+  },
+})
 
-export interface CardProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof cardVariants> {
+export interface CardProps extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof cardVariants> {
   asChild?: boolean
   pressable?: boolean
   onPress?: () => void
@@ -64,22 +59,23 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
         onClick={onPress}
         role={isInteractive ? 'button' : undefined}
         tabIndex={isInteractive ? 0 : undefined}
-        onKeyDown={isInteractive ? (e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault()
-            onPress?.()
-          }
-        } : undefined}
+        onKeyDown={
+          isInteractive
+            ? (e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault()
+                  onPress?.()
+                }
+              }
+            : undefined
+        }
         {...props}
       />
     )
 
     if (isInteractive) {
       return (
-        <motion.div
-          whileTap={{ scale: 0.98 }}
-          transition={{ duration: 0.1 }}
-        >
+        <motion.div whileTap={{ scale: 0.98 }} transition={{ duration: 0.1 }}>
           {cardContent}
         </motion.div>
       )
@@ -90,63 +86,41 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
 )
 Card.displayName = 'Card'
 
-const CardHeader = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn('flex flex-col space-y-1.5 p-4 sm:p-6', className)}
-    {...props}
-  />
-))
+const CardHeader = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => (
+    <div ref={ref} className={cn('flex flex-col space-y-1.5 p-4 sm:p-6', className)} {...props} />
+  ),
+)
 CardHeader.displayName = 'CardHeader'
 
-const CardTitle = React.forwardRef<
-  HTMLParagraphElement,
-  React.HTMLAttributes<HTMLHeadingElement>
->(({ className, ...props }, ref) => (
-  <h3
-    ref={ref}
-    className={cn(
-      'text-lg sm:text-xl font-semibold leading-none tracking-tight',
-      className,
-    )}
-    {...props}
-  />
-))
+const CardTitle = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLHeadingElement>>(
+  ({ className, ...props }, ref) => (
+    <h3
+      ref={ref}
+      className={cn('text-lg sm:text-xl font-semibold leading-none tracking-tight', className)}
+      {...props}
+    />
+  ),
+)
 CardTitle.displayName = 'CardTitle'
 
-const CardDescription = React.forwardRef<
-  HTMLParagraphElement,
-  React.HTMLAttributes<HTMLParagraphElement>
->(({ className, ...props }, ref) => (
-  <p
-    ref={ref}
-    className={cn('text-sm text-muted-foreground leading-relaxed', className)}
-    {...props}
-  />
-))
+const CardDescription = React.forwardRef<HTMLParagraphElement, React.HTMLAttributes<HTMLParagraphElement>>(
+  ({ className, ...props }, ref) => (
+    <p ref={ref} className={cn('text-sm text-muted-foreground leading-relaxed', className)} {...props} />
+  ),
+)
 CardDescription.displayName = 'CardDescription'
 
-const CardContent = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div ref={ref} className={cn('p-4 pt-0 sm:p-6 sm:pt-0', className)} {...props} />
-))
+const CardContent = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => <div ref={ref} className={cn('p-4 pt-0 sm:p-6 sm:pt-0', className)} {...props} />,
+)
 CardContent.displayName = 'CardContent'
 
-const CardFooter = React.forwardRef<
-  HTMLDivElement,
-  React.HTMLAttributes<HTMLDivElement>
->(({ className, ...props }, ref) => (
-  <div
-    ref={ref}
-    className={cn('flex items-center p-4 pt-0 sm:p-6 sm:pt-0', className)}
-    {...props}
-  />
-))
+const CardFooter = React.forwardRef<HTMLDivElement, React.HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...props }, ref) => (
+    <div ref={ref} className={cn('flex items-center p-4 pt-0 sm:p-6 sm:pt-0', className)} {...props} />
+  ),
+)
 CardFooter.displayName = 'CardFooter'
 
 const MobileCard = React.forwardRef<HTMLDivElement, CardProps>(
