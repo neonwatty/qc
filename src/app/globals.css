@@ -1,36 +1,239 @@
 @import 'tailwindcss';
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --border: oklch(0.922 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.985 0 0);
+  --background: 0 0% 99%;
+  --foreground: 210 15% 25%;
+  --card: 0 0% 100%;
+  --card-foreground: 210 15% 25%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 210 15% 25%;
+  --primary: 350 85% 50%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 15 90% 65%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 20 40% 98%;
+  --muted-foreground: 210 15% 60%;
+  --accent: 25 95% 75%;
+  --accent-foreground: 210 15% 25%;
+  --destructive: 0 70% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 20 25% 92%;
+  --input: 20 25% 96%;
+  --ring: 350 85% 60%;
+  --radius: 1.5rem;
+
+  /* QC custom color palette */
+  --coral-primary: 350 85% 60%;
+  --coral-light: 350 80% 75%;
+  --coral-lighter: 350 70% 85%;
+  --peach: 25 95% 75%;
+  --peach-light: 25 90% 85%;
+  --blush: 340 75% 80%;
+  --rose-gold: 20 50% 80%;
+  --warm-gray: 210 15% 95%;
+  --soft-shadow: 210 15% 85%;
 }
 
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --border: oklch(0.269 0 0);
-  --muted: oklch(0.205 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --primary: oklch(0.985 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.396 0.141 25.723);
-  --destructive-foreground: oklch(0.985 0 0);
+  --background: 220 20% 10%;
+  --foreground: 0 0% 95%;
+  --card: 220 20% 13%;
+  --card-foreground: 0 0% 95%;
+  --popover: 220 20% 13%;
+  --popover-foreground: 0 0% 95%;
+  --primary: 350 85% 60%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 15 70% 55%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 220 15% 18%;
+  --muted-foreground: 210 10% 60%;
+  --accent: 25 80% 60%;
+  --accent-foreground: 0 0% 95%;
+  --destructive: 0 70% 50%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 220 15% 22%;
+  --input: 220 15% 20%;
+  --ring: 350 85% 55%;
+
+  /* QC dark mode custom colors */
+  --coral-primary: 350 80% 55%;
+  --coral-light: 350 70% 65%;
+  --coral-lighter: 350 60% 40%;
+  --peach: 25 80% 60%;
+  --peach-light: 25 70% 45%;
+  --blush: 340 65% 55%;
+  --rose-gold: 20 40% 55%;
+  --warm-gray: 220 15% 18%;
+  --soft-shadow: 220 15% 12%;
 }
 
 @layer base {
   * {
-    border-color: var(--border);
+    border-color: hsl(var(--border));
   }
 
   body {
-    background-color: var(--background);
-    color: var(--foreground);
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
   }
+}
+
+/* =====================================================
+   MOBILE TOUCH OPTIMIZATIONS
+   ===================================================== */
+
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.touch-manipulation {
+  touch-action: manipulation;
+}
+
+.touch-feedback-scale {
+  transition: transform 0.15s ease-in-out;
+}
+
+.touch-feedback-scale:active {
+  transform: scale(0.95);
+}
+
+.gpu-accelerated {
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+  will-change: transform;
+}
+
+/* Safe area support for devices with notches */
+.safe-area-inset {
+  padding-top: env(safe-area-inset-top);
+  padding-right: env(safe-area-inset-right);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+}
+
+.safe-area-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.scroll-smooth {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+}
+
+.scrollbar-hidden {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
+}
+
+.mobile-input {
+  font-size: 16px;
+  line-height: 1.4;
+  touch-action: manipulation;
+}
+
+/* =====================================================
+   GRADIENTS AND EFFECTS
+   ===================================================== */
+
+.gradient-primary {
+  background: linear-gradient(135deg, hsl(var(--coral-primary)), hsl(var(--coral-light)));
+}
+
+.gradient-warm {
+  background: linear-gradient(135deg, hsl(var(--coral-light)), hsl(var(--peach)), hsl(var(--peach-light)));
+}
+
+.gradient-soft-coral {
+  background: linear-gradient(135deg, hsl(var(--coral-lighter)), hsl(var(--blush)));
+}
+
+.gradient-sunset {
+  background: linear-gradient(135deg, #ff7b7b, #ffb6c1, #ffa07a);
+}
+
+.gradient-blush {
+  background: linear-gradient(135deg, #ffe4e1, #fff0f5, #ffeef0);
+}
+
+.gradient-peach-dream {
+  background: linear-gradient(135deg, #ffcccb, #ffb6c1, #ffdab9);
+}
+
+.gradient-romantic {
+  background: linear-gradient(135deg, #fff0f5, #ffe4e6, #ffeef0);
+}
+
+.gradient-animated {
+  background: linear-gradient(270deg, hsl(var(--primary)), hsl(var(--secondary)), hsl(var(--accent)), hsl(var(--primary)));
+  background-size: 400% 400%;
+  animation: gradientShift 15s ease infinite;
+}
+
+@keyframes gradientShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: shimmer 2s infinite;
+}
+
+.glass-colorful {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05));
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.shadow-primary {
+  box-shadow: 0 4px 20px -2px hsla(var(--primary), 0.3);
+}
+
+.shadow-secondary {
+  box-shadow: 0 4px 20px -2px hsla(var(--secondary), 0.3);
+}
+
+.shadow-accent {
+  box-shadow: 0 4px 20px -2px hsla(var(--accent), 0.3);
+}
+
+.hover-lift {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px -4px hsla(var(--primary), 0.3);
+}
+
+.text-gradient-primary {
+  background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--secondary)));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-warm {
+  background: linear-gradient(135deg, hsl(var(--coral-primary)), hsl(var(--peach)));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }

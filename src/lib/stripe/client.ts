@@ -9,29 +9,34 @@ export const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 
 interface PlanConfig {
   name: string
-  maxItems: number
-  features: string[]
+  maxCheckInsPerMonth: number
+  maxNotes: number
+  maxMilestones: number
+  maxPhotoUploads: number
+  maxReminderEmails: number
+  maxLoveLanguages: number
+  canExport: boolean
 }
 
 export const PLAN_CONFIG: Record<SubscriptionPlan, PlanConfig> = {
   free: {
     name: 'Free',
-    maxItems: 10,
-    features: [
-      'Up to 10 items',
-      'Basic analytics',
-      'Community support',
-    ],
+    maxCheckInsPerMonth: 4,
+    maxNotes: 20,
+    maxMilestones: 5,
+    maxPhotoUploads: 0,
+    maxReminderEmails: 0,
+    maxLoveLanguages: 3,
+    canExport: false,
   },
   pro: {
     name: 'Pro',
-    maxItems: 1000,
-    features: [
-      'Up to 1,000 items',
-      'Advanced analytics',
-      'Priority support',
-      'Custom integrations',
-      'API access',
-    ],
+    maxCheckInsPerMonth: Infinity,
+    maxNotes: Infinity,
+    maxMilestones: Infinity,
+    maxPhotoUploads: Infinity,
+    maxReminderEmails: Infinity,
+    maxLoveLanguages: Infinity,
+    canExport: true,
   },
-}
+} as const

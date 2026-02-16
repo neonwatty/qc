@@ -9,12 +9,24 @@ const PUBLIC_ROUTES = [
   '/api/stripe/webhook',
   '/api/email/webhook',
   '/api/cron',
+  '/onboarding',
+  '/invite',
 ]
 
 function isPublicRoute(pathname: string): boolean {
   return PUBLIC_ROUTES.some(
     (route) => pathname === route || pathname.startsWith(route + '/'),
   )
+}
+
+function isAppRoute(pathname: string): boolean {
+  return pathname.startsWith('/dashboard')
+    || pathname.startsWith('/settings')
+    || pathname.startsWith('/check-in')
+    || pathname.startsWith('/notes')
+    || pathname.startsWith('/milestones')
+    || pathname.startsWith('/photos')
+    || pathname.startsWith('/love-languages')
 }
 
 function addSecurityHeaders(response: NextResponse): void {
@@ -39,23 +51,24 @@ export async function updateSession(request: NextRequest) {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
-    cookies: {
-      getAll() {
-        return request.cookies.getAll()
-      },
-      setAll(cookiesToSet) {
-        for (const { name, value } of cookiesToSet) {
-          request.cookies.set(name, value)
-        }
-        response = NextResponse.next({
-          request: { headers: request.headers },
-        })
-        for (const { name, value, options } of cookiesToSet) {
-          response.cookies.set(name, value, options)
-        }
+      cookies: {
+        getAll() {
+          return request.cookies.getAll()
+        },
+        setAll(cookiesToSet) {
+          for (const { name, value } of cookiesToSet) {
+            request.cookies.set(name, value)
+          }
+          response = NextResponse.next({
+            request: { headers: request.headers },
+          })
+          for (const { name, value, options } of cookiesToSet) {
+            response.cookies.set(name, value, options)
+          }
+        },
       },
     },
-  })
+  )
 
   const {
     data: { user },
@@ -68,6 +81,34 @@ export async function updateSession(request: NextRequest) {
     redirectUrl.pathname = '/login'
     redirectUrl.searchParams.set('redirect', pathname)
     response = NextResponse.redirect(redirectUrl)
+    addSecurityHeaders(response)
+    return response
+  }
+
+  if (user && (isAppRoute(pathname) || pathname === '/onboarding')) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('couple_id')
+      .eq('id', user.id)
+      .single()
+
+    const hasCoupleId = !!profile?.couple_id
+
+    if (!hasCoupleId && isAppRoute(pathname)) {
+      const redirectUrl = request.nextUrl.clone()
+      redirectUrl.pathname = '/onboarding'
+      response = NextResponse.redirect(redirectUrl)
+      addSecurityHeaders(response)
+      return response
+    }
+
+    if (hasCoupleId && pathname === '/onboarding') {
+      const redirectUrl = request.nextUrl.clone()
+      redirectUrl.pathname = '/dashboard'
+      response = NextResponse.redirect(redirectUrl)
+      addSecurityHeaders(response)
+      return response
+    }
   }
 
   addSecurityHeaders(response)

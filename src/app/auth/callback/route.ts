@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/server'
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
-  const redirect = searchParams.get('redirect') ?? '/dashboard'
+  const redirect = searchParams.get('redirect')
 
   if (!code) {
     return NextResponse.redirect(
@@ -14,7 +14,7 @@ export async function GET(request: Request) {
   }
 
   const supabase = await createClient()
-  const { error } = await supabase.auth.exchangeCodeForSession(code)
+  const { data: sessionData, error } = await supabase.auth.exchangeCodeForSession(code)
 
   if (error) {
     return NextResponse.redirect(
@@ -22,5 +22,18 @@ export async function GET(request: Request) {
     )
   }
 
-  return NextResponse.redirect(`${origin}${redirect}`)
+  const userId = sessionData.user?.id
+  if (userId) {
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('couple_id')
+      .eq('id', userId)
+      .single()
+
+    if (!profile?.couple_id) {
+      return NextResponse.redirect(`${origin}/onboarding`)
+    }
+  }
+
+  return NextResponse.redirect(`${origin}${redirect ?? '/dashboard'}`)
 }
