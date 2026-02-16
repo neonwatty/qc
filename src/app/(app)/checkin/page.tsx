@@ -10,37 +10,18 @@ import { useSessionSettings } from '@/contexts/SessionSettingsContext'
 import { SessionRulesCard } from '@/components/checkin/SessionRulesCard'
 import { useBookends } from '@/contexts/BookendsContext'
 import { PreparationModal } from '@/components/bookends/PreparationModal'
-import { ReflectionForm } from '@/components/bookends/ReflectionForm'
 import { useCheckInContext } from '@/contexts/CheckInContext'
+import { ProgressBar } from '@/components/checkin/ProgressBar'
+import {
+  CHECK_IN_CATEGORIES,
+  CategorySelectionStep,
+  CategoryDiscussionStep,
+  ReflectionStep,
+  ActionItemsStep,
+  CompletionStep,
+} from './steps'
 
 import type { SessionSettings } from '@/types'
-
-const CHECK_IN_CATEGORIES = [
-  {
-    id: 'emotional',
-    name: 'Emotional Connection',
-    description: 'How connected and understood do you feel?',
-    icon: '💕',
-  },
-  {
-    id: 'communication',
-    name: 'Communication',
-    description: 'How well are you communicating with each other?',
-    icon: '💬',
-  },
-  {
-    id: 'intimacy',
-    name: 'Physical & Emotional Intimacy',
-    description: 'How satisfied are you with closeness and intimacy?',
-    icon: '🤗',
-  },
-  {
-    id: 'goals',
-    name: 'Shared Goals & Future',
-    description: 'Are you aligned on your future together?',
-    icon: '🎯',
-  },
-]
 
 interface SessionRulesSectionProps {
   settings: SessionSettings
@@ -107,12 +88,12 @@ function QuickStartSection({ topicCount, onPrepare, onStart }: QuickStartSection
   )
 }
 
-export default function CheckInPage(): React.ReactNode {
+function CheckInLanding(): React.ReactNode {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const { getActiveSettings } = useSessionSettings()
   const sessionSettings = getActiveSettings()
-  const { preparation, openPreparationModal, openReflectionModal } = useBookends()
-  const { startCheckIn, session } = useCheckInContext()
+  const { preparation, openPreparationModal } = useBookends()
+  const { startCheckIn } = useCheckInContext()
 
   const topicCount = preparation?.myTopics?.length ?? 0
 
@@ -130,7 +111,6 @@ export default function CheckInPage(): React.ReactNode {
 
   return (
     <MotionBox variant="page" className="space-y-8">
-      {/* Header */}
       <div className="text-center">
         <div className="flex justify-center mb-4">
           <div className="bg-pink-100 rounded-full p-3">
@@ -147,7 +127,6 @@ export default function CheckInPage(): React.ReactNode {
 
       <QuickStartSection topicCount={topicCount} onPrepare={openPreparationModal} onStart={handleStartQuickCheckIn} />
 
-      {/* Category Selection */}
       <div>
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Or choose a specific topic to explore:</h2>
         <StaggerContainer className="grid gap-4 sm:grid-cols-2">
@@ -200,17 +179,52 @@ export default function CheckInPage(): React.ReactNode {
         )}
       </div>
 
-      {/* Modals */}
       <PreparationModal />
-      <ReflectionForm sessionId={session?.id || 'none'} />
-
-      {/* Demo Reflection Button */}
-      <div className="fixed bottom-20 right-4 z-40">
-        <Button onClick={openReflectionModal} size="sm" variant="outline" className="shadow-lg">
-          <Sparkles className="h-4 w-4 mr-2" />
-          Reflect
-        </Button>
-      </div>
     </MotionBox>
   )
+}
+
+function CheckInWizard(): React.ReactNode {
+  const { session } = useCheckInContext()
+
+  if (!session) return null
+
+  const currentStep = session.progress.currentStep
+
+  const stepComponent = (() => {
+    switch (currentStep) {
+      case 'welcome':
+      case 'category-selection':
+        return <CategorySelectionStep />
+      case 'category-discussion':
+        return <CategoryDiscussionStep />
+      case 'reflection':
+        return <ReflectionStep />
+      case 'action-items':
+        return <ActionItemsStep />
+      case 'completion':
+        return <CompletionStep />
+      default:
+        return <CategorySelectionStep />
+    }
+  })()
+
+  return (
+    <div className="space-y-6">
+      {currentStep !== 'completion' && (
+        <ProgressBar progress={session.progress} currentStep={currentStep} className="mb-8" />
+      )}
+      {stepComponent}
+    </div>
+  )
+}
+
+export default function CheckInPage(): React.ReactNode {
+  const { session } = useCheckInContext()
+
+  if (session) {
+    return <CheckInWizard />
+  }
+
+  return <CheckInLanding />
 }

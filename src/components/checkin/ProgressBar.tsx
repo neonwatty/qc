@@ -110,31 +110,3 @@ export function ProgressBar({
     </div>
   )
 }
-
-export function SimpleProgressBar({
-  percentage,
-  className,
-  showPercentage = true,
-}: {
-  percentage: number
-  className?: string
-  showPercentage?: boolean
-}): React.ReactNode {
-  return (
-    <div className={cn('w-full', className)}>
-      {showPercentage && (
-        <div className="flex justify-end mb-1">
-          <span className="text-xs font-medium text-gray-600">{percentage}%</span>
-        </div>
-      )}
-      <div className="h-1.5 bg-gray-200 rounded-full overflow-hidden">
-        <motion.div
-          className="h-full rounded-full bg-gradient-to-r from-purple-500 to-purple-600"
-          initial={{ width: 0 }}
-          animate={{ width: `${percentage}%` }}
-          transition={{ duration: 0.5, ease: 'easeOut' }}
-        />
-      </div>
-    </div>
-  )
-}

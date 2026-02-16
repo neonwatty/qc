@@ -111,48 +111,6 @@ export function removeFormat(text: string, start: number, end: number): string {
 }
 
 /**
- * Parse markdown text to extract formatting
- */
-export function parseMarkdown(text: string): FormattedText[] {
-  const formats: FormattedText[] = []
-
-  const boldRegex = /\*\*(.*?)\*\*/g
-  let match
-  while ((match = boldRegex.exec(text)) !== null) {
-    formats.push({
-      text: match[1],
-      format: { bold: true },
-      start: match.index,
-      end: match.index + match[0].length,
-    })
-  }
-
-  const italicRegex = /\*(.*?)\*/g
-  while ((match = italicRegex.exec(text)) !== null) {
-    if (text[match.index - 1] !== '*' && text[match.index + match[0].length] !== '*') {
-      formats.push({
-        text: match[1],
-        format: { italic: true },
-        start: match.index,
-        end: match.index + match[0].length,
-      })
-    }
-  }
-
-  const headingRegex = /^(#{1,3})\s+(.*)$/gm
-  while ((match = headingRegex.exec(text)) !== null) {
-    formats.push({
-      text: match[2],
-      format: { heading: match[1].length as 1 | 2 | 3 },
-      start: match.index,
-      end: match.index + match[0].length,
-    })
-  }
-
-  return formats
-}
-
-/**
  * Convert rich text to plain text
  */
 export function toPlainText(richText: string): string {
@@ -252,28 +210,4 @@ export function sanitizeText(text: string): string {
     .replace(/on\w+\s*=\s*'[^']*'/gi, '')
     .replace(/javascript:/gi, '')
     .replace(/data:text\/html/gi, '')
-}
-
-/**
- * Format keyboard shortcuts for display
- */
-export function formatShortcut(keys: string[]): string {
-  const isMac = typeof window !== 'undefined' && /Mac/.test(window.navigator.platform)
-
-  return keys
-    .map((key) => {
-      switch (key) {
-        case 'cmd':
-          return isMac ? '\u2318' : 'Ctrl'
-        case 'alt':
-          return isMac ? '\u2325' : 'Alt'
-        case 'shift':
-          return isMac ? '\u21E7' : 'Shift'
-        case 'enter':
-          return '\u23CE'
-        default:
-          return key.toUpperCase()
-      }
-    })
-    .join(isMac ? '' : '+')
 }

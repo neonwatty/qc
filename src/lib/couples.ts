@@ -43,18 +43,6 @@ export async function getCouple(): Promise<{ data: DbCouple | null; error: strin
   return { data: couple, error: null }
 }
 
-export async function getCoupleMembers(coupleId: string): Promise<{
-  data: DbProfile[] | null
-  error: string | null
-}> {
-  const supabase = await createClient()
-
-  const { data, error } = await supabase.from('profiles').select('*').eq('couple_id', coupleId)
-
-  if (error) return { data: null, error: error.message }
-  return { data, error: null }
-}
-
 export async function getPartner(): Promise<{ data: DbProfile | null; error: string | null }> {
   const supabase = await createClient()
   const {

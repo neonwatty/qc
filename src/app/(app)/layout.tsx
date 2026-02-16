@@ -1,6 +1,7 @@
 import { requireAuth } from '@/lib/auth'
 
 import { AppShell } from './app-shell'
+import { AppProviders } from './app-providers'
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const { user, supabase } = await requireAuth()
@@ -13,11 +14,13 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     .single()
 
   return (
-    <AppShell
-      displayName={profile?.display_name ?? user.email?.split('@')[0] ?? null}
-      avatarUrl={profile?.avatar_url ?? null}
-    >
-      {children}
-    </AppShell>
+    <AppProviders coupleId={profile?.couple_id ?? ''} userId={user.id}>
+      <AppShell
+        displayName={profile?.display_name ?? user.email?.split('@')[0] ?? null}
+        avatarUrl={profile?.avatar_url ?? null}
+      >
+        {children}
+      </AppShell>
+    </AppProviders>
   )
 }
