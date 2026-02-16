@@ -96,25 +96,6 @@ export async function updateNote(_prev: NoteActionState, formData: FormData): Pr
   return { error: null }
 }
 
-export async function deleteNote(_prev: NoteActionState, formData: FormData): Promise<NoteActionState> {
-  const { user, supabase } = await requireAuth()
-
-  const { data: input, error: validationError } = validate(deleteSchema, { id: formData.get('id') })
-
-  if (validationError || !input) {
-    return { error: validationError ?? 'Validation failed' }
-  }
-
-  const { error: deleteError } = await supabase.from('notes').delete().eq('id', input.id).eq('author_id', user.id)
-
-  if (deleteError) {
-    return { error: deleteError.message }
-  }
-
-  revalidatePath('/notes')
-  return { error: null }
-}
-
 export async function deleteNoteById(noteId: string): Promise<{ error: string | null }> {
   const { user, supabase } = await requireAuth()
 

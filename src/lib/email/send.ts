@@ -1,6 +1,6 @@
 import type { ReactElement } from 'react'
 
-import { resend, EMAIL_FROM, BATCH_SIZE } from './resend'
+import { getResend, EMAIL_FROM, BATCH_SIZE } from './resend'
 
 interface SendEmailParams {
   to: string
@@ -14,7 +14,7 @@ interface SendEmailResult {
 }
 
 export async function sendEmail({ to, subject, react }: SendEmailParams): Promise<SendEmailResult> {
-  const { data, error } = await resend.emails.send({
+  const { data, error } = await getResend().emails.send({
     from: EMAIL_FROM,
     to,
     subject,
@@ -49,7 +49,7 @@ export async function sendBatchEmails({ recipients, subject, react }: BatchEmail
       react,
     }))
 
-    const { error } = await resend.batch.send(emails)
+    const { error } = await getResend().batch.send(emails)
 
     if (error) {
       result.failed += batch.length
