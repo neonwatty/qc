@@ -6,40 +6,36 @@ import { Heart, Loader2 } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 
-const skeletonVariants = cva(
-  'animate-pulse bg-gray-200 rounded',
-  {
-    variants: {
-      variant: {
-        default: '',
-        shimmer: 'relative overflow-hidden before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_2s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/60 before:to-transparent',
-        pulse: 'animate-pulse',
-        wave: 'animate-[wave_1.5s_ease-in-out_infinite]',
-      },
-      size: {
-        sm: 'h-4',
-        default: 'h-5',
-        lg: 'h-6',
-        xl: 'h-8',
-      },
-      shape: {
-        default: 'rounded',
-        circle: 'rounded-full',
-        square: 'rounded-sm',
-        none: 'rounded-none',
-      },
+const skeletonVariants = cva('animate-pulse bg-gray-200 rounded', {
+  variants: {
+    variant: {
+      default: '',
+      shimmer:
+        'relative overflow-hidden before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_2s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/60 before:to-transparent',
+      pulse: 'animate-pulse',
+      wave: 'animate-[wave_1.5s_ease-in-out_infinite]',
     },
-    defaultVariants: {
-      variant: 'default',
-      size: 'default',
-      shape: 'default',
+    size: {
+      sm: 'h-4',
+      default: 'h-5',
+      lg: 'h-6',
+      xl: 'h-8',
+    },
+    shape: {
+      default: 'rounded',
+      circle: 'rounded-full',
+      square: 'rounded-sm',
+      none: 'rounded-none',
     },
   },
-)
+  defaultVariants: {
+    variant: 'default',
+    size: 'default',
+    shape: 'default',
+  },
+})
 
-export interface SkeletonProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof skeletonVariants> {
+export interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement>, VariantProps<typeof skeletonVariants> {
   width?: string | number
   height?: string | number
 }
@@ -73,7 +69,9 @@ export function LoadingSpinner({
     return (
       <div className="flex flex-col items-center justify-center space-y-3">
         <div className="relative">
-          <div className={cn('animate-spin rounded-full border-4 border-pink-200 border-t-pink-600', sizeClasses[size])} />
+          <div
+            className={cn('animate-spin rounded-full border-4 border-pink-200 border-t-pink-600', sizeClasses[size])}
+          />
         </div>
         <div className="flex items-center space-x-2">
           <Heart className="h-4 w-4 text-pink-500 animate-pulse" />
@@ -83,9 +81,7 @@ export function LoadingSpinner({
     )
   }
 
-  return (
-    <Loader2 className={cn('animate-spin text-gray-600', sizeClasses[size], className)} />
-  )
+  return <Loader2 className={cn('animate-spin text-gray-600', sizeClasses[size], className)} />
 }
 
 export function CardSkeleton({
@@ -141,9 +137,7 @@ export function ListItemSkeleton({
 }) {
   return (
     <div className={cn('flex items-center space-x-3 p-3 border-b border-gray-100', className)}>
-      {showAvatar && (
-        <Skeleton shape="circle" className="h-10 w-10 flex-shrink-0" />
-      )}
+      {showAvatar && <Skeleton shape="circle" className="h-10 w-10 flex-shrink-0" />}
 
       <div className="flex-1 space-y-2">
         <Skeleton className="h-4 w-3/4" />
@@ -189,7 +183,4 @@ export const shimmerKeyframes = `
 }
 `
 
-export {
-  Skeleton,
-  skeletonVariants,
-}
+export { Skeleton, skeletonVariants }

@@ -4,14 +4,7 @@ import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 import { cn } from '@/lib/utils'
-import {
-  pageTransition,
-  fadeIn,
-  slideUp,
-  slideInFromRight,
-  scaleIn,
-  smoothSpring,
-} from '@/lib/animations'
+import { pageTransition, fadeIn, slideUp, slideInFromRight, scaleIn, smoothSpring } from '@/lib/animations'
 
 interface MotionBoxProps {
   variant?: 'fade' | 'slideUp' | 'slideRight' | 'scale' | 'page'
@@ -20,16 +13,9 @@ interface MotionBoxProps {
   className?: string
 }
 
-export const MotionBox: React.FC<MotionBoxProps> = ({
-  children,
-  className,
-}) => {
+export const MotionBox: React.FC<MotionBoxProps> = ({ children, className }) => {
   // Temporarily disable animations to fix content loading issue
-  return (
-    <div className={cn(className)}>
-      {children}
-    </div>
-  )
+  return <div className={cn(className)}>{children}</div>
 }
 
 interface StaggerContainerProps {
@@ -38,16 +24,9 @@ interface StaggerContainerProps {
   className?: string
 }
 
-export const StaggerContainer: React.FC<StaggerContainerProps> = ({
-  children,
-  className,
-}) => {
+export const StaggerContainer: React.FC<StaggerContainerProps> = ({ children, className }) => {
   // Temporarily disable animations to fix content loading issue
-  return (
-    <div className={cn(className)}>
-      {children}
-    </div>
-  )
+  return <div className={cn(className)}>{children}</div>
 }
 
 interface StaggerItemProps {
@@ -55,16 +34,9 @@ interface StaggerItemProps {
   className?: string
 }
 
-export const StaggerItem: React.FC<StaggerItemProps> = ({
-  children,
-  className,
-}) => {
+export const StaggerItem: React.FC<StaggerItemProps> = ({ children, className }) => {
   // Temporarily disable animations to fix content loading issue
-  return (
-    <div className={cn(className)}>
-      {children}
-    </div>
-  )
+  return <div className={cn(className)}>{children}</div>
 }
 
 interface PageTransitionProps {
@@ -73,13 +45,7 @@ interface PageTransitionProps {
 
 export const PageTransition: React.FC<PageTransitionProps> = ({ children }) => {
   return (
-    <motion.div
-      variants={pageTransition}
-      initial="initial"
-      animate="animate"
-      exit="exit"
-      className="w-full"
-    >
+    <motion.div variants={pageTransition} initial="initial" animate="animate" exit="exit" className="w-full">
       {children}
     </motion.div>
   )
@@ -94,12 +60,7 @@ export const FadePresence: React.FC<FadePresenceProps> = ({ show, children }) =>
   return (
     <AnimatePresence>
       {show && (
-        <motion.div
-          variants={fadeIn}
-          initial="initial"
-          animate="animate"
-          exit="exit"
-        >
+        <motion.div variants={fadeIn} initial="initial" animate="animate" exit="exit">
           {children}
         </motion.div>
       )}
@@ -121,11 +82,7 @@ interface MotionButtonProps {
   onClick?: () => void
 }
 
-export const MotionButton: React.FC<MotionButtonProps> = ({
-  children,
-  className,
-  onClick,
-}) => {
+export const MotionButton: React.FC<MotionButtonProps> = ({ children, className, onClick }) => {
   return (
     <motion.button
       className={cn(className)}
@@ -145,11 +102,7 @@ interface MotionCardProps {
   hoverable?: boolean
 }
 
-export const MotionCard: React.FC<MotionCardProps> = ({
-  children,
-  className,
-  hoverable = true,
-}) => {
+export const MotionCard: React.FC<MotionCardProps> = ({ children, className, hoverable = true }) => {
   return (
     <motion.div
       className={cn(className)}

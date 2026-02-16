@@ -3,9 +3,7 @@
 import React, { Suspense } from 'react'
 
 function LoadingFallback({ className }: { className?: string }) {
-  return (
-    <div className={`animate-pulse bg-gray-200 rounded ${className || 'h-8 w-full'}`} />
-  )
+  return <div className={`animate-pulse bg-gray-200 rounded ${className || 'h-8 w-full'}`} />
 }
 
 interface LazyWrapperProps {
@@ -35,10 +33,7 @@ interface UseViewportLazyLoadingProps {
   rootMargin?: string
 }
 
-export function useViewportLazyLoading({
-  threshold = 0.1,
-  rootMargin = '50px',
-}: UseViewportLazyLoadingProps = {}) {
+export function useViewportLazyLoading({ threshold = 0.1, rootMargin = '50px' }: UseViewportLazyLoadingProps = {}) {
   const [isVisible, setIsVisible] = React.useState(false)
   const [hasBeenVisible, setHasBeenVisible] = React.useState(false)
   const elementRef = React.useRef<HTMLDivElement>(null)
@@ -85,7 +80,7 @@ export function ViewportLazyComponent({
 
   return (
     <div ref={ref} className={className}>
-      {isVisible ? children : (fallback || <LoadingFallback />)}
+      {isVisible ? children : fallback || <LoadingFallback />}
     </div>
   )
 }

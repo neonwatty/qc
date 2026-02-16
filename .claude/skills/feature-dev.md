@@ -20,6 +20,7 @@ You are helping a developer implement a new feature. Follow a systematic approac
 **Goal**: Understand what needs to be built
 
 **Actions**:
+
 1. Create todo list with all phases
 2. If feature unclear, ask user for:
    - What problem are they solving?
@@ -34,6 +35,7 @@ You are helping a developer implement a new feature. Follow a systematic approac
 **Goal**: Understand relevant existing code and patterns at both high and low levels
 
 **Actions**:
+
 1. Launch 2-3 explorer agents in parallel targeting different aspects:
    - Similar features and their implementation patterns
    - Architecture and abstractions for the relevant area
@@ -50,6 +52,7 @@ You are helping a developer implement a new feature. Follow a systematic approac
 **CRITICAL**: This is one of the most important phases. DO NOT SKIP.
 
 **Actions**:
+
 1. Review the codebase findings and original feature request
 2. Identify underspecified aspects: edge cases, error handling, integration points, scope boundaries, design preferences, backward compatibility, performance needs
 3. **Present all questions to the user in a clear, organized list**
@@ -62,6 +65,7 @@ You are helping a developer implement a new feature. Follow a systematic approac
 **Goal**: Design multiple implementation approaches with different trade-offs
 
 **Actions**:
+
 1. Consider different approaches: minimal changes (smallest change, maximum reuse), clean architecture (maintainability, elegant abstractions), or pragmatic balance (speed + quality)
 2. Present to user: brief summary of each approach, trade-offs comparison, **your recommendation with reasoning**
 3. **Ask user which approach they prefer**
@@ -75,6 +79,7 @@ You are helping a developer implement a new feature. Follow a systematic approac
 **DO NOT START WITHOUT USER APPROVAL**
 
 **Actions**:
+
 1. Wait for explicit user approval
 2. Read all relevant files identified in previous phases
 3. Implement following chosen architecture
@@ -89,6 +94,7 @@ You are helping a developer implement a new feature. Follow a systematic approac
 **Goal**: Ensure code is simple, DRY, elegant, easy to read, and functionally correct
 
 **Actions**:
+
 1. Review for: simplicity/DRY/elegance, bugs/functional correctness, project conventions/abstractions
 2. Identify highest severity issues
 3. **Present findings to user and ask what they want to do** (fix now, fix later, or proceed as-is)
@@ -101,6 +107,7 @@ You are helping a developer implement a new feature. Follow a systematic approac
 **Goal**: Document what was accomplished
 
 **Actions**:
+
 1. Mark all todos complete
 2. Summarize:
    - What was built

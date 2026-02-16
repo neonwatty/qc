@@ -39,8 +39,7 @@ export default function LoginPage() {
 
   async function handleOAuth(provider: 'google' | 'github') {
     const supabase = createClient()
-    const appUrl =
-      process.env.NEXT_PUBLIC_APP_URL ?? window.location.origin
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? window.location.origin
 
     await supabase.auth.signInWithOAuth({
       provider,
@@ -54,32 +53,20 @@ export default function LoginPage() {
     <div className="flex min-h-screen items-center justify-center bg-gray-50 px-4">
       <div className="w-full max-w-sm space-y-6">
         <div className="text-center">
-          <h1 className="text-2xl font-bold tracking-tight text-gray-900">
-            Sign in to your account
-          </h1>
+          <h1 className="text-2xl font-bold tracking-tight text-gray-900">Sign in to your account</h1>
           <p className="mt-2 text-sm text-gray-600">
             Or{' '}
-            <Link
-              href="/signup"
-              className="font-medium text-blue-600 hover:text-blue-500"
-            >
+            <Link href="/signup" className="font-medium text-blue-600 hover:text-blue-500">
               create a new account
             </Link>
           </p>
         </div>
 
-        {error && (
-          <div className="rounded-md bg-red-50 p-3 text-sm text-red-700">
-            {error}
-          </div>
-        )}
+        {error && <div className="rounded-md bg-red-50 p-3 text-sm text-red-700">{error}</div>}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
-            >
+            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
               Email
             </label>
             <input
@@ -94,10 +81,7 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
-            >
+            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
               Password
             </label>
             <input
@@ -125,9 +109,7 @@ export default function LoginPage() {
             <div className="w-full border-t border-gray-300" />
           </div>
           <div className="relative flex justify-center text-sm">
-            <span className="bg-gray-50 px-2 text-gray-500">
-              Or continue with
-            </span>
+            <span className="bg-gray-50 px-2 text-gray-500">Or continue with</span>
           </div>
         </div>
 

@@ -1,34 +1,19 @@
-import {
-  Html,
-  Head,
-  Body,
-  Container,
-  Text,
-  Button,
-  Link,
-} from '@react-email/components'
+import { Html, Head, Body, Container, Text, Button, Link } from '@react-email/components'
 
 interface WelcomeEmailProps {
   name?: string
   dashboardUrl?: string
 }
 
-export function WelcomeEmail({
-  name = 'there',
-  dashboardUrl = 'https://example.com/dashboard',
-}: WelcomeEmailProps) {
+export function WelcomeEmail({ name = 'there', dashboardUrl = 'https://example.com/dashboard' }: WelcomeEmailProps) {
   return (
     <Html>
       <Head />
       <Body style={body}>
         <Container style={container}>
           <Text style={heading}>Welcome to the Template</Text>
-          <Text style={paragraph}>
-            Hey {name}, thanks for signing up! We are excited to have you on board.
-          </Text>
-          <Text style={paragraph}>
-            Get started by visiting your dashboard to set up your account.
-          </Text>
+          <Text style={paragraph}>Hey {name}, thanks for signing up! We are excited to have you on board.</Text>
+          <Text style={paragraph}>Get started by visiting your dashboard to set up your account.</Text>
           <Button style={button} href={dashboardUrl}>
             Go to Dashboard
           </Button>

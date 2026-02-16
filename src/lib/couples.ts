@@ -19,10 +19,7 @@ export async function createCouple(name?: string): Promise<{ data: DbCouple | nu
 
   if (coupleError) return { data: null, error: coupleError.message }
 
-  const { error: profileError } = await supabase
-    .from('profiles')
-    .update({ couple_id: couple.id })
-    .eq('id', user.id)
+  const { error: profileError } = await supabase.from('profiles').update({ couple_id: couple.id }).eq('id', user.id)
 
   if (profileError) return { data: null, error: profileError.message }
 
@@ -198,10 +195,7 @@ export async function acceptInvite(token: string): Promise<{ error: string | nul
   if (inviteError || !invite) return { error: inviteError?.message ?? 'Invite not found or expired' }
 
   // Add user to the couple
-  const { error: joinError } = await admin
-    .from('profiles')
-    .update({ couple_id: invite.couple_id })
-    .eq('id', user.id)
+  const { error: joinError } = await admin.from('profiles').update({ couple_id: invite.couple_id }).eq('id', user.id)
 
   if (joinError) return { error: joinError.message }
 

@@ -13,9 +13,7 @@ export function camelToSnake(str: string): string {
   return str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`)
 }
 
-export function snakeToCamelObject<T extends Record<string, unknown>>(
-  obj: Record<string, unknown>,
-): T {
+export function snakeToCamelObject<T extends Record<string, unknown>>(obj: Record<string, unknown>): T {
   const result: Record<string, unknown> = {}
 
   for (const [key, value] of Object.entries(obj)) {
@@ -25,9 +23,7 @@ export function snakeToCamelObject<T extends Record<string, unknown>>(
   return result as T
 }
 
-export function camelToSnakeObject<T extends Record<string, unknown>>(
-  obj: Record<string, unknown>,
-): T {
+export function camelToSnakeObject<T extends Record<string, unknown>>(obj: Record<string, unknown>): T {
   const result: Record<string, unknown> = {}
 
   for (const [key, value] of Object.entries(obj)) {

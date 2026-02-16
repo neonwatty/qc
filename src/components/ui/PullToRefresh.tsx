@@ -138,10 +138,13 @@ export const PullToRefresh: React.FC<PullToRefreshProps> = ({
   )
 }
 
-export function usePullToRefresh(onRefresh: () => Promise<void> | void, options?: {
-  threshold?: number
-  disabled?: boolean
-}) {
+export function usePullToRefresh(
+  onRefresh: () => Promise<void> | void,
+  options?: {
+    threshold?: number
+    disabled?: boolean
+  },
+) {
   const threshold = options?.threshold ?? 60
   const disabled = options?.disabled ?? false
 

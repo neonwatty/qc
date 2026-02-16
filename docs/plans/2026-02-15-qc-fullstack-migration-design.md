@@ -12,16 +12,16 @@ The migration uses a template-first approach with 8 parallel subagents, each own
 
 ## Decisions
 
-| Decision | Choice | Rationale |
-|----------|--------|-----------|
-| Repo name | `qc` | Short, clean |
-| Migration approach | Template-first, 8 parallel agents | Maximum parallelism |
-| State management | Keep 5 React Contexts, swap persistence | Least churn (~1,600 lines adapted not rewritten) |
-| Couple pairing | Email invite via Resend | Leverages template email infra |
-| One-spouse rule | UNIQUE on `profiles.couple_id` + app-level checks | Explicit constraint |
-| Real-time | Supabase Realtime on 5 high-frequency tables | Partner sync without polling |
-| Subscriptions | Free (limited) + Pro ($10/mo unlimited) | Simple, clear value prop |
-| Route structure | `(app)` group with QC sidebar layout | Clean separation from auth routes |
+| Decision           | Choice                                            | Rationale                                        |
+| ------------------ | ------------------------------------------------- | ------------------------------------------------ |
+| Repo name          | `qc`                                              | Short, clean                                     |
+| Migration approach | Template-first, 8 parallel agents                 | Maximum parallelism                              |
+| State management   | Keep 5 React Contexts, swap persistence           | Least churn (~1,600 lines adapted not rewritten) |
+| Couple pairing     | Email invite via Resend                           | Leverages template email infra                   |
+| One-spouse rule    | UNIQUE on `profiles.couple_id` + app-level checks | Explicit constraint                              |
+| Real-time          | Supabase Realtime on 5 high-frequency tables      | Partner sync without polling                     |
+| Subscriptions      | Free (limited) + Pro ($10/mo unlimited)           | Simple, clear value prop                         |
+| Route structure    | `(app)` group with QC sidebar layout              | Clean separation from auth routes                |
 
 ## Database Schema
 
@@ -193,6 +193,7 @@ Exception: `notes` with `privacy = 'private'` adds `AND author_id = auth.uid()` 
 8. Both users now see shared dashboard
 
 Edge cases:
+
 - Invite expires after 7 days, resendable from settings
 - If partner already paired, invite rejected
 - Unpair: either partner can leave from settings (nulls their couple_id)
@@ -210,16 +211,16 @@ Edge cases:
 
 ### 8 Parallel Agents
 
-| # | Agent | Scope | Key Files |
-|---|-------|-------|-----------|
-| 1 | Auth + Couples | Extend template auth, onboarding pages, invite flow, invite email template | onboarding/page.tsx, invite/[token]/page.tsx, lib/couples.ts, email/templates/invite.tsx |
-| 2 | Check-ins | Port CheckInContext + BookendsContext + SessionSettingsContext, all checkin/ and bookends/ components | contexts/CheckInContext.tsx, contexts/BookendsContext.tsx, app/(app)/checkin/, components/checkin/, components/bookends/ |
-| 3 | Notes | Port notes components, Supabase queries with privacy filtering | app/(app)/notes/, components/notes/, RichTextEditor, TagManager, BulkActions |
-| 4 | Growth Gallery | Port milestones, Supabase Storage for photos | app/(app)/growth/, components/growth/, MilestoneCard, PhotoUpload |
-| 5 | Reminders + Requests | Port both feature sets, cron email job | app/(app)/reminders/, app/(app)/requests/, components/reminders/, components/requests/ |
-| 6 | Love Languages | Port LoveLanguagesContext + components | contexts/LoveLanguagesContext.tsx, app/(app)/love-languages/, components/love-languages/ |
-| 7 | Settings | Port all settings pages, session settings CRUD | app/(app)/settings/, components/settings/, CategoryManager, PromptLibrary, PromptTemplateEditor |
-| 8 | Layout + Dashboard | Root layout, QC sidebar/header/mobile nav, dashboard hub, landing page, ThemeContext, animations | app/(app)/layout.tsx, app/layout.tsx, app/page.tsx, components/layout/, components/dashboard/, components/Landing/, contexts/ThemeContext.tsx, lib/animations.ts |
+| #   | Agent                | Scope                                                                                                 | Key Files                                                                                                                                                        |
+| --- | -------------------- | ----------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Auth + Couples       | Extend template auth, onboarding pages, invite flow, invite email template                            | onboarding/page.tsx, invite/[token]/page.tsx, lib/couples.ts, email/templates/invite.tsx                                                                         |
+| 2   | Check-ins            | Port CheckInContext + BookendsContext + SessionSettingsContext, all checkin/ and bookends/ components | contexts/CheckInContext.tsx, contexts/BookendsContext.tsx, app/(app)/checkin/, components/checkin/, components/bookends/                                         |
+| 3   | Notes                | Port notes components, Supabase queries with privacy filtering                                        | app/(app)/notes/, components/notes/, RichTextEditor, TagManager, BulkActions                                                                                     |
+| 4   | Growth Gallery       | Port milestones, Supabase Storage for photos                                                          | app/(app)/growth/, components/growth/, MilestoneCard, PhotoUpload                                                                                                |
+| 5   | Reminders + Requests | Port both feature sets, cron email job                                                                | app/(app)/reminders/, app/(app)/requests/, components/reminders/, components/requests/                                                                           |
+| 6   | Love Languages       | Port LoveLanguagesContext + components                                                                | contexts/LoveLanguagesContext.tsx, app/(app)/love-languages/, components/love-languages/                                                                         |
+| 7   | Settings             | Port all settings pages, session settings CRUD                                                        | app/(app)/settings/, components/settings/, CategoryManager, PromptLibrary, PromptTemplateEditor                                                                  |
+| 8   | Layout + Dashboard   | Root layout, QC sidebar/header/mobile nav, dashboard hub, landing page, ThemeContext, animations      | app/(app)/layout.tsx, app/layout.tsx, app/page.tsx, components/layout/, components/dashboard/, components/Landing/, contexts/ThemeContext.tsx, lib/animations.ts |
 
 ### Post-Agent Integration
 
@@ -248,15 +249,15 @@ A `useRealtimeCouple(tableName)` hook subscribing to Postgres changes filtered b
 
 ## Stripe Subscription Tiers
 
-| Feature | Free | Pro ($10/mo) |
-|---------|------|-------------|
-| Check-ins per month | 4 | Unlimited |
-| Notes | 20 | Unlimited |
-| Milestones | 5 | Unlimited |
-| Photo uploads | 0 | Unlimited |
-| Reminder emails | 0 | Unlimited |
-| Love languages | 3 | Unlimited |
-| Export data | No | Yes |
+| Feature             | Free | Pro ($10/mo) |
+| ------------------- | ---- | ------------ |
+| Check-ins per month | 4    | Unlimited    |
+| Notes               | 20   | Unlimited    |
+| Milestones          | 5    | Unlimited    |
+| Photo uploads       | 0    | Unlimited    |
+| Reminder emails     | 0    | Unlimited    |
+| Love languages      | 3    | Unlimited    |
+| Export data         | No   | Yes          |
 
 Uses template's existing Stripe webhook, subscriptions table, and `canUserDoAction()` helper.
 
@@ -314,6 +315,7 @@ qc/
 ## What Stays, Changes, and Goes
 
 ### Stays As-Is
+
 - All ~125 presentational components
 - Framer Motion animations
 - Radix UI primitives
@@ -321,11 +323,13 @@ qc/
 - CSS/theme system (pink gradients, oklch variables)
 
 ### Changes (localStorage -> Supabase)
+
 - 5 Context providers rewritten for Supabase queries
 - storage.ts replaced by Supabase client calls
 - Types adapted (string IDs -> uuid, Date -> timestamptz)
 
 ### New
+
 - Supabase migrations (12 tables + RLS)
 - Couple pairing + email invite flow
 - `/onboarding` and `/invite/[token]` routes
@@ -334,8 +338,9 @@ qc/
 - Stripe subscription gating
 
 ### Removed
+
 - demo-scenarios.ts, demo-reset.ts, mock-data.ts, mock-reminders.ts, mock-requests.ts
-- All test-* debug pages
+- All test-\* debug pages
 - GitHub Pages config
 - Static export config (basePath, assetPrefix)
 - data-init.ts

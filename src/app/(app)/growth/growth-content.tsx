@@ -1,0 +1,214 @@
+'use client'
+
+import React, { useState } from 'react'
+import { TrendingUp, Award, Target, Camera, Plus } from 'lucide-react'
+
+import { MotionBox, StaggerContainer, StaggerItem } from '@/components/ui/motion'
+import { Button } from '@/components/ui/button'
+import { Timeline, PhotoGallery, MilestoneCreator } from '@/components/growth'
+import { useMilestones } from '@/hooks/useMilestones'
+import type { MilestoneInput } from '@/hooks/useMilestones'
+
+interface GrowthContentProps {
+  coupleId: string | null
+}
+
+type ActiveView = 'timeline' | 'progress' | 'memories'
+
+export function GrowthContent({ coupleId }: GrowthContentProps): React.ReactElement {
+  const [activeView, setActiveView] = useState<ActiveView>('timeline')
+  const [isCreatorOpen, setIsCreatorOpen] = useState(false)
+
+  const { milestones, isLoading, error, createMilestone, getAchievedMilestones, getUpcomingMilestones } =
+    useMilestones(coupleId)
+
+  const achieved = getAchievedMilestones()
+  const upcoming = getUpcomingMilestones()
+  const totalPoints = milestones.reduce((sum, m) => sum + m.points, 0)
+
+  async function handleCreateMilestone(input: MilestoneInput): Promise<void> {
+    await createMilestone(input)
+  }
+
+  if (!coupleId) {
+    return (
+      <div className="py-16 text-center">
+        <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-pink-100 dark:bg-pink-900/30">
+          <TrendingUp className="h-8 w-8 text-pink-600" />
+        </div>
+        <h2 className="mb-2 text-xl font-semibold text-gray-900 dark:text-gray-100">Connect with your partner</h2>
+        <p className="mx-auto max-w-sm text-gray-600 dark:text-gray-400">
+          Invite your partner to start tracking your relationship milestones together.
+        </p>
+      </div>
+    )
+  }
+
+  return (
+    <MotionBox variant="page" className="space-y-8">
+      {/* Header */}
+      <div className="text-center">
+        <div className="mb-4 flex justify-center">
+          <div className="rounded-full bg-green-100 p-3 dark:bg-green-900/30">
+            <TrendingUp className="h-8 w-8 text-green-600" />
+          </div>
+        </div>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 sm:text-4xl">Growth Gallery</h1>
+        <p className="mx-auto mt-4 max-w-2xl text-lg text-gray-600 dark:text-gray-400">
+          Track your relationship journey and celebrate your achievements together.
+        </p>
+      </div>
+
+      {/* Stats */}
+      <StaggerContainer className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
+        <StaggerItem>
+          <div className="rounded-lg border border-gray-200 bg-white p-6 text-center shadow-sm dark:border-gray-800 dark:bg-gray-900">
+            <div className="mb-2 text-3xl font-bold text-green-600">{achieved.length}</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Milestones Reached</div>
+          </div>
+        </StaggerItem>
+        <StaggerItem>
+          <div className="rounded-lg border border-gray-200 bg-white p-6 text-center shadow-sm dark:border-gray-800 dark:bg-gray-900">
+            <div className="mb-2 text-3xl font-bold text-blue-600">{upcoming.length}</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">In Progress</div>
+          </div>
+        </StaggerItem>
+        <StaggerItem>
+          <div className="rounded-lg border border-gray-200 bg-white p-6 text-center shadow-sm dark:border-gray-800 dark:bg-gray-900">
+            <div className="mb-2 text-3xl font-bold text-purple-600">{totalPoints}</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Total Points</div>
+          </div>
+        </StaggerItem>
+        <StaggerItem>
+          <div className="rounded-lg border border-gray-200 bg-white p-6 text-center shadow-sm dark:border-gray-800 dark:bg-gray-900">
+            <div className="mb-2 text-3xl font-bold text-pink-600">{milestones.filter((m) => m.photoUrl).length}</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">Photos</div>
+          </div>
+        </StaggerItem>
+      </StaggerContainer>
+
+      {/* View Toggle + Create */}
+      <div className="flex items-center justify-between">
+        <div className="flex overflow-x-auto px-1">
+          <div className="flex min-w-max flex-shrink-0 gap-1 rounded-lg bg-gray-100 p-1 dark:bg-gray-800">
+            <Button
+              variant={activeView === 'timeline' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setActiveView('timeline')}
+              className="rounded-md text-xs sm:text-sm"
+            >
+              <Award className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
+              Timeline
+            </Button>
+            <Button
+              variant={activeView === 'progress' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setActiveView('progress')}
+              className="rounded-md text-xs sm:text-sm"
+            >
+              <Target className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
+              Progress
+            </Button>
+            <Button
+              variant={activeView === 'memories' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setActiveView('memories')}
+              className="rounded-md text-xs sm:text-sm"
+            >
+              <Camera className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
+              Memories
+            </Button>
+          </div>
+        </div>
+
+        <Button
+          onClick={() => setIsCreatorOpen(true)}
+          className="bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700"
+        >
+          <Plus className="mr-1 h-4 w-4" />
+          New Milestone
+        </Button>
+      </div>
+
+      {/* Loading state */}
+      {isLoading && (
+        <div className="flex items-center justify-center py-12">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-pink-200 border-t-pink-600" />
+        </div>
+      )}
+
+      {/* Error state */}
+      {error && (
+        <div className="rounded-lg bg-red-50 p-4 text-center text-sm text-red-600 dark:bg-red-900/20">{error}</div>
+      )}
+
+      {/* Content views */}
+      {!isLoading && !error && (
+        <>
+          {activeView === 'timeline' && <Timeline milestones={milestones} />}
+
+          {activeView === 'progress' && (
+            <div className="space-y-6">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Upcoming Milestones</h2>
+              {upcoming.length === 0 ? (
+                <p className="text-gray-600 dark:text-gray-400">
+                  All milestones achieved! Create a new one to keep growing.
+                </p>
+              ) : (
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {upcoming.map((m) => (
+                    <div
+                      key={m.id}
+                      className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900"
+                    >
+                      <div className="mb-2 flex items-center gap-2">
+                        <span className="text-xl">{m.icon ?? '🎯'}</span>
+                        <h3 className="font-medium text-gray-900 dark:text-gray-100">{m.title}</h3>
+                      </div>
+                      <p className="mb-3 text-sm text-gray-600 dark:text-gray-400">{m.description}</p>
+                      <div className="flex items-center justify-between text-xs text-gray-500">
+                        <span className="capitalize">{m.category}</span>
+                        <span>{m.points} pts</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Achieved</h2>
+              {achieved.length === 0 ? (
+                <p className="text-gray-600 dark:text-gray-400">Complete milestones to see them here.</p>
+              ) : (
+                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                  {achieved.map((m) => (
+                    <div
+                      key={m.id}
+                      className="rounded-lg border border-green-200 bg-green-50 p-4 shadow-sm dark:border-green-800 dark:bg-green-900/20"
+                    >
+                      <div className="mb-2 flex items-center gap-2">
+                        <span className="text-xl">{m.icon ?? '🏆'}</span>
+                        <h3 className="font-medium text-gray-900 dark:text-gray-100">{m.title}</h3>
+                      </div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">{m.description}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {activeView === 'memories' && (
+            <PhotoGallery milestones={milestones} onAddMemory={() => setIsCreatorOpen(true)} />
+          )}
+        </>
+      )}
+
+      {/* Milestone creator modal */}
+      <MilestoneCreator
+        isOpen={isCreatorOpen}
+        onClose={() => setIsCreatorOpen(false)}
+        onSubmit={handleCreateMilestone}
+      />
+    </MotionBox>
+  )
+}

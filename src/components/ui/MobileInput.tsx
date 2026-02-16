@@ -29,8 +29,7 @@ const mobileInputVariants = cva(
 )
 
 export interface MobileInputProps
-  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'>,
-    VariantProps<typeof mobileInputVariants> {
+  extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'>, VariantProps<typeof mobileInputVariants> {
   label?: string
   error?: string
   helperText?: string
@@ -40,20 +39,10 @@ export interface MobileInputProps
 }
 
 const MobileInput = React.forwardRef<HTMLInputElement, MobileInputProps>(
-  ({
-    className,
-    type,
-    size,
-    variant,
-    label,
-    error,
-    helperText,
-    leftIcon,
-    rightIcon,
-    onRightIconClick,
-    id,
-    ...props
-  }, ref) => {
+  (
+    { className, type, size, variant, label, error, helperText, leftIcon, rightIcon, onRightIconClick, id, ...props },
+    ref,
+  ) => {
     const generatedId = React.useId()
     const inputId = id || generatedId
 
@@ -69,11 +58,7 @@ const MobileInput = React.forwardRef<HTMLInputElement, MobileInputProps>(
         )}
 
         <div className="relative">
-          {leftIcon && (
-            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
-              {leftIcon}
-            </div>
-          )}
+          {leftIcon && <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">{leftIcon}</div>}
 
           <input
             type={type}
@@ -103,12 +88,7 @@ const MobileInput = React.forwardRef<HTMLInputElement, MobileInputProps>(
         </div>
 
         {(error || helperText) && (
-          <p className={cn(
-            'text-xs',
-            error ? 'text-destructive' : 'text-muted-foreground',
-          )}>
-            {error || helperText}
-          </p>
+          <p className={cn('text-xs', error ? 'text-destructive' : 'text-muted-foreground')}>{error || helperText}</p>
         )}
       </div>
     )
@@ -118,87 +98,42 @@ MobileInput.displayName = 'MobileInput'
 
 const SearchInput = React.forwardRef<HTMLInputElement, MobileInputProps>(
   ({ className, variant = 'filled', ...props }, ref) => (
-    <MobileInput
-      ref={ref}
-      type="search"
-      className={cn('rounded-full', className)}
-      variant={variant}
-      {...props}
-    />
+    <MobileInput ref={ref} type="search" className={cn('rounded-full', className)} variant={variant} {...props} />
   ),
 )
 SearchInput.displayName = 'SearchInput'
 
-const PasswordInput = React.forwardRef<HTMLInputElement, MobileInputProps>(
-  ({ ...props }, ref) => {
-    const [showPassword, setShowPassword] = React.useState(false)
+const PasswordInput = React.forwardRef<HTMLInputElement, MobileInputProps>(({ ...props }, ref) => {
+  const [showPassword, setShowPassword] = React.useState(false)
 
-    return (
-      <MobileInput
-        ref={ref}
-        type={showPassword ? 'text' : 'password'}
-        rightIcon={
-          <button
-            type="button"
-            className="text-xs font-medium"
-            onClick={() => setShowPassword(!showPassword)}
-          >
-            {showPassword ? 'Hide' : 'Show'}
-          </button>
-        }
-        {...props}
-      />
-    )
-  },
-)
+  return (
+    <MobileInput
+      ref={ref}
+      type={showPassword ? 'text' : 'password'}
+      rightIcon={
+        <button type="button" className="text-xs font-medium" onClick={() => setShowPassword(!showPassword)}>
+          {showPassword ? 'Hide' : 'Show'}
+        </button>
+      }
+      {...props}
+    />
+  )
+})
 PasswordInput.displayName = 'PasswordInput'
 
-const NumberInput = React.forwardRef<HTMLInputElement, MobileInputProps>(
-  ({ className, ...props }, ref) => (
-    <MobileInput
-      ref={ref}
-      type="number"
-      inputMode="numeric"
-      className={cn('tabular-nums', className)}
-      {...props}
-    />
-  ),
-)
+const NumberInput = React.forwardRef<HTMLInputElement, MobileInputProps>(({ className, ...props }, ref) => (
+  <MobileInput ref={ref} type="number" inputMode="numeric" className={cn('tabular-nums', className)} {...props} />
+))
 NumberInput.displayName = 'NumberInput'
 
-const PhoneInput = React.forwardRef<HTMLInputElement, MobileInputProps>(
-  ({ className, ...props }, ref) => (
-    <MobileInput
-      ref={ref}
-      type="tel"
-      inputMode="tel"
-      className={cn('tabular-nums', className)}
-      {...props}
-    />
-  ),
-)
+const PhoneInput = React.forwardRef<HTMLInputElement, MobileInputProps>(({ className, ...props }, ref) => (
+  <MobileInput ref={ref} type="tel" inputMode="tel" className={cn('tabular-nums', className)} {...props} />
+))
 PhoneInput.displayName = 'PhoneInput'
 
-const EmailInput = React.forwardRef<HTMLInputElement, MobileInputProps>(
-  ({ ...props }, ref) => (
-    <MobileInput
-      ref={ref}
-      type="email"
-      inputMode="email"
-      autoCapitalize="none"
-      autoComplete="email"
-      {...props}
-    />
-  ),
-)
+const EmailInput = React.forwardRef<HTMLInputElement, MobileInputProps>(({ ...props }, ref) => (
+  <MobileInput ref={ref} type="email" inputMode="email" autoCapitalize="none" autoComplete="email" {...props} />
+))
 EmailInput.displayName = 'EmailInput'
 
-export {
-  MobileInput,
-  SearchInput,
-  PasswordInput,
-  NumberInput,
-  PhoneInput,
-  EmailInput,
-  mobileInputVariants,
-}
+export { MobileInput, SearchInput, PasswordInput, NumberInput, PhoneInput, EmailInput, mobileInputVariants }

@@ -9,6 +9,7 @@
 **Tech Stack:** Next.js 16, React 19, TypeScript 5.9 strict, Supabase (Postgres + RLS + Realtime + Storage), Stripe, Resend + React Email, Zustand 5, Tailwind CSS 4, Framer Motion, Radix UI, Capacitor (iOS)
 
 **Source repos:**
+
 - Template: `neonwatty/nextjs-supabase-template` (local: `/Users/jeremywatt/Desktop/nextjs-supabase-template/`)
 - QC prototype: `neonwatty/qc-app` (GitHub, ~43K lines, 201 files)
 
@@ -19,6 +20,7 @@
 ### Task 1: Create qc repo from template
 
 **Files:**
+
 - Create: new repo `neonwatty/qc` cloned from template
 
 **Step 1: Create the repo**
@@ -65,6 +67,7 @@ git push origin main
 ### Task 2: Merge QC dependencies into package.json
 
 **Files:**
+
 - Modify: `package.json`
 
 **Step 1: Add QC-specific dependencies**
@@ -115,6 +118,7 @@ git add package.json package-lock.json && git commit -m "feat: add QC UI depende
 ### Task 3: Write Supabase migration 1 - extend profiles + create couples and couple_invites
 
 **Files:**
+
 - Create: `supabase/migrations/00003_couples_and_profiles.sql`
 
 **Step 1: Write the migration**
@@ -238,6 +242,7 @@ git commit -m "feat: add couples, couple_invites tables and extend profiles"
 ### Task 4: Write Supabase migration 2 - check_ins, notes, action_items
 
 **Files:**
+
 - Create: `supabase/migrations/00004_checkins_notes_actions.sql`
 
 **Step 1: Write the migration**
@@ -348,6 +353,7 @@ git commit -m "feat: add check_ins, notes, action_items tables with RLS"
 ### Task 5: Write Supabase migration 3 - milestones
 
 **Files:**
+
 - Create: `supabase/migrations/00005_milestones.sql`
 
 **Step 1: Write the migration**
@@ -413,6 +419,7 @@ git commit -m "feat: add milestones table + photo storage bucket"
 ### Task 6: Write Supabase migration 4 - reminders and requests
 
 **Files:**
+
 - Create: `supabase/migrations/00006_reminders_requests.sql`
 
 **Step 1: Write the migration**
@@ -490,6 +497,7 @@ git commit -m "feat: add reminders and requests tables with RLS"
 ### Task 7: Write Supabase migration 5 - love_languages, love_actions
 
 **Files:**
+
 - Create: `supabase/migrations/00007_love_languages.sql`
 
 **Step 1: Write the migration**
@@ -575,6 +583,7 @@ git commit -m "feat: add love_languages and love_actions tables with RLS"
 ### Task 8: Write Supabase migration 6 - session_settings + enable realtime
 
 **Files:**
+
 - Create: `supabase/migrations/00008_session_settings_and_realtime.sql`
 
 **Step 1: Write the migration**
@@ -649,6 +658,7 @@ git commit -m "feat: add session_settings, enable realtime, add updated_at trigg
 ### Task 9: Write shared TypeScript types
 
 **Files:**
+
 - Create: `src/types/index.ts` (replace template types with QC types)
 - Create: `src/types/checkin.ts`
 - Create: `src/types/bookends.ts`
@@ -816,6 +826,7 @@ export interface DbSessionSettings {
 **Step 2: Write the main types index**
 
 Replace `src/types/index.ts` with QC domain types that extend database types. Port the type unions and interfaces from the QC app's `src/types/index.ts` (282 lines), adapting string IDs to uuid and Date fields to ISO strings. Include:
+
 - Re-export all `Db*` types from `./database`
 - `SubscriptionPlan`, `SubscriptionStatus` (keep from template)
 - `Profile` (extends DbProfile)
@@ -839,6 +850,7 @@ git commit -m "feat: add QC domain types and database row types"
 ### Task 10: Write useRealtimeCouple hook
 
 **Files:**
+
 - Create: `src/hooks/useRealtimeCouple.ts`
 
 **Step 1: Write the hook**
@@ -923,6 +935,7 @@ git commit -m "feat: add useRealtimeCouple hook for partner sync"
 ### Task 11: Write lib/couples.ts (couple CRUD + invite logic)
 
 **Files:**
+
 - Create: `src/lib/couples.ts`
 
 **Step 1: Write the module**
@@ -934,10 +947,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import type { DbCouple, DbCoupleInvite, DbProfile } from '@/types/database'
 
-export async function createCouple(params: {
-  name?: string
-  relationshipStartDate?: string
-}): Promise<DbCouple> {
+export async function createCouple(params: { name?: string; relationshipStartDate?: string }): Promise<DbCouple> {
   const supabase = await createClient()
   const { data, error } = await supabase
     .from('couples')
@@ -954,11 +964,7 @@ export async function createCouple(params: {
 
 export async function getCouple(coupleId: string): Promise<DbCouple | null> {
   const supabase = await createClient()
-  const { data, error } = await supabase
-    .from('couples')
-    .select()
-    .eq('id', coupleId)
-    .single()
+  const { data, error } = await supabase.from('couples').select().eq('id', coupleId).single()
 
   if (error) return null
   return data
@@ -966,10 +972,7 @@ export async function getCouple(coupleId: string): Promise<DbCouple | null> {
 
 export async function getCoupleMembers(coupleId: string): Promise<DbProfile[]> {
   const supabase = await createClient()
-  const { data, error } = await supabase
-    .from('profiles')
-    .select()
-    .eq('couple_id', coupleId)
+  const { data, error } = await supabase.from('profiles').select().eq('couple_id', coupleId)
 
   if (error) throw new Error(`Failed to get couple members: ${error.message}`)
   return data ?? []
@@ -977,11 +980,7 @@ export async function getCoupleMembers(coupleId: string): Promise<DbProfile[]> {
 
 export async function getPartner(userId: string): Promise<DbProfile | null> {
   const supabase = await createClient()
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('couple_id')
-    .eq('id', userId)
-    .single()
+  const { data: profile } = await supabase.from('profiles').select('couple_id').eq('id', userId).single()
 
   if (!profile?.couple_id) return null
 
@@ -997,20 +996,14 @@ export async function getPartner(userId: string): Promise<DbProfile | null> {
 
 export async function joinCouple(userId: string, coupleId: string): Promise<void> {
   const supabase = await createClient()
-  const { error } = await supabase
-    .from('profiles')
-    .update({ couple_id: coupleId })
-    .eq('id', userId)
+  const { error } = await supabase.from('profiles').update({ couple_id: coupleId }).eq('id', userId)
 
   if (error) throw new Error(`Failed to join couple: ${error.message}`)
 }
 
 export async function leaveCouple(userId: string): Promise<void> {
   const supabase = await createClient()
-  const { error } = await supabase
-    .from('profiles')
-    .update({ couple_id: null })
-    .eq('id', userId)
+  const { error } = await supabase.from('profiles').update({ couple_id: null }).eq('id', userId)
 
   if (error) throw new Error(`Failed to leave couple: ${error.message}`)
 }
@@ -1061,35 +1054,22 @@ export async function acceptInvite(token: string, userId: string): Promise<void>
 
   // Check invite hasn't expired
   if (new Date(invite.expires_at) < new Date()) {
-    await supabase
-      .from('couple_invites')
-      .update({ status: 'expired' })
-      .eq('id', invite.id)
+    await supabase.from('couple_invites').update({ status: 'expired' }).eq('id', invite.id)
     throw new Error('Invite has expired')
   }
 
   // Check user isn't already in a couple
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('couple_id')
-    .eq('id', userId)
-    .single()
+  const { data: profile } = await supabase.from('profiles').select('couple_id').eq('id', userId).single()
 
   if (profile?.couple_id) throw new Error('You are already in a couple')
 
   // Join the couple
-  const { error: joinError } = await supabase
-    .from('profiles')
-    .update({ couple_id: invite.couple_id })
-    .eq('id', userId)
+  const { error: joinError } = await supabase.from('profiles').update({ couple_id: invite.couple_id }).eq('id', userId)
 
   if (joinError) throw new Error(`Failed to join couple: ${joinError.message}`)
 
   // Mark invite as accepted
-  await supabase
-    .from('couple_invites')
-    .update({ status: 'accepted' })
-    .eq('id', invite.id)
+  await supabase.from('couple_invites').update({ status: 'accepted' }).eq('id', invite.id)
 }
 
 export async function resendInvite(inviteId: string): Promise<DbCoupleInvite> {
@@ -1124,6 +1104,7 @@ git commit -m "feat: add couples CRUD and invite logic"
 ### Task 12: Update middleware for QC routes
 
 **Files:**
+
 - Modify: `src/lib/supabase/middleware.ts`
 - Modify: `src/app/auth/callback/route.ts`
 
@@ -1132,6 +1113,7 @@ git commit -m "feat: add couples CRUD and invite logic"
 Add `/onboarding`, `/invite`, and `/invite/[token]` to the `PUBLIC_ROUTES` array in `src/lib/supabase/middleware.ts`. Also redirect authenticated users without a couple to `/onboarding` instead of letting them access the dashboard.
 
 The middleware should:
+
 1. Keep existing session refresh logic
 2. Add `/onboarding` and `/invite` to public routes
 3. After auth check, query the user's profile for `couple_id`
@@ -1154,6 +1136,7 @@ git commit -m "feat: add onboarding redirect logic to middleware and auth callba
 ### Task 13: Update Stripe plan config for QC tiers
 
 **Files:**
+
 - Modify: `src/lib/stripe/client.ts`
 - Modify: `src/lib/subscription/server.ts`
 
@@ -1202,6 +1185,7 @@ git commit -m "feat: configure QC-specific Stripe subscription tiers"
 ### Task 14: Copy QC utility libraries
 
 **Files:**
+
 - Create: `src/lib/animations.ts` (from QC's 481-line animations.ts)
 - Create: `src/lib/text-formatting.ts` (from QC's 284-line text-formatting.ts)
 - Create: `src/lib/haptics.ts` (from QC's 175-line haptics.ts)
@@ -1230,11 +1214,13 @@ git commit -m "feat: port QC utility libraries (animations, text-formatting, hap
 ### Task 15: Copy QC base UI components
 
 **Files:**
+
 - Create: `src/components/ui/` (port all Radix-wrapped UI primitives from QC)
 
 **Step 1: Port base UI components**
 
 Copy all files from QC's `src/components/ui/` directory:
+
 - button.tsx, input.tsx, textarea.tsx, card.tsx, badge.tsx
 - tabs.tsx, dialog.tsx, alert.tsx, avatar.tsx
 - dropdown-menu.tsx, select.tsx, radio-group.tsx
@@ -1267,11 +1253,13 @@ git commit -m "feat: port QC base UI components (radix wrappers, motion, mobile,
 ### Task 16: Update globals.css with QC theme
 
 **Files:**
+
 - Modify: `src/app/globals.css`
 
 **Step 1: Merge QC theme into template CSS**
 
 Replace the template's CSS variables with QC's pink/coral theme system:
+
 - `--primary`: 350 85% 50% (coral pink)
 - `--secondary`: 15 90% 65% (soft coral)
 - `--accent`: 25 95% 75% (peach)
@@ -1326,6 +1314,7 @@ Expected: No errors (or only errors from missing components that agents will cre
 **Scope:** Extend template auth, onboarding flow, partner invite flow, invite email template.
 
 **Files to create:**
+
 - `src/app/onboarding/page.tsx` -- Multi-step onboarding: display name, partner email, relationship start date
 - `src/app/invite/[token]/page.tsx` -- Invite acceptance page: validates token, shows couple info, joins couple
 - `src/lib/email/templates/invite.tsx` -- React Email template for partner invite
@@ -1333,6 +1322,7 @@ Expected: No errors (or only errors from missing components that agents will cre
 - `src/app/invite/[token]/actions.ts` -- Server actions: validateInvite, acceptInviteAction
 
 **Key behavior:**
+
 1. After signup -> auth callback redirects to `/onboarding`
 2. Onboarding page collects: display name (updates profile), partner's email, relationship start date
 3. On submit: creates couple, sets user's couple_id, creates invite, sends email via Resend
@@ -1341,10 +1331,12 @@ Expected: No errors (or only errors from missing components that agents will cre
 6. On accept: validates token not expired, user not already in couple, sets couple_id, updates invite status
 
 **Reference files from QC app:**
+
 - `src/app/onboarding/page.tsx` (QC has an existing onboarding page -- port the UI, replace localStorage with server actions)
 - `src/components/onboarding/` (any onboarding components)
 
 **Conventions:**
+
 - Server actions use Zod validation
 - Email template matches WelcomeEmail style from template
 - No semicolons, single quotes, 2-space indent
@@ -1356,6 +1348,7 @@ Expected: No errors (or only errors from missing components that agents will cre
 **Scope:** Port CheckInContext + BookendsContext + SessionSettingsContext, all check-in and bookends components.
 
 **Files to create:**
+
 - `src/contexts/CheckInContext.tsx` -- Rewrite from QC's 521-line context, replacing localStorage with Supabase queries
 - `src/contexts/BookendsContext.tsx` -- Rewrite from QC's 328-line context
 - `src/contexts/SessionSettingsContext.tsx` -- Rewrite from QC's 239-line context
@@ -1364,6 +1357,7 @@ Expected: No errors (or only errors from missing components that agents will cre
 - `src/components/bookends/` -- Port PrepBanner, PreparationModal, ReflectionForm from QC
 
 **Key changes from QC prototype:**
+
 1. CheckInContext: Replace `loadFromStorage('qc_checkin_session')` with Supabase queries to `check_ins`, `notes`, `action_items` tables
 2. BookendsContext: Replace localStorage with Supabase queries (mood_before/mood_after on check_ins table)
 3. SessionSettingsContext: Replace localStorage with Supabase queries to `session_settings` table
@@ -1371,6 +1365,7 @@ Expected: No errors (or only errors from missing components that agents will cre
 5. All Supabase queries use `couple_id` filter (from user's profile)
 
 **Reference files from QC app:**
+
 - `src/contexts/CheckInContext.tsx` (521 lines)
 - `src/contexts/BookendsContext.tsx` (328 lines)
 - `src/contexts/SessionSettingsContext.tsx` (239 lines)
@@ -1389,12 +1384,14 @@ Expected: No errors (or only errors from missing components that agents will cre
 **Scope:** Port notes page and components, Supabase queries with privacy filtering.
 
 **Files to create:**
+
 - `src/app/(app)/notes/page.tsx` -- Port from QC's notes/page.tsx
 - `src/components/notes/` -- Port all notes components (RichTextEditor, TagManager, BulkActions, NoteCard, NoteList, etc.)
 - `src/hooks/useNoteEditor.ts` -- Port from QC, replace localStorage with Supabase
 - `src/hooks/useNoteTags.ts` -- Port from QC
 
 **Key changes from QC prototype:**
+
 1. Notes page: Replace localStorage reads with Supabase query to `notes` table filtered by `couple_id`
 2. Privacy filtering: Private notes only visible to author (RLS handles this, but UI should also filter)
 3. CRUD operations: Replace localStorage writes with Supabase insert/update/delete
@@ -1402,6 +1399,7 @@ Expected: No errors (or only errors from missing components that agents will cre
 5. Note creation: Set `author_id` to current user, `couple_id` from profile
 
 **Reference files from QC app:**
+
 - `src/app/notes/page.tsx`
 - `src/components/notes/` (all files)
 - `src/hooks/useNoteEditor.ts`
@@ -1414,17 +1412,20 @@ Expected: No errors (or only errors from missing components that agents will cre
 **Scope:** Port milestones page and components, add Supabase Storage for photo uploads.
 
 **Files to create:**
+
 - `src/app/(app)/growth/page.tsx` -- Port from QC's growth/page.tsx
 - `src/components/growth/` -- Port Timeline, TimelineItem, MemoryCard, PhotoGallery, MilestoneCard
 - `src/hooks/useMilestones.ts` -- Port from QC, replace localStorage with Supabase
 
 **Key changes from QC prototype:**
+
 1. Replace localStorage with Supabase query to `milestones` table
 2. Photo uploads: Use Supabase Storage bucket `milestone-photos`
 3. Upload flow: `supabase.storage.from('milestone-photos').upload(path, file)` -> save public URL to `milestones.photo_url`
 4. CRUD: Supabase insert/update/delete on milestones table
 
 **Reference files from QC app:**
+
 - `src/app/growth/page.tsx`
 - `src/components/growth/` (all files)
 - `src/hooks/useMilestones.ts`
@@ -1437,6 +1438,7 @@ Expected: No errors (or only errors from missing components that agents will cre
 **Scope:** Port both feature sets, update cron job for reminder emails.
 
 **Files to create:**
+
 - `src/app/(app)/reminders/page.tsx` -- Port from QC
 - `src/app/(app)/requests/page.tsx` -- Port from QC
 - `src/components/reminders/` -- Port RemindersChat and related
@@ -1444,6 +1446,7 @@ Expected: No errors (or only errors from missing components that agents will cre
 - Modify: `src/app/api/cron/send-reminders/route.ts` -- Implement actual reminder email sending
 
 **Key changes from QC prototype:**
+
 1. Reminders: Replace mock data with Supabase queries to `reminders` table
 2. Requests: Replace mock data with Supabase queries to `requests` table
 3. Add `useRealtimeCouple` for `requests` table (partner sync)
@@ -1451,6 +1454,7 @@ Expected: No errors (or only errors from missing components that agents will cre
 5. Request actions: Accept/decline updates `status` column
 
 **Reference files from QC app:**
+
 - `src/app/reminders/page.tsx`
 - `src/app/requests/page.tsx`
 - `src/components/reminders/` (all files)
@@ -1465,6 +1469,7 @@ Expected: No errors (or only errors from missing components that agents will cre
 **Scope:** Port LoveLanguagesContext + all love language components.
 
 **Files to create:**
+
 - `src/contexts/LoveLanguagesContext.tsx` -- Rewrite from QC's 444-line context
 - `src/app/(app)/love-languages/page.tsx` -- Port from QC
 - `src/app/(app)/love-languages/actions/page.tsx` -- Port from QC
@@ -1472,6 +1477,7 @@ Expected: No errors (or only errors from missing components that agents will cre
 - `src/components/love-languages/` -- Port LoveLanguageCard, AddLanguageDialog, etc.
 
 **Key changes from QC prototype:**
+
 1. LoveLanguagesContext: Replace localStorage (`qc-love-languages`) with Supabase queries to `love_languages` and `love_actions` tables
 2. Privacy: Private love languages only visible to owner (RLS handles this)
 3. Partner languages: Query where `couple_id` matches and `user_id` != current user and `privacy = 'shared'`
@@ -1479,6 +1485,7 @@ Expected: No errors (or only errors from missing components that agents will cre
 5. Remove demo data loading (loadDemoData method)
 
 **Reference files from QC app:**
+
 - `src/contexts/LoveLanguagesContext.tsx` (444 lines)
 - `src/app/love-languages/page.tsx`
 - `src/app/love-languages/actions/page.tsx`
@@ -1492,11 +1499,13 @@ Expected: No errors (or only errors from missing components that agents will cre
 **Scope:** Port all settings pages and session settings CRUD.
 
 **Files to create:**
+
 - `src/app/(app)/settings/page.tsx` -- Port from QC's settings page (7 tabs)
 - `src/components/settings/` -- Port all: CategoryManager, NotificationSettings, ReminderScheduler, ThemeSelector, PersonalizationPanel, SessionSettingsPanel, CategoryEditor, PromptLibrary, PromptTemplateEditor, SessionAgreementModal
 - `src/hooks/useCategories.ts` -- Port from QC
 
 **Key changes from QC prototype:**
+
 1. Session settings: Read/write to `session_settings` table instead of localStorage
 2. Profile settings: Update `profiles` table (display_name, avatar_url)
 3. Couple settings: Update `couples.settings` JSONB column
@@ -1505,6 +1514,7 @@ Expected: No errors (or only errors from missing components that agents will cre
 6. Add Stripe subscription management link (portal URL)
 
 **Reference files from QC app:**
+
 - `src/app/settings/page.tsx`
 - `src/components/Settings/` (note: capital S in QC)
 - `src/hooks/useCategories.ts`
@@ -1516,6 +1526,7 @@ Expected: No errors (or only errors from missing components that agents will cre
 **Scope:** Root layout, QC sidebar/header/mobile nav, dashboard hub, landing page, ThemeContext, QC-specific Providers wrapper.
 
 **Files to create:**
+
 - `src/app/(app)/layout.tsx` -- QC app shell with sidebar, header, mobile nav
 - `src/app/(app)/dashboard/page.tsx` -- QC dashboard hub with quick actions, stats, recent activity
 - `src/app/layout.tsx` -- Update root layout for QC (Inter font -> QC font, metadata, QC Providers)
@@ -1527,6 +1538,7 @@ Expected: No errors (or only errors from missing components that agents will cre
 - `src/components/Landing/` -- Port Hero, FeatureGrid from QC
 
 **Key changes from QC prototype:**
+
 1. Root layout: Replace QC's static layout with template's auth-aware layout
 2. `(app)/layout.tsx`: Server component that calls `requireAuth()`, renders QC sidebar/header/mobile nav
 3. Dashboard: Replace localStorage-based stats with Supabase count queries
@@ -1535,6 +1547,7 @@ Expected: No errors (or only errors from missing components that agents will cre
 6. Landing page: Port QC's Hero and FeatureGrid, add login/signup CTAs
 
 **Reference files from QC app:**
+
 - `src/app/layout.tsx` (256 lines -- root layout with sidebar + header)
 - `src/app/page.tsx` (landing)
 - `src/app/dashboard/page.tsx`
@@ -1561,6 +1574,7 @@ git log --oneline --all --name-only | sort | uniq -d
 **Step 2: Resolve any import conflicts**
 
 Common issues to check:
+
 - Circular imports between contexts
 - Missing re-exports from `src/contexts/index.ts`
 - Provider nesting order in `src/app/providers.tsx`
@@ -1635,11 +1649,13 @@ git add -A && git commit -m "chore: lint, format, remove dead code"
 ### Task 29: Update CLAUDE.md for QC project
 
 **Files:**
+
 - Modify: `CLAUDE.md`
 
 **Step 1: Update project overview**
 
 Replace template description with QC description. Update:
+
 - Project overview: QC relationship wellness app
 - Directory structure: Add `(app)` route group, contexts, QC components
 - Database section: Document all 12 tables and RLS pattern
@@ -1679,53 +1695,53 @@ echo "Migration complete. QC repo is live at github.com/neonwatty/qc"
 
 No two agents write to the same file. If a file is needed by multiple agents, it's created in the foundation (Phase 1).
 
-| Path | Owner |
-|------|-------|
-| `supabase/migrations/*` | Phase 1 (Tasks 3-8) |
-| `src/types/*` | Phase 1 (Task 9) |
-| `src/hooks/useRealtimeCouple.ts` | Phase 1 (Task 10) |
-| `src/lib/couples.ts` | Phase 1 (Task 11) |
-| `src/lib/animations.ts` | Phase 1 (Task 14) |
-| `src/lib/text-formatting.ts` | Phase 1 (Task 14) |
-| `src/lib/haptics.ts` | Phase 1 (Task 14) |
-| `src/components/ui/*` | Phase 1 (Task 15) |
-| `src/app/globals.css` | Phase 1 (Task 16) |
-| `src/lib/supabase/middleware.ts` | Phase 1 (Task 12) |
-| `src/lib/stripe/client.ts` | Phase 1 (Task 13) |
-| `src/lib/subscription/server.ts` | Phase 1 (Task 13) |
-| `src/app/onboarding/*` | Agent 1 |
-| `src/app/invite/*` | Agent 1 |
-| `src/lib/email/templates/invite.tsx` | Agent 1 |
-| `src/contexts/CheckInContext.tsx` | Agent 2 |
-| `src/contexts/BookendsContext.tsx` | Agent 2 |
-| `src/contexts/SessionSettingsContext.tsx` | Agent 2 |
-| `src/app/(app)/checkin/*` | Agent 2 |
-| `src/components/checkin/*` | Agent 2 |
-| `src/components/bookends/*` | Agent 2 |
-| `src/app/(app)/notes/*` | Agent 3 |
-| `src/components/notes/*` | Agent 3 |
-| `src/hooks/useNoteEditor.ts` | Agent 3 |
-| `src/hooks/useNoteTags.ts` | Agent 3 |
-| `src/app/(app)/growth/*` | Agent 4 |
-| `src/components/growth/*` | Agent 4 |
-| `src/hooks/useMilestones.ts` | Agent 4 |
-| `src/app/(app)/reminders/*` | Agent 5 |
-| `src/app/(app)/requests/*` | Agent 5 |
-| `src/components/reminders/*` | Agent 5 |
-| `src/components/requests/*` | Agent 5 |
-| `src/app/api/cron/send-reminders/route.ts` | Agent 5 |
-| `src/contexts/LoveLanguagesContext.tsx` | Agent 6 |
-| `src/app/(app)/love-languages/*` | Agent 6 |
-| `src/components/love-languages/*` | Agent 6 |
-| `src/app/(app)/settings/*` | Agent 7 |
-| `src/components/settings/*` | Agent 7 |
-| `src/hooks/useCategories.ts` | Agent 7 |
-| `src/app/(app)/layout.tsx` | Agent 8 |
-| `src/app/(app)/dashboard/*` | Agent 8 |
-| `src/app/layout.tsx` | Agent 8 |
-| `src/app/page.tsx` | Agent 8 |
-| `src/app/providers.tsx` | Agent 8 |
-| `src/contexts/ThemeContext.tsx` | Agent 8 |
-| `src/components/layout/*` | Agent 8 |
-| `src/components/dashboard/*` | Agent 8 |
-| `src/components/Landing/*` | Agent 8 |
+| Path                                       | Owner               |
+| ------------------------------------------ | ------------------- |
+| `supabase/migrations/*`                    | Phase 1 (Tasks 3-8) |
+| `src/types/*`                              | Phase 1 (Task 9)    |
+| `src/hooks/useRealtimeCouple.ts`           | Phase 1 (Task 10)   |
+| `src/lib/couples.ts`                       | Phase 1 (Task 11)   |
+| `src/lib/animations.ts`                    | Phase 1 (Task 14)   |
+| `src/lib/text-formatting.ts`               | Phase 1 (Task 14)   |
+| `src/lib/haptics.ts`                       | Phase 1 (Task 14)   |
+| `src/components/ui/*`                      | Phase 1 (Task 15)   |
+| `src/app/globals.css`                      | Phase 1 (Task 16)   |
+| `src/lib/supabase/middleware.ts`           | Phase 1 (Task 12)   |
+| `src/lib/stripe/client.ts`                 | Phase 1 (Task 13)   |
+| `src/lib/subscription/server.ts`           | Phase 1 (Task 13)   |
+| `src/app/onboarding/*`                     | Agent 1             |
+| `src/app/invite/*`                         | Agent 1             |
+| `src/lib/email/templates/invite.tsx`       | Agent 1             |
+| `src/contexts/CheckInContext.tsx`          | Agent 2             |
+| `src/contexts/BookendsContext.tsx`         | Agent 2             |
+| `src/contexts/SessionSettingsContext.tsx`  | Agent 2             |
+| `src/app/(app)/checkin/*`                  | Agent 2             |
+| `src/components/checkin/*`                 | Agent 2             |
+| `src/components/bookends/*`                | Agent 2             |
+| `src/app/(app)/notes/*`                    | Agent 3             |
+| `src/components/notes/*`                   | Agent 3             |
+| `src/hooks/useNoteEditor.ts`               | Agent 3             |
+| `src/hooks/useNoteTags.ts`                 | Agent 3             |
+| `src/app/(app)/growth/*`                   | Agent 4             |
+| `src/components/growth/*`                  | Agent 4             |
+| `src/hooks/useMilestones.ts`               | Agent 4             |
+| `src/app/(app)/reminders/*`                | Agent 5             |
+| `src/app/(app)/requests/*`                 | Agent 5             |
+| `src/components/reminders/*`               | Agent 5             |
+| `src/components/requests/*`                | Agent 5             |
+| `src/app/api/cron/send-reminders/route.ts` | Agent 5             |
+| `src/contexts/LoveLanguagesContext.tsx`    | Agent 6             |
+| `src/app/(app)/love-languages/*`           | Agent 6             |
+| `src/components/love-languages/*`          | Agent 6             |
+| `src/app/(app)/settings/*`                 | Agent 7             |
+| `src/components/settings/*`                | Agent 7             |
+| `src/hooks/useCategories.ts`               | Agent 7             |
+| `src/app/(app)/layout.tsx`                 | Agent 8             |
+| `src/app/(app)/dashboard/*`                | Agent 8             |
+| `src/app/layout.tsx`                       | Agent 8             |
+| `src/app/page.tsx`                         | Agent 8             |
+| `src/app/providers.tsx`                    | Agent 8             |
+| `src/contexts/ThemeContext.tsx`            | Agent 8             |
+| `src/components/layout/*`                  | Agent 8             |
+| `src/components/dashboard/*`               | Agent 8             |
+| `src/components/Landing/*`                 | Agent 8             |

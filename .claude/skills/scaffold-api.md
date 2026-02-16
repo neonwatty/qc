@@ -11,64 +11,61 @@ Generate a Next.js API route at `src/app/api/[resource]/route.ts` with auth, val
 2. Use this template structure:
 
 ```typescript
-import { NextRequest } from "next/server";
-import { z } from "zod";
-import { requireAuth } from "@/lib/auth";
-import { createClient } from "@/lib/supabase/server";
+import { NextRequest } from 'next/server'
+import { z } from 'zod'
+import { requireAuth } from '@/lib/auth'
+import { createClient } from '@/lib/supabase/server'
 
 const CreateSchema = z.object({
   // Define fields based on the resource
-});
+})
 
-const UpdateSchema = CreateSchema.partial();
+const UpdateSchema = CreateSchema.partial()
 
 export async function GET(request: NextRequest): Promise<Response> {
-  const user = await requireAuth();
+  const user = await requireAuth()
   if (!user) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+    return Response.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const supabase = await createClient();
+  const supabase = await createClient()
   const { data, error } = await supabase
-    .from("<resource>")
-    .select("*")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false });
+    .from('<resource>')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
 
   if (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ error: error.message }, { status: 500 })
   }
 
-  return Response.json(data);
+  return Response.json(data)
 }
 
 export async function POST(request: NextRequest): Promise<Response> {
-  const user = await requireAuth();
+  const user = await requireAuth()
   if (!user) {
-    return Response.json({ error: "Unauthorized" }, { status: 401 });
+    return Response.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
-  const body = await request.json();
-  const parsed = CreateSchema.safeParse(body);
+  const body = await request.json()
+  const parsed = CreateSchema.safeParse(body)
   if (!parsed.success) {
-    return Response.json(
-      { error: "Validation failed", details: parsed.error.flatten() },
-      { status: 400 },
-    );
+    return Response.json({ error: 'Validation failed', details: parsed.error.flatten() }, { status: 400 })
   }
 
-  const supabase = await createClient();
+  const supabase = await createClient()
   const { data, error } = await supabase
-    .from("<resource>")
+    .from('<resource>')
     .insert({ ...parsed.data, user_id: user.id })
     .select()
-    .single();
+    .single()
 
   if (error) {
-    return Response.json({ error: error.message }, { status: 500 });
+    return Response.json({ error: error.message }, { status: 500 })
   }
 
-  return Response.json(data, { status: 201 });
+  return Response.json(data, { status: 201 })
 }
 ```
 

@@ -11,11 +11,7 @@ interface SkeletonProps {
   variant?: 'pulse' | 'shimmer' | 'wave'
 }
 
-export const Skeleton: React.FC<SkeletonProps> = ({
-  className,
-  animated = true,
-  variant = 'shimmer',
-}) => {
+export const Skeleton: React.FC<SkeletonProps> = ({ className, animated = true, variant = 'shimmer' }) => {
   const getAnimationProps = () => {
     if (!animated) return {}
 
@@ -44,11 +40,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({
 
   return (
     <motion.div
-      className={cn(
-        'bg-gray-200 rounded animate-pulse',
-        variant === 'shimmer' && 'shimmer',
-        className,
-      )}
+      className={cn('bg-gray-200 rounded animate-pulse', variant === 'shimmer' && 'shimmer', className)}
       {...getAnimationProps()}
     />
   )
@@ -61,11 +53,7 @@ export const SkeletonText: React.FC<{
 }> = ({ lines = 3, className, animated = true }) => (
   <div className={cn('space-y-2', className)}>
     {Array.from({ length: lines }).map((_, i) => (
-      <Skeleton
-        key={i}
-        className={cn('h-4', i === lines - 1 ? 'w-3/4' : 'w-full')}
-        animated={animated}
-      />
+      <Skeleton key={i} className={cn('h-4', i === lines - 1 ? 'w-3/4' : 'w-full')} animated={animated} />
     ))}
   </div>
 )
@@ -78,18 +66,14 @@ export const SkeletonCard: React.FC<{
 }> = ({ className, showAvatar = false, showImage = false, animated = true }) => (
   <div className={cn('p-6 bg-white rounded-lg border border-gray-200', className)}>
     <div className="flex items-start space-x-3 mb-4">
-      {showAvatar && (
-        <Skeleton className="w-12 h-12 rounded-full flex-shrink-0" animated={animated} />
-      )}
+      {showAvatar && <Skeleton className="w-12 h-12 rounded-full flex-shrink-0" animated={animated} />}
       <div className="flex-1 space-y-2">
         <Skeleton className="h-5 w-3/4" animated={animated} />
         <Skeleton className="h-4 w-1/2" animated={animated} />
       </div>
     </div>
 
-    {showImage && (
-      <Skeleton className="h-48 w-full mb-4" animated={animated} />
-    )}
+    {showImage && <Skeleton className="h-48 w-full mb-4" animated={animated} />}
 
     <div className="space-y-2">
       <Skeleton className="h-4 w-full" animated={animated} />
@@ -130,14 +114,16 @@ export const SkeletonGrid: React.FC<{
   className?: string
   animated?: boolean
 }> = ({ columns = 2, items = 6, className, animated = true }) => (
-  <div className={cn(
-    'grid gap-4',
-    columns === 1 && 'grid-cols-1',
-    columns === 2 && 'grid-cols-1 sm:grid-cols-2',
-    columns === 3 && 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
-    columns === 4 && 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4',
-    className,
-  )}>
+  <div
+    className={cn(
+      'grid gap-4',
+      columns === 1 && 'grid-cols-1',
+      columns === 2 && 'grid-cols-1 sm:grid-cols-2',
+      columns === 3 && 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
+      columns === 4 && 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4',
+      className,
+    )}
+  >
     {Array.from({ length: items }).map((_, i) => (
       <SkeletonCard key={i} animated={animated} />
     ))}
@@ -190,11 +176,7 @@ export const PageSkeleton: React.FC<{
     }
   }
 
-  return (
-    <div className={cn('animate-pulse', className)}>
-      {renderSkeleton()}
-    </div>
-  )
+  return <div className={cn('animate-pulse', className)}>{renderSkeleton()}</div>
 }
 
 export default Skeleton

@@ -132,15 +132,11 @@ export class ErrorBoundary extends Component<Props, State> {
             </div>
             <h1 className="text-3xl font-bold text-red-900 mb-4">Critical Error</h1>
             <p className="text-red-700 text-lg mb-8">
-              The application encountered a critical error and cannot continue.
-              Please refresh the page or contact support if the problem persists.
+              The application encountered a critical error and cannot continue. Please refresh the page or contact
+              support if the problem persists.
             </p>
             <div className="space-y-4">
-              <Button
-                onClick={() => window.location.reload()}
-                size="lg"
-                className="bg-red-600 hover:bg-red-700 w-full"
-              >
+              <Button onClick={() => window.location.reload()} size="lg" className="bg-red-600 hover:bg-red-700 w-full">
                 <RefreshCw className="h-5 w-5 mr-2" />
                 Reload Application
               </Button>
@@ -160,7 +156,10 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 }
 
-export function PageErrorBoundary({ children, onError }: {
+export function PageErrorBoundary({
+  children,
+  onError,
+}: {
   children: ReactNode
   onError?: (error: Error, errorInfo: ErrorInfo) => void
 }) {
@@ -171,7 +170,10 @@ export function PageErrorBoundary({ children, onError }: {
   )
 }
 
-export function ComponentErrorBoundary({ children, onError }: {
+export function ComponentErrorBoundary({
+  children,
+  onError,
+}: {
   children: ReactNode
   onError?: (error: Error, errorInfo: ErrorInfo) => void
 }) {
@@ -182,7 +184,10 @@ export function ComponentErrorBoundary({ children, onError }: {
   )
 }
 
-export function CriticalErrorBoundary({ children, onError }: {
+export function CriticalErrorBoundary({
+  children,
+  onError,
+}: {
   children: ReactNode
   onError?: (error: Error, errorInfo: ErrorInfo) => void
 }) {

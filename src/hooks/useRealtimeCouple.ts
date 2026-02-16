@@ -5,7 +5,7 @@ import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js'
 
 import { createClient } from '@/lib/supabase/client'
 
-type RealtimeTable = 'notes' | 'check_ins' | 'action_items' | 'requests' | 'love_actions'
+type RealtimeTable = 'notes' | 'check_ins' | 'action_items' | 'requests' | 'love_languages' | 'love_actions'
 
 interface UseRealtimeCoupleOptions<T extends Record<string, unknown>> {
   table: RealtimeTable

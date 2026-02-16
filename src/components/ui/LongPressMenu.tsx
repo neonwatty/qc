@@ -46,25 +46,28 @@ export const LongPressMenu: React.FC<LongPressMenuProps> = ({
   const longPressTimer = React.useRef<NodeJS.Timeout | null>(null)
   const elementRef = React.useRef<HTMLDivElement>(null)
 
-  const startLongPress = React.useCallback((event: React.TouchEvent | React.MouseEvent) => {
-    if (disabled) return
+  const startLongPress = React.useCallback(
+    (event: React.TouchEvent | React.MouseEvent) => {
+      if (disabled) return
 
-    setIsPressed(true)
+      setIsPressed(true)
 
-    if (rippleEffect && elementRef.current) {
-      const rect = elementRef.current.getBoundingClientRect()
-      const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX
-      const clientY = 'touches' in event ? event.touches[0].clientY : event.clientY
+      if (rippleEffect && elementRef.current) {
+        const rect = elementRef.current.getBoundingClientRect()
+        const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX
+        const clientY = 'touches' in event ? event.touches[0].clientY : event.clientY
 
-      setRipplePosition({ x: clientX - rect.left, y: clientY - rect.top })
-    }
+        setRipplePosition({ x: clientX - rect.left, y: clientY - rect.top })
+      }
 
-    longPressTimer.current = setTimeout(() => {
-      hapticFeedback.longPress()
-      setShowMenu(true)
-      setIsPressed(false)
-    }, longPressDuration)
-  }, [disabled, longPressDuration, rippleEffect])
+      longPressTimer.current = setTimeout(() => {
+        hapticFeedback.longPress()
+        setShowMenu(true)
+        setIsPressed(false)
+      }, longPressDuration)
+    },
+    [disabled, longPressDuration, rippleEffect],
+  )
 
   const cancelLongPress = React.useCallback(() => {
     if (longPressTimer.current) {
@@ -74,34 +77,47 @@ export const LongPressMenu: React.FC<LongPressMenuProps> = ({
     setIsPressed(false)
   }, [])
 
-  const handleTouchStart = React.useCallback((event: React.TouchEvent) => {
-    event.preventDefault()
-    startLongPress(event)
-  }, [startLongPress])
-
-  const handleMouseDown = React.useCallback((event: React.MouseEvent) => {
-    if (event.button === 2) {
+  const handleTouchStart = React.useCallback(
+    (event: React.TouchEvent) => {
       event.preventDefault()
-      hapticFeedback.longPress()
-      setShowMenu(true)
-      return
-    }
-    startLongPress(event)
-  }, [startLongPress])
+      startLongPress(event)
+    },
+    [startLongPress],
+  )
 
-  const handleContextMenu = React.useCallback((event: React.MouseEvent) => {
-    event.preventDefault()
-    if (!disabled) {
-      hapticFeedback.longPress()
-      setShowMenu(true)
-    }
-  }, [disabled])
+  const handleMouseDown = React.useCallback(
+    (event: React.MouseEvent) => {
+      if (event.button === 2) {
+        event.preventDefault()
+        hapticFeedback.longPress()
+        setShowMenu(true)
+        return
+      }
+      startLongPress(event)
+    },
+    [startLongPress],
+  )
 
-  const closeMenu = () => { setShowMenu(false) }
+  const handleContextMenu = React.useCallback(
+    (event: React.MouseEvent) => {
+      event.preventDefault()
+      if (!disabled) {
+        hapticFeedback.longPress()
+        setShowMenu(true)
+      }
+    },
+    [disabled],
+  )
+
+  const closeMenu = () => {
+    setShowMenu(false)
+  }
 
   React.useEffect(() => {
     return () => {
-      if (longPressTimer.current) { clearTimeout(longPressTimer.current) }
+      if (longPressTimer.current) {
+        clearTimeout(longPressTimer.current)
+      }
     }
   }, [])
 
@@ -109,7 +125,11 @@ export const LongPressMenu: React.FC<LongPressMenuProps> = ({
     <>
       <div
         ref={elementRef}
-        className={cn('relative overflow-hidden select-none', isPressed && 'transform scale-95 transition-transform', className)}
+        className={cn(
+          'relative overflow-hidden select-none',
+          isPressed && 'transform scale-95 transition-transform',
+          className,
+        )}
         onTouchStart={handleTouchStart}
         onTouchEnd={cancelLongPress}
         onTouchCancel={cancelLongPress}
@@ -137,13 +157,7 @@ export const LongPressMenu: React.FC<LongPressMenuProps> = ({
       </div>
 
       {showActionSheet ? (
-        <ActionSheet
-          open={showMenu}
-          onClose={closeMenu}
-          actions={actions}
-          title={title}
-          description={description}
-        />
+        <ActionSheet open={showMenu} onClose={closeMenu} actions={actions} title={title} description={description} />
       ) : (
         <AnimatePresence>
           {showMenu && (
@@ -173,7 +187,10 @@ export const LongPressMenu: React.FC<LongPressMenuProps> = ({
                       action.disabled && 'opacity-50 cursor-not-allowed',
                     )}
                     onClick={() => {
-                      if (!action.disabled) { action.onClick(); closeMenu() }
+                      if (!action.disabled) {
+                        action.onClick()
+                        closeMenu()
+                      }
                     }}
                     disabled={action.disabled}
                   >

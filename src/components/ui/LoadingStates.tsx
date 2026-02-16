@@ -70,11 +70,7 @@ export const ProgressBar: React.FC<{
   return (
     <div className={cn('w-full', className)}>
       <div className="flex items-center justify-between mb-1">
-        {showPercentage && (
-          <span className="text-sm font-medium text-foreground">
-            {Math.round(progress)}%
-          </span>
-        )}
+        {showPercentage && <span className="text-sm font-medium text-foreground">{Math.round(progress)}%</span>}
       </div>
       <div className="w-full bg-muted rounded-full h-2">
         <motion.div
@@ -97,13 +93,7 @@ export const LoadingCard: React.FC<{
       <div className="animate-pulse">
         <div className="h-4 bg-muted rounded w-3/4 mb-2" />
         {Array.from({ length: lines }).map((_, i) => (
-          <div
-            key={i}
-            className={cn(
-              'h-3 bg-muted rounded',
-              i === lines - 1 ? 'w-1/2' : 'w-full',
-            )}
-          />
+          <div key={i} className={cn('h-3 bg-muted rounded', i === lines - 1 ? 'w-1/2' : 'w-full')} />
         ))}
       </div>
     </div>
@@ -116,10 +106,7 @@ export const PageLoader: React.FC<{
 }> = ({ message = 'Loading...', className }) => {
   return (
     <motion.div
-      className={cn(
-        'fixed inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm z-50',
-        className,
-      )}
+      className={cn('fixed inset-0 flex items-center justify-center bg-background/80 backdrop-blur-sm z-50', className)}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -194,10 +181,7 @@ export const ButtonLoader: React.FC<{
   return (
     <span className={cn('flex items-center justify-center gap-2', className)}>
       {isLoading && <LoadingSpinner size="sm" />}
-      <motion.span
-        animate={{ opacity: isLoading ? 0.7 : 1 }}
-        transition={{ duration: 0.2 }}
-      >
+      <motion.span animate={{ opacity: isLoading ? 0.7 : 1 }} transition={{ duration: 0.2 }}>
         {children}
       </motion.span>
     </span>

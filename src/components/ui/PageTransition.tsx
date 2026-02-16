@@ -15,11 +15,7 @@ const PageTransition: React.FC<PageTransitionProps> = ({ children, className }) 
   const _transition = getTransitionForRoute(pathname)
 
   // Temporarily disable animations to fix content loading issue
-  return (
-    <div className={className}>
-      {children}
-    </div>
-  )
+  return <div className={className}>{children}</div>
 }
 
 export default PageTransition

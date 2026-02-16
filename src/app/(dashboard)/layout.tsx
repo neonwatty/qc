@@ -3,11 +3,7 @@ import { redirect } from 'next/navigation'
 import { getUserOrNull } from '@/lib/auth'
 import { SignOutButton } from '@/components/sign-out-button'
 
-export default async function DashboardLayout({
-  children,
-}: {
-  children: React.ReactNode
-}) {
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const user = await getUserOrNull()
 
   if (!user) {
@@ -22,9 +18,7 @@ export default async function DashboardLayout({
             Template
           </a>
           <div className="flex items-center gap-4">
-            <span className="text-sm text-[var(--muted-foreground)]">
-              {user.email}
-            </span>
+            <span className="text-sm text-[var(--muted-foreground)]">{user.email}</span>
             <SignOutButton />
           </div>
         </nav>

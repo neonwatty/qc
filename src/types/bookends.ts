@@ -61,7 +61,7 @@ export const FEELING_EMOJIS = [
 
 // Partner topic templates
 export const PARTNER_TOPIC_TEMPLATES = [
-  'How we handled last week\'s conflict',
+  "How we handled last week's conflict",
   'Planning for the upcoming holiday',
   'Budget review and financial goals',
   'Family visit preparations',

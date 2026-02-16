@@ -34,15 +34,15 @@ export function EmptyState({
       <h3 className="text-lg font-medium text-gray-900 mb-2">{title}</h3>
       <p className="text-gray-500 mb-6 max-w-sm">{message}</p>
 
-      {(actionLabel && (onAction || actionHref)) && (
-        actionHref ? (
+      {actionLabel &&
+        (onAction || actionHref) &&
+        (actionHref ? (
           <Link href={actionHref}>
             <Button>{actionLabel}</Button>
           </Link>
         ) : (
           <Button onClick={onAction}>{actionLabel}</Button>
-        )
-      )}
+        ))}
     </div>
   )
 }

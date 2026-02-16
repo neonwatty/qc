@@ -8,23 +8,23 @@ Production-ready Next.js template with Supabase auth, Stripe payments, Resend em
 
 ## Tech Stack
 
-| Layer          | Technology                         |
-| -------------- | ---------------------------------- |
-| Framework      | Next.js 16 (App Router, Turbopack) |
-| Language       | TypeScript 5.9 (strict mode)       |
-| Auth           | Supabase Auth (SSR cookies)        |
-| Database       | Supabase (Postgres + RLS)          |
-| Payments       | Stripe (webhooks + checkout)       |
-| Email          | Resend + React Email               |
-| State          | Zustand 5                          |
-| Styling        | Tailwind CSS 4                     |
-| Testing        | Vitest + Playwright                |
-| Linting        | ESLint 9 + Prettier 3              |
-| Dead Code      | Knip                               |
-| CI             | GitHub Actions                     |
-| Deployment     | Vercel (auto-deploy on push)       |
-| Secrets        | Doppler                            |
-| Mobile         | Capacitor (iOS)                    |
+| Layer      | Technology                         |
+| ---------- | ---------------------------------- |
+| Framework  | Next.js 16 (App Router, Turbopack) |
+| Language   | TypeScript 5.9 (strict mode)       |
+| Auth       | Supabase Auth (SSR cookies)        |
+| Database   | Supabase (Postgres + RLS)          |
+| Payments   | Stripe (webhooks + checkout)       |
+| Email      | Resend + React Email               |
+| State      | Zustand 5                          |
+| Styling    | Tailwind CSS 4                     |
+| Testing    | Vitest + Playwright                |
+| Linting    | ESLint 9 + Prettier 3              |
+| Dead Code  | Knip                               |
+| CI         | GitHub Actions                     |
+| Deployment | Vercel (auto-deploy on push)       |
+| Secrets    | Doppler                            |
+| Mobile     | Capacitor (iOS)                    |
 
 ## Directory Structure
 
@@ -106,11 +106,11 @@ make db-pull             # Pull remote schema as migration
 
 Three Supabase clients for different contexts -- never mix them:
 
-| Client         | File                      | Context                   | Auth   |
-| -------------- | ------------------------- | ------------------------- | ------ |
-| `createClient` | `lib/supabase/server.ts`  | Server components/actions | Cookie |
-| `createClient` | `lib/supabase/client.ts`  | Client components         | Cookie |
-| `createAdminClient` | `lib/supabase/admin.ts` | Webhooks, cron jobs      | Service role |
+| Client              | File                     | Context                   | Auth         |
+| ------------------- | ------------------------ | ------------------------- | ------------ |
+| `createClient`      | `lib/supabase/server.ts` | Server components/actions | Cookie       |
+| `createClient`      | `lib/supabase/client.ts` | Client components         | Cookie       |
+| `createAdminClient` | `lib/supabase/admin.ts`  | Webhooks, cron jobs       | Service role |
 
 ### Auth Flow
 
@@ -182,6 +182,7 @@ Three Supabase clients for different contexts -- never mix them:
 ### RLS Patterns
 
 Every table in `public` schema MUST have:
+
 - RLS enabled: `ALTER TABLE public.X ENABLE ROW LEVEL SECURITY`
 - SELECT policy: `USING (auth.uid() = user_id)`
 - INSERT policy: `WITH CHECK (auth.uid() = user_id)`
@@ -206,36 +207,36 @@ Trigger functions use `SECURITY DEFINER SET search_path = ''` for safety.
 
 **Project-specific:**
 
-| Skill           | Description                                          |
-| --------------- | ---------------------------------------------------- |
-| `scaffold-api`  | Generate API route with auth, validation, error handling |
-| `db-migrate`    | Create and apply a Supabase migration                |
-| `gen-test`      | Generate Vitest unit tests for a source file         |
-| `audit-rls`     | Audit all tables for RLS policies                    |
-| `monitor-ci`    | Check GitHub Actions CI status and diagnose failures |
-| `ship`          | Run quality pipeline and create PR or deploy         |
+| Skill          | Description                                              |
+| -------------- | -------------------------------------------------------- |
+| `scaffold-api` | Generate API route with auth, validation, error handling |
+| `db-migrate`   | Create and apply a Supabase migration                    |
+| `gen-test`     | Generate Vitest unit tests for a source file             |
+| `audit-rls`    | Audit all tables for RLS policies                        |
+| `monitor-ci`   | Check GitHub Actions CI status and diagnose failures     |
+| `ship`         | Run quality pipeline and create PR or deploy             |
 
 **Development workflow:**
 
-| Skill                    | Description                                                  |
-| ------------------------ | ------------------------------------------------------------ |
-| `feature-dev`            | Guided 7-phase feature development with codebase exploration |
-| `code-review`            | Multi-angle PR code review with confidence scoring           |
-| `systematic-debugging`   | 4-phase root cause investigation before proposing fixes      |
-| `test-driven-development`| Red-Green-Refactor TDD cycle                                 |
-| `pr-creator`             | Create PR, monitor CI, fix failures until green              |
-| `validator`              | Auto-detect project and run lint, typecheck, tests, knip     |
-| `brainstorming`          | Explore intent, requirements, and design before implementation |
-| `bug-interview`          | Deep bug triage interview to isolate root cause              |
-| `feature-interview`      | Deep feature discovery interview before implementation       |
+| Skill                     | Description                                                    |
+| ------------------------- | -------------------------------------------------------------- |
+| `feature-dev`             | Guided 7-phase feature development with codebase exploration   |
+| `code-review`             | Multi-angle PR code review with confidence scoring             |
+| `systematic-debugging`    | 4-phase root cause investigation before proposing fixes        |
+| `test-driven-development` | Red-Green-Refactor TDD cycle                                   |
+| `pr-creator`              | Create PR, monitor CI, fix failures until green                |
+| `validator`               | Auto-detect project and run lint, typecheck, tests, knip       |
+| `brainstorming`           | Explore intent, requirements, and design before implementation |
+| `bug-interview`           | Deep bug triage interview to isolate root cause                |
+| `feature-interview`       | Deep feature discovery interview before implementation         |
 
 ### Agents (`.claude/agents/`)
 
-| Agent              | Description                                    |
-| ------------------ | ---------------------------------------------- |
-| `code-reviewer`    | Review changes for quality, auth, RLS, patterns |
-| `security-reviewer`| Audit for RLS, auth bypass, key exposure, XSS  |
-| `test-writer`      | Generate Vitest + Playwright tests             |
+| Agent               | Description                                     |
+| ------------------- | ----------------------------------------------- |
+| `code-reviewer`     | Review changes for quality, auth, RLS, patterns |
+| `security-reviewer` | Audit for RLS, auth bypass, key exposure, XSS   |
+| `test-writer`       | Generate Vitest + Playwright tests              |
 
 ### MCP Servers (`.mcp.json`)
 
@@ -254,6 +255,7 @@ Trigger functions use `SECURITY DEFINER SET search_path = ''` for safety.
 ### Environment Variables
 
 All secrets live in Doppler. See `.env.example` for the full list:
+
 - `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` -- public Supabase config
 - `SUPABASE_SERVICE_ROLE_KEY` -- server-only admin access
 - `STRIPE_SECRET_KEY` / `STRIPE_WEBHOOK_SECRET` -- Stripe config
@@ -280,6 +282,7 @@ All secrets live in Doppler. See `.env.example` for the full list:
 ### CI Pipeline (GitHub Actions)
 
 Runs on push to `main` and pull requests:
+
 1. **lint-and-typecheck**: ESLint + `tsc --noEmit`
 2. **unit-tests**: Vitest with coverage
 3. **e2e-tests**: Playwright with local Supabase (after lint + unit pass)

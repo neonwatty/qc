@@ -34,7 +34,9 @@ export function useLongPress(
 
   React.useEffect(() => {
     return () => {
-      if (timer.current) { clearTimeout(timer.current) }
+      if (timer.current) {
+        clearTimeout(timer.current)
+      }
     }
   }, [])
 

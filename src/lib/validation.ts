@@ -1,14 +1,8 @@
 import { z } from 'zod'
 
-export const emailSchema = z
-  .string()
-  .email('Please enter a valid email address')
-  .min(1, 'Email is required')
+export const emailSchema = z.string().email('Please enter a valid email address').min(1, 'Email is required')
 
-export const nameSchema = z
-  .string()
-  .min(1, 'Name is required')
-  .max(100, 'Name must be 100 characters or less')
+export const nameSchema = z.string().min(1, 'Name is required').max(100, 'Name must be 100 characters or less')
 
 export const createItemSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200, 'Title must be 200 characters or less'),

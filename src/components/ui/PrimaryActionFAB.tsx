@@ -61,13 +61,10 @@ interface PrimaryActionFABProps {
   disabled?: boolean
 }
 
-export const PrimaryActionFAB: React.FC<PrimaryActionFABProps> = ({
-  className,
-  disabled = false,
-}) => {
+export const PrimaryActionFAB: React.FC<PrimaryActionFABProps> = ({ className, disabled = false }) => {
   const pathname = usePathname()
 
-  const currentAction = actionConfigs.find(config => {
+  const currentAction = actionConfigs.find((config) => {
     if (typeof config.path === 'string') {
       return pathname === config.path
     }
@@ -108,11 +105,7 @@ export const PrimaryActionFAB: React.FC<PrimaryActionFABProps> = ({
   )
 
   if (typeof currentAction.action === 'string') {
-    return (
-      <Link href={currentAction.action}>
-        {FabContent}
-      </Link>
-    )
+    return <Link href={currentAction.action}>{FabContent}</Link>
   }
 
   return FabContent
@@ -139,9 +132,7 @@ export const MobileActionBar: React.FC<ActionBarProps> = ({ className }) => {
           { icon: Camera, label: 'Photo Note', action: () => console.log('Photo note') },
         ]
       case '/checkin':
-        return [
-          { icon: Heart, label: 'Quick Save', action: () => console.log('Quick save'), primary: true },
-        ]
+        return [{ icon: Heart, label: 'Quick Save', action: () => console.log('Quick save'), primary: true }]
       case '/growth':
         return [
           { icon: Camera, label: 'Add Photo', action: () => console.log('Add photo'), primary: true },
@@ -163,11 +154,7 @@ export const MobileActionBar: React.FC<ActionBarProps> = ({ className }) => {
       initial={{ y: 100, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       exit={{ y: 100, opacity: 0 }}
-      className={cn(
-        'fixed bottom-20 left-4 right-4 z-40 lg:hidden',
-        'flex justify-center gap-3',
-        className,
-      )}
+      className={cn('fixed bottom-20 left-4 right-4 z-40 lg:hidden', 'flex justify-center gap-3', className)}
     >
       {actions.map((action) => {
         const Icon = action.icon
