@@ -70,6 +70,124 @@ interface LoveLanguagesProviderProps {
   userId: string
 }
 
+interface UseLoveLanguageCrudParams {
+  coupleId: string
+  userId: string
+  languages: LoveLanguage[]
+  actions: LoveAction[]
+  setLanguages: React.Dispatch<React.SetStateAction<LoveLanguage[]>>
+  setActions: React.Dispatch<React.SetStateAction<LoveAction[]>>
+}
+
+function useLoveLanguageCrud({
+  coupleId,
+  userId,
+  languages,
+  actions,
+  setLanguages,
+  setActions,
+}: UseLoveLanguageCrudParams) {
+  const addLanguage = useCallback(
+    async (input: NewLanguageInput) => {
+      const lang = await insertLanguage(coupleId, userId, input)
+      setLanguages((prev) => [lang, ...prev])
+    },
+    [coupleId, userId, setLanguages],
+  )
+
+  const updateLanguage = useCallback(
+    async (id: string, updates: Partial<NewLanguageInput>) => {
+      await updateLanguageDb(id, updates)
+      setLanguages((prev) =>
+        prev.map((l) => (l.id === id ? { ...l, ...updates, updatedAt: new Date().toISOString() } : l)),
+      )
+    },
+    [setLanguages],
+  )
+
+  const deleteLanguage = useCallback(
+    async (id: string) => {
+      await deleteLanguageDb(id)
+      setLanguages((prev) => prev.filter((l) => l.id !== id))
+    },
+    [setLanguages],
+  )
+
+  const toggleLanguagePrivacy = useCallback(
+    async (id: string) => {
+      const lang = languages.find((l) => l.id === id)
+      if (!lang) return
+      const newPrivacy: LoveLanguagePrivacy = lang.privacy === 'private' ? 'shared' : 'private'
+      await updateLanguageDb(id, { privacy: newPrivacy })
+      setLanguages((prev) => prev.map((l) => (l.id === id ? { ...l, privacy: newPrivacy } : l)))
+    },
+    [languages, setLanguages],
+  )
+
+  const addAction = useCallback(
+    async (input: NewActionInput) => {
+      const action = await insertAction(coupleId, input)
+      setActions((prev) => [action, ...prev])
+    },
+    [coupleId, setActions],
+  )
+
+  const updateAction = useCallback(
+    async (id: string, updates: Partial<NewActionInput>) => {
+      const dbUpdates: Record<string, unknown> = {}
+      if (updates.linkedLanguageId !== undefined) dbUpdates.linkedLanguageId = updates.linkedLanguageId
+      if (updates.title !== undefined) dbUpdates.title = updates.title
+      if (updates.description !== undefined) dbUpdates.description = updates.description
+      if (updates.status !== undefined) dbUpdates.status = updates.status
+      if (updates.frequency !== undefined) dbUpdates.frequency = updates.frequency
+      if (updates.difficulty !== undefined) dbUpdates.difficulty = updates.difficulty
+      await updateActionDb(id, dbUpdates)
+      setActions((prev) => prev.map((a) => (a.id === id ? { ...a, ...dbUpdates } : a)))
+    },
+    [setActions],
+  )
+
+  const deleteAction = useCallback(
+    async (id: string) => {
+      await deleteActionDb(id)
+      setActions((prev) => prev.filter((a) => a.id !== id))
+    },
+    [setActions],
+  )
+
+  const completeAction = useCallback(
+    async (id: string) => {
+      const action = actions.find((a) => a.id === id)
+      if (!action) return
+      await completeActionDb(id, action.completedCount)
+      setActions((prev) =>
+        prev.map((a) =>
+          a.id === id
+            ? {
+                ...a,
+                status: 'completed' as const,
+                completedCount: a.completedCount + 1,
+                lastCompletedAt: new Date().toISOString(),
+              }
+            : a,
+        ),
+      )
+    },
+    [actions, setActions],
+  )
+
+  return {
+    addLanguage,
+    updateLanguage,
+    deleteLanguage,
+    toggleLanguagePrivacy,
+    addAction,
+    updateAction,
+    deleteAction,
+    completeAction,
+  }
+}
+
 export function LoveLanguagesProvider({ children, coupleId, userId }: LoveLanguagesProviderProps): React.ReactNode {
   const [languages, setLanguages] = useState<LoveLanguage[]>([])
   const [actions, setActions] = useState<LoveAction[]>([])
@@ -139,96 +257,14 @@ export function LoveLanguagesProvider({ children, coupleId, userId }: LoveLangua
   const myLanguages = languages.filter((l) => l.userId === userId)
   const partnerLanguages = languages.filter((l) => l.userId !== userId && l.privacy === 'shared')
 
-  const addLanguage = useCallback(
-    async (input: NewLanguageInput) => {
-      const lang = await insertLanguage(coupleId, userId, input)
-      setLanguages((prev) => [lang, ...prev])
-    },
-    [coupleId, userId],
-  )
-
-  const updateLanguage = useCallback(async (id: string, updates: Partial<NewLanguageInput>) => {
-    await updateLanguageDb(id, updates)
-    setLanguages((prev) =>
-      prev.map((l) => (l.id === id ? { ...l, ...updates, updatedAt: new Date().toISOString() } : l)),
-    )
-  }, [])
-
-  const deleteLanguage = useCallback(async (id: string) => {
-    await deleteLanguageDb(id)
-    setLanguages((prev) => prev.filter((l) => l.id !== id))
-  }, [])
-
-  const toggleLanguagePrivacy = useCallback(
-    async (id: string) => {
-      const lang = languages.find((l) => l.id === id)
-      if (!lang) return
-      const newPrivacy: LoveLanguagePrivacy = lang.privacy === 'private' ? 'shared' : 'private'
-      await updateLanguageDb(id, { privacy: newPrivacy })
-      setLanguages((prev) => prev.map((l) => (l.id === id ? { ...l, privacy: newPrivacy } : l)))
-    },
-    [languages],
-  )
-
-  const addAction = useCallback(
-    async (input: NewActionInput) => {
-      const action = await insertAction(coupleId, input)
-      setActions((prev) => [action, ...prev])
-    },
-    [coupleId],
-  )
-
-  const updateAction = useCallback(async (id: string, updates: Partial<NewActionInput>) => {
-    const dbUpdates: Record<string, unknown> = {}
-    if (updates.linkedLanguageId !== undefined) dbUpdates.linkedLanguageId = updates.linkedLanguageId
-    if (updates.title !== undefined) dbUpdates.title = updates.title
-    if (updates.description !== undefined) dbUpdates.description = updates.description
-    if (updates.status !== undefined) dbUpdates.status = updates.status
-    if (updates.frequency !== undefined) dbUpdates.frequency = updates.frequency
-    if (updates.difficulty !== undefined) dbUpdates.difficulty = updates.difficulty
-    await updateActionDb(id, dbUpdates)
-    setActions((prev) => prev.map((a) => (a.id === id ? { ...a, ...dbUpdates } : a)))
-  }, [])
-
-  const deleteAction = useCallback(async (id: string) => {
-    await deleteActionDb(id)
-    setActions((prev) => prev.filter((a) => a.id !== id))
-  }, [])
-
-  const completeAction = useCallback(
-    async (id: string) => {
-      const action = actions.find((a) => a.id === id)
-      if (!action) return
-      await completeActionDb(id, action.completedCount)
-      setActions((prev) =>
-        prev.map((a) =>
-          a.id === id
-            ? {
-                ...a,
-                status: 'completed' as const,
-                completedCount: a.completedCount + 1,
-                lastCompletedAt: new Date().toISOString(),
-              }
-            : a,
-        ),
-      )
-    },
-    [actions],
-  )
+  const crud = useLoveLanguageCrud({ coupleId, userId, languages, actions, setLanguages, setActions })
 
   const value: LoveLanguagesContextValue = {
     languages: myLanguages,
     partnerLanguages,
     actions,
     isLoading,
-    addLanguage,
-    updateLanguage,
-    deleteLanguage,
-    toggleLanguagePrivacy,
-    addAction,
-    updateAction,
-    deleteAction,
-    completeAction,
+    ...crud,
   }
 
   return <LoveLanguagesContext.Provider value={value}>{children}</LoveLanguagesContext.Provider>

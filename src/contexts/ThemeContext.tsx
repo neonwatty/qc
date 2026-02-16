@@ -32,23 +32,18 @@ export function ThemeProvider({
   defaultTheme = 'light',
   storageKey = 'qc-theme',
 }: ThemeProviderProps): React.ReactNode {
-  const [theme, setThemeState] = useState<Theme>(defaultTheme)
-  const [isDark, setIsDark] = useState(false)
+  const [theme, setThemeState] = useState<Theme>(() => {
+    if (typeof window === 'undefined') return defaultTheme
+    const stored = localStorage.getItem(storageKey) as Theme | null
+    return stored ?? defaultTheme
+  })
 
-  useEffect(() => {
-    const storedTheme = localStorage.getItem(storageKey) as Theme | null
-    if (storedTheme) {
-      setThemeState(storedTheme)
-    }
-  }, [storageKey])
+  const isDark = theme === 'dark'
 
   useEffect(() => {
     const root = window.document.documentElement
-    const shouldBeDark = theme === 'dark'
 
-    setIsDark(shouldBeDark)
-
-    if (shouldBeDark) {
+    if (isDark) {
       root.classList.add('dark')
       root.setAttribute('data-theme', 'dark')
     } else {
@@ -58,9 +53,9 @@ export function ThemeProvider({
 
     const metaThemeColor = document.querySelector('meta[name="theme-color"]')
     if (metaThemeColor) {
-      metaThemeColor.setAttribute('content', shouldBeDark ? '#1f2937' : '#ffffff')
+      metaThemeColor.setAttribute('content', isDark ? '#1f2937' : '#ffffff')
     }
-  }, [theme])
+  }, [isDark])
 
   function setTheme(newTheme: Theme): void {
     setThemeState(newTheme)

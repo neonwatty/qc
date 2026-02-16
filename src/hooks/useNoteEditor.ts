@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useState, useCallback } from 'react'
 
 import type { DbNote } from '@/types'
 
@@ -31,28 +31,28 @@ export function useNoteEditor({ initialNote, maxLength = 5000 }: UseNoteEditorOp
   const [privacy, setPrivacy] = useState<NotePrivacy>(initialNote?.privacy ?? 'draft')
   const [tags, setTags] = useState<string[]>(initialNote?.tags ?? [])
 
-  const initialRef = useRef({
+  const [initialValues, setInitialValues] = useState({
     content: initialNote?.content ?? '',
     privacy: (initialNote?.privacy as NotePrivacy) ?? 'draft',
     tags: initialNote?.tags ?? [],
   })
 
-  useEffect(() => {
-    if (initialNote) {
-      setContentRaw(initialNote.content)
-      setPrivacy(initialNote.privacy)
-      setTags(initialNote.tags)
-      initialRef.current = {
-        content: initialNote.content,
-        privacy: initialNote.privacy,
-        tags: initialNote.tags,
-      }
+  const [trackedNote, setTrackedNote] = useState(initialNote)
+  if (initialNote !== trackedNote) {
+    setTrackedNote(initialNote)
+    const newValues = {
+      content: initialNote?.content ?? '',
+      privacy: (initialNote?.privacy as NotePrivacy) ?? 'draft',
+      tags: initialNote?.tags ?? [],
     }
-  }, [initialNote])
+    setInitialValues(newValues)
+    setContentRaw(newValues.content)
+    setPrivacy(newValues.privacy)
+    setTags(newValues.tags)
+  }
 
   const setContent = useCallback(
     (value: string) => {
-      // Remove excessive whitespace and enforce max length
       let processed = value.replace(/\n{3,}/g, '\n\n')
       if (processed.length > maxLength) {
         processed = processed.slice(0, maxLength)
@@ -77,15 +77,15 @@ export function useNoteEditor({ initialNote, maxLength = 5000 }: UseNoteEditorOp
   }, [])
 
   const reset = useCallback(() => {
-    setContentRaw(initialRef.current.content)
-    setPrivacy(initialRef.current.privacy)
-    setTags(initialRef.current.tags)
-  }, [])
+    setContentRaw(initialValues.content)
+    setPrivacy(initialValues.privacy)
+    setTags(initialValues.tags)
+  }, [initialValues])
 
   const isModified =
-    content !== initialRef.current.content ||
-    privacy !== initialRef.current.privacy ||
-    JSON.stringify(tags) !== JSON.stringify(initialRef.current.tags)
+    content !== initialValues.content ||
+    privacy !== initialValues.privacy ||
+    JSON.stringify(tags) !== JSON.stringify(initialValues.tags)
 
   const charCount = content.length
   const wordCount = content

@@ -13,6 +13,120 @@ import { useBookends } from '@/contexts/BookendsContext'
 import { FEELING_EMOJIS } from '@/types/bookends'
 import { cn } from '@/lib/utils'
 
+interface FeelingPickerProps {
+  label: string
+  selected: number
+  onSelect: (value: number) => void
+  activeColor: string
+}
+
+function FeelingPicker({ label, selected, onSelect, activeColor }: FeelingPickerProps): React.ReactNode {
+  return (
+    <div>
+      <Label className="text-sm font-medium text-rose-700">{label}</Label>
+      <div className="flex gap-3 mt-3">
+        {FEELING_EMOJIS.map((emoji) => (
+          <motion.button
+            key={emoji.value}
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => onSelect(emoji.value)}
+            className={cn(
+              'flex flex-col items-center gap-1 p-3 rounded-lg transition-all',
+              selected === emoji.value
+                ? `${activeColor} border-2`
+                : 'bg-gray-50 border-2 border-transparent hover:bg-gray-100',
+            )}
+          >
+            <span className="text-2xl">{emoji.emoji}</span>
+            <span className="text-xs text-gray-600">{emoji.label}</span>
+          </motion.button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+interface MoodChangeIndicatorProps {
+  improvement: number
+}
+
+function MoodChangeIndicator({ improvement }: MoodChangeIndicatorProps): React.ReactNode {
+  if (improvement === 0) return null
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      className={cn(
+        'flex items-center gap-2 p-3 rounded-lg',
+        improvement > 0 ? 'bg-green-50 text-green-700' : 'bg-orange-50 text-orange-700',
+      )}
+    >
+      <TrendingUp className={cn('h-4 w-4', improvement < 0 && 'rotate-180')} />
+      <span className="text-sm">
+        {improvement > 0
+          ? `Your mood improved by ${improvement} ${improvement === 1 ? 'level' : 'levels'}!`
+          : `Something to work through - your mood shifted by ${Math.abs(improvement)} ${Math.abs(improvement) === 1 ? 'level' : 'levels'}`}
+      </span>
+    </motion.div>
+  )
+}
+
+interface ReflectionSavedViewProps {
+  feelingBefore: number
+  feelingAfter: number
+  gratitude: string
+  keyTakeaway: string
+  onClose: () => void
+}
+
+function ReflectionSavedView({
+  feelingBefore,
+  feelingAfter,
+  gratitude,
+  keyTakeaway,
+  onClose,
+}: ReflectionSavedViewProps): React.ReactNode {
+  return (
+    <div className="space-y-6 mt-4">
+      <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="text-center py-8">
+        <div className="text-5xl mb-4">🎉</div>
+        <h3 className="text-lg font-semibold text-gray-900">Reflection Saved!</h3>
+        <p className="text-sm text-gray-600 mt-2">Great job taking time to reflect on your session.</p>
+      </motion.div>
+
+      <Card className="p-4 bg-pink-50 border-pink-200">
+        <h4 className="text-sm font-medium text-rose-700 mb-3">Your Reflection</h4>
+        <div className="space-y-2 text-sm">
+          <div className="flex gap-2">
+            <span>Mood:</span>
+            <span>
+              {FEELING_EMOJIS[feelingBefore - 1].emoji} → {FEELING_EMOJIS[feelingAfter - 1].emoji}
+            </span>
+          </div>
+          <div>
+            <span className="text-gray-600">Gratitude:</span>
+            <p className="mt-1">{gratitude}</p>
+          </div>
+          <div>
+            <span className="text-gray-600">Takeaway:</span>
+            <p className="mt-1">{keyTakeaway}</p>
+          </div>
+        </div>
+      </Card>
+
+      <div className="flex justify-center pt-4 border-t border-rose-100">
+        <Button
+          onClick={onClose}
+          className="bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white border-0"
+        >
+          Return to Dashboard
+        </Button>
+      </div>
+    </div>
+  )
+}
+
 interface ReflectionFormProps {
   sessionId: string
 }
@@ -42,8 +156,6 @@ export function ReflectionForm({ sessionId }: ReflectionFormProps): React.ReactN
     setIsSubmitting(false)
   }
 
-  const feelingImprovement = feelingAfter - feelingBefore
-
   return (
     <Dialog open={isReflectionModalOpen} onOpenChange={closeReflectionModal}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white/95 backdrop-blur-md border-rose-200/40">
@@ -59,69 +171,19 @@ export function ReflectionForm({ sessionId }: ReflectionFormProps): React.ReactN
         {!reflection ? (
           <div className="space-y-6 mt-4">
             <div className="space-y-4">
-              <div>
-                <Label className="text-sm font-medium text-rose-700">How did you feel before the session?</Label>
-                <div className="flex gap-3 mt-3">
-                  {FEELING_EMOJIS.map((emoji) => (
-                    <motion.button
-                      key={emoji.value}
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => setFeelingBefore(emoji.value)}
-                      className={cn(
-                        'flex flex-col items-center gap-1 p-3 rounded-lg transition-all',
-                        feelingBefore === emoji.value
-                          ? 'bg-pink-100 border-2 border-pink-300'
-                          : 'bg-gray-50 border-2 border-transparent hover:bg-gray-100',
-                      )}
-                    >
-                      <span className="text-2xl">{emoji.emoji}</span>
-                      <span className="text-xs text-gray-600">{emoji.label}</span>
-                    </motion.button>
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <Label className="text-sm font-medium text-rose-700">How do you feel after the session?</Label>
-                <div className="flex gap-3 mt-3">
-                  {FEELING_EMOJIS.map((emoji) => (
-                    <motion.button
-                      key={emoji.value}
-                      whileHover={{ scale: 1.1 }}
-                      whileTap={{ scale: 0.95 }}
-                      onClick={() => setFeelingAfter(emoji.value)}
-                      className={cn(
-                        'flex flex-col items-center gap-1 p-3 rounded-lg transition-all',
-                        feelingAfter === emoji.value
-                          ? 'bg-green-100 border-2 border-green-300'
-                          : 'bg-gray-50 border-2 border-transparent hover:bg-gray-100',
-                      )}
-                    >
-                      <span className="text-2xl">{emoji.emoji}</span>
-                      <span className="text-xs text-gray-600">{emoji.label}</span>
-                    </motion.button>
-                  ))}
-                </div>
-              </div>
-
-              {feelingImprovement !== 0 && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className={cn(
-                    'flex items-center gap-2 p-3 rounded-lg',
-                    feelingImprovement > 0 ? 'bg-green-50 text-green-700' : 'bg-orange-50 text-orange-700',
-                  )}
-                >
-                  <TrendingUp className={cn('h-4 w-4', feelingImprovement < 0 && 'rotate-180')} />
-                  <span className="text-sm">
-                    {feelingImprovement > 0
-                      ? `Your mood improved by ${feelingImprovement} ${feelingImprovement === 1 ? 'level' : 'levels'}!`
-                      : `Something to work through - your mood shifted by ${Math.abs(feelingImprovement)} ${Math.abs(feelingImprovement) === 1 ? 'level' : 'levels'}`}
-                  </span>
-                </motion.div>
-              )}
+              <FeelingPicker
+                label="How did you feel before the session?"
+                selected={feelingBefore}
+                onSelect={setFeelingBefore}
+                activeColor="bg-pink-100 border-pink-300"
+              />
+              <FeelingPicker
+                label="How do you feel after the session?"
+                selected={feelingAfter}
+                onSelect={setFeelingAfter}
+                activeColor="bg-green-100 border-green-300"
+              />
+              <MoodChangeIndicator improvement={feelingAfter - feelingBefore} />
             </div>
 
             <div>
@@ -196,46 +258,13 @@ export function ReflectionForm({ sessionId }: ReflectionFormProps): React.ReactN
             </div>
           </div>
         ) : (
-          <div className="space-y-6 mt-4">
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              className="text-center py-8"
-            >
-              <div className="text-5xl mb-4">🎉</div>
-              <h3 className="text-lg font-semibold text-gray-900">Reflection Saved!</h3>
-              <p className="text-sm text-gray-600 mt-2">Great job taking time to reflect on your session.</p>
-            </motion.div>
-
-            <Card className="p-4 bg-pink-50 border-pink-200">
-              <h4 className="text-sm font-medium text-rose-700 mb-3">Your Reflection</h4>
-              <div className="space-y-2 text-sm">
-                <div className="flex gap-2">
-                  <span>Mood:</span>
-                  <span>
-                    {FEELING_EMOJIS[feelingBefore - 1].emoji} → {FEELING_EMOJIS[feelingAfter - 1].emoji}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-gray-600">Gratitude:</span>
-                  <p className="mt-1">{gratitude}</p>
-                </div>
-                <div>
-                  <span className="text-gray-600">Takeaway:</span>
-                  <p className="mt-1">{keyTakeaway}</p>
-                </div>
-              </div>
-            </Card>
-
-            <div className="flex justify-center pt-4 border-t border-rose-100">
-              <Button
-                onClick={closeReflectionModal}
-                className="bg-gradient-to-r from-rose-500 to-pink-500 hover:from-rose-600 hover:to-pink-600 text-white border-0"
-              >
-                Return to Dashboard
-              </Button>
-            </div>
-          </div>
+          <ReflectionSavedView
+            feelingBefore={feelingBefore}
+            feelingAfter={feelingAfter}
+            gratitude={gratitude}
+            keyTakeaway={keyTakeaway}
+            onClose={closeReflectionModal}
+          />
         )}
       </DialogContent>
     </Dialog>

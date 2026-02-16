@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect, Suspense } from 'react'
+import { useState, Suspense } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { useLoveLanguages } from '@/contexts/LoveLanguagesContext'
 import { LoveActionCard } from '@/components/love-languages/LoveActionCard'
@@ -20,12 +20,8 @@ function LoveActionsContent(): React.ReactNode {
   const { languages, partnerLanguages, actions, addAction, updateAction, deleteAction, completeAction } =
     useLoveLanguages()
 
-  const [showAddDialog, setShowAddDialog] = useState(false)
+  const [showAddDialog, setShowAddDialog] = useState(!!preselectedLanguageId)
   const [editingAction, setEditingAction] = useState<LoveAction | null>(null)
-
-  useEffect(() => {
-    if (preselectedLanguageId) setShowAddDialog(true)
-  }, [preselectedLanguageId])
 
   const allLanguages = [...languages, ...partnerLanguages]
   const pendingActions = actions.filter((a) => a.status === 'planned' || a.status === 'suggested')

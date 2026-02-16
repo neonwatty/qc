@@ -13,6 +13,82 @@ import { Badge } from '@/components/ui/badge'
 import { Plus, Heart, Sparkles, Info } from 'lucide-react'
 import type { LoveLanguage } from '@/types'
 
+interface LanguageGroupProps {
+  title: string
+  languages: LoveLanguage[]
+  badgeVariant: 'secondary' | 'outline'
+  onEdit: (language: LoveLanguage) => void
+  onDelete: (id: string) => void
+  onTogglePrivacy: (id: string) => void
+}
+
+function LanguageGroup({
+  title,
+  languages,
+  badgeVariant,
+  onEdit,
+  onDelete,
+  onTogglePrivacy,
+}: LanguageGroupProps): React.ReactNode {
+  if (languages.length === 0) return null
+
+  return (
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+        {title}
+        <Badge variant={badgeVariant} className="text-gray-700">
+          {languages.length}
+        </Badge>
+      </h3>
+      <div className="grid gap-4">
+        {languages.map((language) => (
+          <LoveLanguageCard
+            key={language.id}
+            language={language}
+            onEdit={() => onEdit(language)}
+            onDelete={() => onDelete(language.id)}
+            onTogglePrivacy={() => onTogglePrivacy(language.id)}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
+
+interface PartnerLanguagesTabProps {
+  partnerLanguages: LoveLanguage[]
+}
+
+function PartnerLanguagesTab({ partnerLanguages }: PartnerLanguagesTabProps): React.ReactNode {
+  if (partnerLanguages.length === 0) {
+    return (
+      <Card className="bg-white">
+        <CardHeader>
+          <CardTitle className="text-gray-900">No Shared Languages Yet</CardTitle>
+          <CardDescription className="text-gray-700">
+            Your partner hasn&apos;t shared any love languages yet. Encourage them to add and share theirs!
+          </CardDescription>
+        </CardHeader>
+      </Card>
+    )
+  }
+
+  return (
+    <div className="grid gap-4">
+      {partnerLanguages.map((language) => (
+        <LoveLanguageCard
+          key={language.id}
+          language={language}
+          isOwn={false}
+          onCreateAction={() => {
+            window.location.href = `/love-languages/actions?languageId=${language.id}`
+          }}
+        />
+      ))}
+    </div>
+  )
+}
+
 export default function LoveLanguagesPage(): React.ReactNode {
   const { languages, partnerLanguages, addLanguage, updateLanguage, deleteLanguage, toggleLanguagePrivacy } =
     useLoveLanguages()
@@ -51,6 +127,10 @@ export default function LoveLanguagesPage(): React.ReactNode {
   function handleDialogClose(open: boolean): void {
     setShowAddDialog(open)
     if (!open) setEditingLanguage(null)
+  }
+
+  function handleTogglePrivacy(id: string): void {
+    void toggleLanguagePrivacy(id)
   }
 
   const sharedLanguages = languages.filter((l) => l.privacy === 'shared')
@@ -107,77 +187,28 @@ export default function LoveLanguagesPage(): React.ReactNode {
               </Card>
             ) : (
               <>
-                {sharedLanguages.length > 0 && (
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                      Shared with Partner
-                      <Badge variant="secondary" className="text-gray-700">
-                        {sharedLanguages.length}
-                      </Badge>
-                    </h3>
-                    <div className="grid gap-4">
-                      {sharedLanguages.map((language) => (
-                        <LoveLanguageCard
-                          key={language.id}
-                          language={language}
-                          onEdit={() => handleEdit(language)}
-                          onDelete={() => handleDelete(language.id)}
-                          onTogglePrivacy={() => void toggleLanguagePrivacy(language.id)}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {privateLanguages.length > 0 && (
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                      Private
-                      <Badge variant="outline" className="text-gray-700">
-                        {privateLanguages.length}
-                      </Badge>
-                    </h3>
-                    <div className="grid gap-4">
-                      {privateLanguages.map((language) => (
-                        <LoveLanguageCard
-                          key={language.id}
-                          language={language}
-                          onEdit={() => handleEdit(language)}
-                          onDelete={() => handleDelete(language.id)}
-                          onTogglePrivacy={() => void toggleLanguagePrivacy(language.id)}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                )}
+                <LanguageGroup
+                  title="Shared with Partner"
+                  languages={sharedLanguages}
+                  badgeVariant="secondary"
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                  onTogglePrivacy={handleTogglePrivacy}
+                />
+                <LanguageGroup
+                  title="Private"
+                  languages={privateLanguages}
+                  badgeVariant="outline"
+                  onEdit={handleEdit}
+                  onDelete={handleDelete}
+                  onTogglePrivacy={handleTogglePrivacy}
+                />
               </>
             )}
           </TabsContent>
 
           <TabsContent value="partner" className="space-y-4">
-            {partnerLanguages.length === 0 ? (
-              <Card className="bg-white">
-                <CardHeader>
-                  <CardTitle className="text-gray-900">No Shared Languages Yet</CardTitle>
-                  <CardDescription className="text-gray-700">
-                    Your partner hasn&apos;t shared any love languages yet. Encourage them to add and share theirs!
-                  </CardDescription>
-                </CardHeader>
-              </Card>
-            ) : (
-              <div className="grid gap-4">
-                {partnerLanguages.map((language) => (
-                  <LoveLanguageCard
-                    key={language.id}
-                    language={language}
-                    isOwn={false}
-                    onCreateAction={() => {
-                      window.location.href = `/love-languages/actions?languageId=${language.id}`
-                    }}
-                  />
-                ))}
-              </div>
-            )}
+            <PartnerLanguagesTab partnerLanguages={partnerLanguages} />
           </TabsContent>
         </Tabs>
       </main>

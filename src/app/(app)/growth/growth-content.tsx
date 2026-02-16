@@ -8,12 +8,97 @@ import { Button } from '@/components/ui/button'
 import { Timeline, PhotoGallery, MilestoneCreator } from '@/components/growth'
 import { useMilestones } from '@/hooks/useMilestones'
 import type { MilestoneInput } from '@/hooks/useMilestones'
+import type { Milestone } from '@/types'
 
 interface GrowthContentProps {
   coupleId: string | null
 }
 
 type ActiveView = 'timeline' | 'progress' | 'memories'
+
+interface StatsGridProps {
+  achievedCount: number
+  upcomingCount: number
+  totalPoints: number
+  photoCount: number
+}
+
+function StatsGrid({ achievedCount, upcomingCount, totalPoints, photoCount }: StatsGridProps): React.ReactElement {
+  const stats = [
+    { value: achievedCount, label: 'Milestones Reached', color: 'text-green-600' },
+    { value: upcomingCount, label: 'In Progress', color: 'text-blue-600' },
+    { value: totalPoints, label: 'Total Points', color: 'text-purple-600' },
+    { value: photoCount, label: 'Photos', color: 'text-pink-600' },
+  ]
+
+  return (
+    <StaggerContainer className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
+      {stats.map((stat) => (
+        <StaggerItem key={stat.label}>
+          <div className="rounded-lg border border-gray-200 bg-white p-6 text-center shadow-sm dark:border-gray-800 dark:bg-gray-900">
+            <div className={`mb-2 text-3xl font-bold ${stat.color}`}>{stat.value}</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">{stat.label}</div>
+          </div>
+        </StaggerItem>
+      ))}
+    </StaggerContainer>
+  )
+}
+
+interface ProgressViewProps {
+  upcoming: Milestone[]
+  achieved: Milestone[]
+}
+
+function ProgressView({ upcoming, achieved }: ProgressViewProps): React.ReactElement {
+  return (
+    <div className="space-y-6">
+      <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Upcoming Milestones</h2>
+      {upcoming.length === 0 ? (
+        <p className="text-gray-600 dark:text-gray-400">All milestones achieved! Create a new one to keep growing.</p>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {upcoming.map((m) => (
+            <div
+              key={m.id}
+              className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900"
+            >
+              <div className="mb-2 flex items-center gap-2">
+                <span className="text-xl">{m.icon ?? '🎯'}</span>
+                <h3 className="font-medium text-gray-900 dark:text-gray-100">{m.title}</h3>
+              </div>
+              <p className="mb-3 text-sm text-gray-600 dark:text-gray-400">{m.description}</p>
+              <div className="flex items-center justify-between text-xs text-gray-500">
+                <span className="capitalize">{m.category}</span>
+                <span>{m.points} pts</span>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Achieved</h2>
+      {achieved.length === 0 ? (
+        <p className="text-gray-600 dark:text-gray-400">Complete milestones to see them here.</p>
+      ) : (
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {achieved.map((m) => (
+            <div
+              key={m.id}
+              className="rounded-lg border border-green-200 bg-green-50 p-4 shadow-sm dark:border-green-800 dark:bg-green-900/20"
+            >
+              <div className="mb-2 flex items-center gap-2">
+                <span className="text-xl">{m.icon ?? '🏆'}</span>
+                <h3 className="font-medium text-gray-900 dark:text-gray-100">{m.title}</h3>
+              </div>
+              <p className="text-sm text-gray-600 dark:text-gray-400">{m.description}</p>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
 
 export function GrowthContent({ coupleId }: GrowthContentProps): React.ReactElement {
   const [activeView, setActiveView] = useState<ActiveView>('timeline')
@@ -59,33 +144,12 @@ export function GrowthContent({ coupleId }: GrowthContentProps): React.ReactElem
         </p>
       </div>
 
-      {/* Stats */}
-      <StaggerContainer className="grid gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-4">
-        <StaggerItem>
-          <div className="rounded-lg border border-gray-200 bg-white p-6 text-center shadow-sm dark:border-gray-800 dark:bg-gray-900">
-            <div className="mb-2 text-3xl font-bold text-green-600">{achieved.length}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Milestones Reached</div>
-          </div>
-        </StaggerItem>
-        <StaggerItem>
-          <div className="rounded-lg border border-gray-200 bg-white p-6 text-center shadow-sm dark:border-gray-800 dark:bg-gray-900">
-            <div className="mb-2 text-3xl font-bold text-blue-600">{upcoming.length}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">In Progress</div>
-          </div>
-        </StaggerItem>
-        <StaggerItem>
-          <div className="rounded-lg border border-gray-200 bg-white p-6 text-center shadow-sm dark:border-gray-800 dark:bg-gray-900">
-            <div className="mb-2 text-3xl font-bold text-purple-600">{totalPoints}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Total Points</div>
-          </div>
-        </StaggerItem>
-        <StaggerItem>
-          <div className="rounded-lg border border-gray-200 bg-white p-6 text-center shadow-sm dark:border-gray-800 dark:bg-gray-900">
-            <div className="mb-2 text-3xl font-bold text-pink-600">{milestones.filter((m) => m.photoUrl).length}</div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">Photos</div>
-          </div>
-        </StaggerItem>
-      </StaggerContainer>
+      <StatsGrid
+        achievedCount={achieved.length}
+        upcomingCount={upcoming.length}
+        totalPoints={totalPoints}
+        photoCount={milestones.filter((m) => m.photoUrl).length}
+      />
 
       {/* View Toggle + Create */}
       <div className="flex items-center justify-between">
@@ -146,57 +210,7 @@ export function GrowthContent({ coupleId }: GrowthContentProps): React.ReactElem
       {!isLoading && !error && (
         <>
           {activeView === 'timeline' && <Timeline milestones={milestones} />}
-
-          {activeView === 'progress' && (
-            <div className="space-y-6">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Upcoming Milestones</h2>
-              {upcoming.length === 0 ? (
-                <p className="text-gray-600 dark:text-gray-400">
-                  All milestones achieved! Create a new one to keep growing.
-                </p>
-              ) : (
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {upcoming.map((m) => (
-                    <div
-                      key={m.id}
-                      className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900"
-                    >
-                      <div className="mb-2 flex items-center gap-2">
-                        <span className="text-xl">{m.icon ?? '🎯'}</span>
-                        <h3 className="font-medium text-gray-900 dark:text-gray-100">{m.title}</h3>
-                      </div>
-                      <p className="mb-3 text-sm text-gray-600 dark:text-gray-400">{m.description}</p>
-                      <div className="flex items-center justify-between text-xs text-gray-500">
-                        <span className="capitalize">{m.category}</span>
-                        <span>{m.points} pts</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Achieved</h2>
-              {achieved.length === 0 ? (
-                <p className="text-gray-600 dark:text-gray-400">Complete milestones to see them here.</p>
-              ) : (
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                  {achieved.map((m) => (
-                    <div
-                      key={m.id}
-                      className="rounded-lg border border-green-200 bg-green-50 p-4 shadow-sm dark:border-green-800 dark:bg-green-900/20"
-                    >
-                      <div className="mb-2 flex items-center gap-2">
-                        <span className="text-xl">{m.icon ?? '🏆'}</span>
-                        <h3 className="font-medium text-gray-900 dark:text-gray-100">{m.title}</h3>
-                      </div>
-                      <p className="text-sm text-gray-600 dark:text-gray-400">{m.description}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-
+          {activeView === 'progress' && <ProgressView upcoming={upcoming} achieved={achieved} />}
           {activeView === 'memories' && (
             <PhotoGallery milestones={milestones} onAddMemory={() => setIsCreatorOpen(true)} />
           )}

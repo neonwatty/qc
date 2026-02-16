@@ -7,7 +7,8 @@ import { Award, CheckCircle, ChevronDown, ChevronRight, Clock } from 'lucide-rea
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { CATEGORY_CONFIG, RARITY_CONFIG, formatMilestoneDate } from './milestone-card-config'
-import type { Milestone } from '@/types'
+import type { CategoryConfig } from './milestone-card-config'
+import type { Milestone, MilestoneRarity } from '@/types'
 
 interface MilestoneCardProps {
   milestone: Milestone
@@ -15,6 +16,137 @@ interface MilestoneCardProps {
   showActions?: boolean
   className?: string
   onClick?: (milestone: Milestone) => void
+}
+
+interface MilestoneIconProps {
+  icon: string | null
+  CategoryIcon: React.ComponentType<{ className?: string }>
+  config: CategoryConfig
+  size?: 'sm' | 'md'
+}
+
+function MilestoneIcon({ icon, CategoryIcon, config, size = 'md' }: MilestoneIconProps): React.ReactElement {
+  const textSize = size === 'sm' ? 'text-lg' : 'text-xl'
+  const iconSize = size === 'sm' ? 'h-5 w-5' : 'h-6 w-6'
+
+  return icon ? <span className={textSize}>{icon}</span> : <CategoryIcon className={cn(iconSize, config.color)} />
+}
+
+interface RarityBadgeProps {
+  rarity: MilestoneRarity
+  borderColor: string
+  badgeColor: string
+}
+
+function RarityBadge({ rarity, badgeColor }: RarityBadgeProps): React.ReactElement {
+  return <span className={cn('rounded-full px-2 py-1 text-xs font-medium', badgeColor)}>{rarity}</span>
+}
+
+function CompactVariant({
+  milestone,
+  config,
+  isAchieved,
+  className,
+  onClick,
+}: {
+  milestone: Milestone
+  config: CategoryConfig
+  isAchieved: boolean
+  className?: string
+  onClick: () => void
+}): React.ReactElement {
+  return (
+    <motion.div
+      className={cn(
+        'flex cursor-pointer items-center gap-3 rounded-lg border bg-white p-3 transition-all duration-200 dark:bg-gray-900',
+        'hover:border-gray-300 hover:shadow-md',
+        config.borderColor,
+        className,
+      )}
+      whileHover={{ y: -1 }}
+      onClick={onClick}
+    >
+      <div className={cn('flex-shrink-0 rounded-lg p-2', config.bgColor)}>
+        <MilestoneIcon icon={milestone.icon} CategoryIcon={config.icon} config={config} size="sm" />
+      </div>
+
+      <div className="min-w-0 flex-1">
+        <h3 className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">{milestone.title}</h3>
+        <p className="truncate text-xs text-gray-600 dark:text-gray-400">{milestone.description}</p>
+      </div>
+
+      <div className="flex-shrink-0 text-right">
+        {isAchieved ? (
+          <div className="flex items-center gap-1 text-green-600">
+            <CheckCircle className="h-4 w-4" />
+            <span className="text-xs">{formatMilestoneDate(milestone.achievedAt!)}</span>
+          </div>
+        ) : (
+          <div className="flex items-center gap-1 text-orange-600">
+            <Clock className="h-4 w-4" />
+            <span className="text-xs">Upcoming</span>
+          </div>
+        )}
+      </div>
+    </motion.div>
+  )
+}
+
+function FeaturedVariant({
+  milestone,
+  config,
+  rarityConf,
+  className,
+  onClick,
+}: {
+  milestone: Milestone
+  config: CategoryConfig
+  rarityConf: { borderColor: string; badgeColor: string }
+  className?: string
+  onClick: () => void
+}): React.ReactElement {
+  return (
+    <motion.div
+      className={cn(
+        'cursor-pointer overflow-hidden rounded-xl border-2 bg-white shadow-lg transition-all dark:bg-gray-900',
+        rarityConf.borderColor,
+        className,
+      )}
+      whileHover={{ y: -4, scale: 1.01 }}
+      onClick={onClick}
+    >
+      {milestone.photoUrl && (
+        <div className="relative h-40 w-full">
+          <img src={milestone.photoUrl} alt={milestone.title} className="h-full w-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+          <div className="absolute bottom-3 left-3">
+            <RarityBadge
+              rarity={milestone.rarity}
+              borderColor={rarityConf.borderColor}
+              badgeColor={rarityConf.badgeColor}
+            />
+          </div>
+        </div>
+      )}
+
+      <div className="p-5">
+        <div className="mb-3 flex items-start gap-3">
+          <div className={cn('rounded-lg p-2', config.bgColor)}>
+            <MilestoneIcon icon={milestone.icon} CategoryIcon={config.icon} config={config} />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{milestone.title}</h3>
+            <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{milestone.description}</p>
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between text-sm">
+          <span className={cn('capitalize', config.color)}>{milestone.category}</span>
+          <span className="font-medium text-gray-900 dark:text-gray-100">{milestone.points} pts</span>
+        </div>
+      </div>
+    </motion.div>
+  )
 }
 
 export function MilestoneCard({
@@ -28,7 +160,6 @@ export function MilestoneCard({
 
   const config = CATEGORY_CONFIG[milestone.category]
   const rarityConf = RARITY_CONFIG[milestone.rarity]
-  const CategoryIcon = config.icon
   const isAchieved = milestone.achievedAt !== null
 
   function handleClick(): void {
@@ -41,90 +172,25 @@ export function MilestoneCard({
 
   if (variant === 'compact') {
     return (
-      <motion.div
-        className={cn(
-          'flex cursor-pointer items-center gap-3 rounded-lg border bg-white p-3 transition-all duration-200 dark:bg-gray-900',
-          'hover:border-gray-300 hover:shadow-md',
-          config.borderColor,
-          className,
-        )}
-        whileHover={{ y: -1 }}
+      <CompactVariant
+        milestone={milestone}
+        config={config}
+        isAchieved={isAchieved}
+        className={className}
         onClick={handleClick}
-      >
-        <div className={cn('flex-shrink-0 rounded-lg p-2', config.bgColor)}>
-          {milestone.icon ? (
-            <span className="text-lg">{milestone.icon}</span>
-          ) : (
-            <CategoryIcon className={cn('h-5 w-5', config.color)} />
-          )}
-        </div>
-
-        <div className="min-w-0 flex-1">
-          <h3 className="truncate text-sm font-medium text-gray-900 dark:text-gray-100">{milestone.title}</h3>
-          <p className="truncate text-xs text-gray-600 dark:text-gray-400">{milestone.description}</p>
-        </div>
-
-        <div className="flex-shrink-0 text-right">
-          {isAchieved ? (
-            <div className="flex items-center gap-1 text-green-600">
-              <CheckCircle className="h-4 w-4" />
-              <span className="text-xs">{formatMilestoneDate(milestone.achievedAt!)}</span>
-            </div>
-          ) : (
-            <div className="flex items-center gap-1 text-orange-600">
-              <Clock className="h-4 w-4" />
-              <span className="text-xs">Upcoming</span>
-            </div>
-          )}
-        </div>
-      </motion.div>
+      />
     )
   }
 
   if (variant === 'featured') {
     return (
-      <motion.div
-        className={cn(
-          'cursor-pointer overflow-hidden rounded-xl border-2 bg-white shadow-lg transition-all dark:bg-gray-900',
-          rarityConf.borderColor,
-          className,
-        )}
-        whileHover={{ y: -4, scale: 1.01 }}
+      <FeaturedVariant
+        milestone={milestone}
+        config={config}
+        rarityConf={rarityConf}
+        className={className}
         onClick={handleClick}
-      >
-        {milestone.photoUrl && (
-          <div className="relative h-40 w-full">
-            <img src={milestone.photoUrl} alt={milestone.title} className="h-full w-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-            <div className="absolute bottom-3 left-3">
-              <span className={cn('rounded-full px-2 py-1 text-xs font-medium', rarityConf.badgeColor)}>
-                {milestone.rarity}
-              </span>
-            </div>
-          </div>
-        )}
-
-        <div className="p-5">
-          <div className="mb-3 flex items-start gap-3">
-            <div className={cn('rounded-lg p-2', config.bgColor)}>
-              {milestone.icon ? (
-                <span className="text-xl">{milestone.icon}</span>
-              ) : (
-                <CategoryIcon className={cn('h-6 w-6', config.color)} />
-              )}
-            </div>
-            <div className="min-w-0 flex-1">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{milestone.title}</h3>
-              <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{milestone.description}</p>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between text-sm">
-            <span className={cn('capitalize', config.color)}>{milestone.category}</span>
-            <span className="font-medium text-gray-900 dark:text-gray-100">{milestone.points} pts</span>
-          </div>
-        </div>
-      </motion.div>
+      />
     )
   }
 
@@ -143,11 +209,7 @@ export function MilestoneCard({
       <div className="mb-3 flex items-start justify-between">
         <div className="flex flex-1 items-start gap-3">
           <div className={cn('flex-shrink-0 rounded-lg p-2', config.bgColor)}>
-            {milestone.icon ? (
-              <span className="text-xl">{milestone.icon}</span>
-            ) : (
-              <CategoryIcon className={cn('h-6 w-6', config.color)} />
-            )}
+            <MilestoneIcon icon={milestone.icon} CategoryIcon={config.icon} config={config} />
           </div>
 
           <div className="min-w-0 flex-1">

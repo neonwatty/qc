@@ -13,6 +13,8 @@ import { PreparationModal } from '@/components/bookends/PreparationModal'
 import { ReflectionForm } from '@/components/bookends/ReflectionForm'
 import { useCheckInContext } from '@/contexts/CheckInContext'
 
+import type { SessionSettings } from '@/types'
+
 const CHECK_IN_CATEGORIES = [
   {
     id: 'emotional',
@@ -40,6 +42,71 @@ const CHECK_IN_CATEGORIES = [
   },
 ]
 
+interface SessionRulesSectionProps {
+  settings: SessionSettings
+}
+
+function SessionRulesSection({ settings }: SessionRulesSectionProps): React.ReactNode {
+  return (
+    <div className="mb-6">
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="text-lg font-semibold text-gray-900">Your Session Rules</h2>
+        <Link href="/settings">
+          <Button variant="ghost" size="sm" className="text-xs sm:text-sm">
+            <Settings className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+            <span className="hidden sm:inline">Configure</span>
+            <span className="sm:hidden">Edit</span>
+          </Button>
+        </Link>
+      </div>
+      <SessionRulesCard settings={settings} compact />
+    </div>
+  )
+}
+
+interface QuickStartSectionProps {
+  topicCount: number
+  onPrepare: () => void
+  onStart: () => void
+}
+
+function QuickStartSection({ topicCount, onPrepare, onStart }: QuickStartSectionProps): React.ReactNode {
+  return (
+    <div className="bg-gradient-to-r from-pink-50 to-purple-50 rounded-lg border border-pink-200 p-6">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-semibold text-gray-900">Quick Check-In (5 minutes)</h2>
+          <p className="text-gray-600 mt-1">Start with our guided quick check-in</p>
+          {topicCount > 0 ? (
+            <Badge className="mt-2 bg-pink-100 text-pink-700 border-pink-300">
+              <Sparkles className="h-3 w-3 mr-1" />
+              {topicCount} topics prepared
+            </Badge>
+          ) : null}
+        </div>
+        <div className="flex gap-2 flex-wrap">
+          {topicCount === 0 && (
+            <Button variant="outline" onClick={onPrepare} className="text-sm sm:text-base">
+              <FileText className="h-4 w-4 mr-1 sm:mr-2" />
+              <span className="hidden xs:inline">Prepare </span>Topics
+            </Button>
+          )}
+          <Button className="bg-pink-600 hover:bg-pink-700 text-sm sm:text-base" onClick={onStart}>
+            <Play className="h-4 w-4 mr-1 sm:mr-2" />
+            <span className="hidden xs:inline">Start </span>Now
+          </Button>
+        </div>
+      </div>
+      <div className="flex items-center mt-4 text-sm text-gray-500">
+        <Clock className="h-4 w-4 mr-1" />
+        <span>Typically takes 5-10 minutes</span>
+        <Users className="h-4 w-4 ml-4 mr-1" />
+        <span>Best done together</span>
+      </div>
+    </div>
+  )
+}
+
 export default function CheckInPage(): React.ReactNode {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const { getActiveSettings } = useSessionSettings()
@@ -47,10 +114,11 @@ export default function CheckInPage(): React.ReactNode {
   const { preparation, openPreparationModal, openReflectionModal } = useBookends()
   const { startCheckIn, session } = useCheckInContext()
 
+  const topicCount = preparation?.myTopics?.length ?? 0
+
   const handleStartQuickCheckIn = (): void => {
-    const categories = preparation?.myTopics?.length
-      ? preparation.myTopics.map((t) => t.content)
-      : CHECK_IN_CATEGORIES.map((c) => c.id)
+    const categories =
+      topicCount > 0 ? preparation!.myTopics.map((t) => t.content) : CHECK_IN_CATEGORIES.map((c) => c.id)
     startCheckIn(categories)
   }
 
@@ -75,56 +143,9 @@ export default function CheckInPage(): React.ReactNode {
         </p>
       </div>
 
-      {/* Session Rules */}
-      {sessionSettings && (
-        <div className="mb-6">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg font-semibold text-gray-900">Your Session Rules</h2>
-            <Link href="/settings">
-              <Button variant="ghost" size="sm" className="text-xs sm:text-sm">
-                <Settings className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                <span className="hidden sm:inline">Configure</span>
-                <span className="sm:hidden">Edit</span>
-              </Button>
-            </Link>
-          </div>
-          <SessionRulesCard settings={sessionSettings} compact />
-        </div>
-      )}
+      {sessionSettings && <SessionRulesSection settings={sessionSettings} />}
 
-      {/* Quick Start */}
-      <div className="bg-gradient-to-r from-pink-50 to-purple-50 rounded-lg border border-pink-200 p-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h2 className="text-xl font-semibold text-gray-900">Quick Check-In (5 minutes)</h2>
-            <p className="text-gray-600 mt-1">Start with our guided quick check-in</p>
-            {preparation?.myTopics?.length ? (
-              <Badge className="mt-2 bg-pink-100 text-pink-700 border-pink-300">
-                <Sparkles className="h-3 w-3 mr-1" />
-                {preparation.myTopics.length} topics prepared
-              </Badge>
-            ) : null}
-          </div>
-          <div className="flex gap-2 flex-wrap">
-            {!preparation?.myTopics?.length && (
-              <Button variant="outline" onClick={openPreparationModal} className="text-sm sm:text-base">
-                <FileText className="h-4 w-4 mr-1 sm:mr-2" />
-                <span className="hidden xs:inline">Prepare </span>Topics
-              </Button>
-            )}
-            <Button className="bg-pink-600 hover:bg-pink-700 text-sm sm:text-base" onClick={handleStartQuickCheckIn}>
-              <Play className="h-4 w-4 mr-1 sm:mr-2" />
-              <span className="hidden xs:inline">Start </span>Now
-            </Button>
-          </div>
-        </div>
-        <div className="flex items-center mt-4 text-sm text-gray-500">
-          <Clock className="h-4 w-4 mr-1" />
-          <span>Typically takes 5-10 minutes</span>
-          <Users className="h-4 w-4 ml-4 mr-1" />
-          <span>Best done together</span>
-        </div>
-      </div>
+      <QuickStartSection topicCount={topicCount} onPrepare={openPreparationModal} onStart={handleStartQuickCheckIn} />
 
       {/* Category Selection */}
       <div>

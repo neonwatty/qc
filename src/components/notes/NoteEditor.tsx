@@ -22,7 +22,75 @@ const PRIVACY_OPTIONS: { value: NotePrivacy; label: string; description: string 
   { value: 'draft', label: 'Draft', description: 'Not yet shared' },
 ]
 
-export function NoteEditor({ note, isOpen, onClose }: Props) {
+function PrivacySelector({
+  privacy,
+  onChange,
+}: {
+  privacy: NotePrivacy
+  onChange: (value: NotePrivacy) => void
+}): React.ReactNode {
+  return (
+    <div className="border-b border-border p-4">
+      <div className="flex gap-1 rounded-lg bg-muted p-1">
+        {PRIVACY_OPTIONS.map((option) => (
+          <button
+            key={option.value}
+            type="button"
+            onClick={() => onChange(option.value)}
+            className={cn(
+              'flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-all',
+              privacy === option.value ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground',
+            )}
+          >
+            {option.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+function NoteEditorFooter({
+  wordCount,
+  charCount,
+  isPending,
+  hasContent,
+  isEditing,
+  onClose,
+}: {
+  wordCount: number
+  charCount: number
+  isPending: boolean
+  hasContent: boolean
+  isEditing: boolean
+  onClose: () => void
+}): React.ReactNode {
+  return (
+    <div className="flex items-center justify-between border-t border-border p-4">
+      <span className="text-xs text-muted-foreground">
+        {wordCount} words &middot; {charCount}/5000
+      </span>
+      <div className="flex gap-2">
+        <button
+          type="button"
+          onClick={onClose}
+          className="rounded-xl border border-border px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          disabled={isPending || !hasContent}
+          className="gradient-primary rounded-xl px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+        >
+          {isPending ? 'Saving...' : isEditing ? 'Update' : 'Save'}
+        </button>
+      </div>
+    </div>
+  )
+}
+
+function NoteEditorForm({ note, onClose }: { note?: DbNote | null; onClose: () => void }): React.ReactNode {
   const isEditing = !!note
   const [content, setContent] = useState(note?.content ?? '')
   const [privacy, setPrivacy] = useState<NotePrivacy>(note?.privacy ?? 'draft')
@@ -33,25 +101,10 @@ export function NoteEditor({ note, isOpen, onClose }: Props) {
   const action = isEditing ? updateNote : createNote
   const [state, formAction, isPending] = useActionState<NoteActionState, FormData>(action, { error: null })
 
-  // Reset form when opening with a different note
   useEffect(() => {
-    if (isOpen) {
-      setContent(note?.content ?? '')
-      setPrivacy(note?.privacy ?? 'draft')
-      setTags(note?.tags ?? [])
-      setTagInput('')
-      // Focus textarea on open
-      setTimeout(() => textareaRef.current?.focus(), 100)
-    }
-  }, [isOpen, note])
-
-  // Close on successful save
-  useEffect(() => {
-    if (!state.error && isPending === false && isOpen) {
-      // Only close if the action actually ran (content was set)
-      // The initial state also has error: null, so we need a flag
-    }
-  }, [state, isPending, isOpen])
+    const timer = setTimeout(() => textareaRef.current?.focus(), 100)
+    return () => clearTimeout(timer)
+  }, [])
 
   const handleAddTag = useCallback(() => {
     const tag = tagInput.trim().toLowerCase()
@@ -75,8 +128,6 @@ export function NoteEditor({ note, isOpen, onClose }: Props) {
     [handleAddTag],
   )
 
-  if (!isOpen) return null
-
   const wordCount = content.trim().split(/\s+/).filter(Boolean).length
   const charCount = content.length
 
@@ -87,7 +138,6 @@ export function NoteEditor({ note, isOpen, onClose }: Props) {
         className="flex w-full max-w-2xl flex-col rounded-t-2xl bg-card shadow-2xl sm:rounded-2xl"
         style={{ maxHeight: '90vh' }}
       >
-        {/* Header */}
         <div className="flex items-center justify-between border-b border-border p-4">
           <h2 className="text-lg font-semibold">{isEditing ? 'Edit Note' : 'New Note'}</h2>
           <button onClick={onClose} className="rounded-md p-2 text-muted-foreground hover:bg-muted">
@@ -97,7 +147,6 @@ export function NoteEditor({ note, isOpen, onClose }: Props) {
           </button>
         </div>
 
-        {/* Form */}
         <form action={formAction} className="flex flex-1 flex-col overflow-hidden">
           {isEditing && <input type="hidden" name="id" value={note.id} />}
           <input type="hidden" name="privacy" value={privacy} />
@@ -109,26 +158,8 @@ export function NoteEditor({ note, isOpen, onClose }: Props) {
             </div>
           )}
 
-          {/* Privacy selector */}
-          <div className="border-b border-border p-4">
-            <div className="flex gap-1 rounded-lg bg-muted p-1">
-              {PRIVACY_OPTIONS.map((option) => (
-                <button
-                  key={option.value}
-                  type="button"
-                  onClick={() => setPrivacy(option.value)}
-                  className={cn(
-                    'flex-1 rounded-md px-3 py-1.5 text-sm font-medium transition-all',
-                    privacy === option.value ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground',
-                  )}
-                >
-                  {option.label}
-                </button>
-              ))}
-            </div>
-          </div>
+          <PrivacySelector privacy={privacy} onChange={setPrivacy} />
 
-          {/* Content */}
           <div className="flex-1 overflow-auto p-4">
             <textarea
               ref={textareaRef}
@@ -142,7 +173,6 @@ export function NoteEditor({ note, isOpen, onClose }: Props) {
             />
           </div>
 
-          {/* Tags */}
           <div className="border-t border-border px-4 py-3">
             <div className="mb-2 flex flex-wrap gap-1">
               {tags.map((tag) => (
@@ -173,30 +203,21 @@ export function NoteEditor({ note, isOpen, onClose }: Props) {
             />
           </div>
 
-          {/* Footer */}
-          <div className="flex items-center justify-between border-t border-border p-4">
-            <span className="text-xs text-muted-foreground">
-              {wordCount} words &middot; {charCount}/5000
-            </span>
-            <div className="flex gap-2">
-              <button
-                type="button"
-                onClick={onClose}
-                className="rounded-xl border border-border px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={isPending || !content.trim()}
-                className="gradient-primary rounded-xl px-4 py-2 text-sm font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-              >
-                {isPending ? 'Saving...' : isEditing ? 'Update' : 'Save'}
-              </button>
-            </div>
-          </div>
+          <NoteEditorFooter
+            wordCount={wordCount}
+            charCount={charCount}
+            isPending={isPending}
+            hasContent={!!content.trim()}
+            isEditing={isEditing}
+            onClose={onClose}
+          />
         </form>
       </div>
     </div>
   )
+}
+
+export function NoteEditor({ note, isOpen, onClose }: Props): React.ReactNode {
+  if (!isOpen) return null
+  return <NoteEditorForm key={note?.id ?? 'new'} note={note} onClose={onClose} />
 }

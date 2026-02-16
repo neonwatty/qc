@@ -4,63 +4,106 @@ Project reference for Claude Code. Read this file first before making any change
 
 ## Project Overview
 
-Production-ready Next.js template with Supabase auth, Stripe payments, Resend email, and Zustand state management. Deployed on Vercel with Doppler for secrets.
+QC (Quality Couple) -- a relationship wellness app for couples to check in, track growth, and strengthen their connection. Built on Next.js with Supabase auth, real-time sync, Stripe payments, Resend email, and Zustand state management. Deployed on Vercel with Doppler for secrets.
 
 ## Tech Stack
 
-| Layer      | Technology                         |
-| ---------- | ---------------------------------- |
-| Framework  | Next.js 16 (App Router, Turbopack) |
-| Language   | TypeScript 5.9 (strict mode)       |
-| Auth       | Supabase Auth (SSR cookies)        |
-| Database   | Supabase (Postgres + RLS)          |
-| Payments   | Stripe (webhooks + checkout)       |
-| Email      | Resend + React Email               |
-| State      | Zustand 5                          |
-| Styling    | Tailwind CSS 4                     |
-| Testing    | Vitest + Playwright                |
-| Linting    | ESLint 9 + Prettier 3              |
-| Dead Code  | Knip                               |
-| CI         | GitHub Actions                     |
-| Deployment | Vercel (auto-deploy on push)       |
-| Secrets    | Doppler                            |
-| Mobile     | Capacitor (iOS)                    |
+| Layer      | Technology                           |
+| ---------- | ------------------------------------ |
+| Framework  | Next.js 16 (App Router, Turbopack)   |
+| Language   | TypeScript 5.9 (strict mode)         |
+| Auth       | Supabase Auth (SSR cookies)          |
+| Database   | Supabase (Postgres + RLS)            |
+| Payments   | Stripe (webhooks + checkout)         |
+| Email      | Resend + React Email                 |
+| State      | Zustand 5 + React Context            |
+| Realtime   | Supabase Realtime (postgres_changes) |
+| Animations | Framer Motion                        |
+| UI         | Radix UI + shadcn/ui                 |
+| Styling    | Tailwind CSS 4                       |
+| Testing    | Vitest + Playwright                  |
+| Linting    | ESLint 9 + Prettier 3                |
+| Dead Code  | Knip                                 |
+| CI         | GitHub Actions                       |
+| Deployment | Vercel (auto-deploy on push)         |
+| Secrets    | Doppler                              |
+| Mobile     | Capacitor (iOS)                      |
 
 ## Directory Structure
 
 ```
 src/
   app/
-    (auth)/           # Login, signup pages
-    (dashboard)/      # Protected dashboard pages
+    (auth)/              # Login, signup pages
+    (app)/               # Protected app routes (requires auth + couple)
+      checkin/           # Check-in session page
+      dashboard/         # Dashboard hub with stats + quick actions
+      growth/            # Milestones timeline + photo gallery
+      love-languages/    # Love language profiles + actions
+      notes/             # Shared/private notes
+      reminders/         # Reminder management
+      requests/          # Partner request inbox
+      settings/          # Profile, couple, session settings
+    onboarding/          # Post-signup couple creation + partner invite
+    invite/[token]/      # Partner invite acceptance
     api/
-      health/         # Health check endpoint
-      cron/           # Cron job routes (Vercel cron)
-      stripe/webhook/ # Stripe webhook handler
-      email/webhook/  # Resend webhook handler
-    auth/callback/    # OAuth callback handler
-    globals.css       # Tailwind + CSS variables
-    layout.tsx        # Root layout (Inter font, Analytics)
-    providers.tsx     # Client providers wrapper
-    page.tsx          # Landing page (redirects if authed)
-  components/         # Shared UI components
-  hooks/              # Client-side React hooks
+      health/            # Health check endpoint
+      cron/send-reminders/ # Reminder email cron (Vercel cron)
+      stripe/webhook/    # Stripe webhook handler
+      email/webhook/     # Resend webhook handler
+    auth/callback/       # OAuth callback handler
+    globals.css          # Tailwind + QC pink/coral theme
+    layout.tsx           # Root layout
+    providers.tsx        # Client providers (Theme, CheckIn, Bookends, etc.)
+    page.tsx             # Landing page (Hero + FeatureGrid)
+  components/
+    bookends/            # Pre/post check-in modals (preparation, reflection)
+    checkin/             # Check-in session components (steps, timer, celebration)
+    dashboard/           # Dashboard widgets (quick actions, stats, activity)
+    growth/              # Milestone cards, timeline, photo gallery/upload
+    Landing/             # Landing page hero + feature grid
+    layout/              # App shell (header, navigation, sidebar, footer)
+    love-languages/      # Love language cards, dialogs, action lists
+    notes/               # Note editor, tags, cards, bulk actions
+    reminders/           # Reminder list + chat UI
+    requests/            # Request inbox + cards
+    settings/            # Settings panels (profile, notifications, session)
+    ui/                  # Base UI primitives (Radix wrappers, motion, mobile)
+  contexts/              # React Context providers
+    CheckInContext.tsx    # Check-in session state (Supabase-backed)
+    BookendsContext.tsx   # Pre/post check-in state
+    SessionSettingsContext.tsx  # Session config (duration, turns, timeouts)
+    LoveLanguagesContext.tsx    # Love languages + actions state
+    ThemeContext.tsx      # Light/dark/system theme
+  hooks/
+    useRealtimeCouple.ts # Supabase Realtime subscription by couple_id
+    useMilestones.ts     # Milestone CRUD + photo upload
+    useNoteEditor.ts     # Rich text note editing
+    useNoteTags.ts       # Note tag management
   lib/
-    auth.ts           # requireAuth(), getUserOrNull()
-    email/            # Resend client, send helpers, templates
-    stripe/           # Stripe client, plan config
-    subscription/     # Server-side subscription checks
-    supabase/         # Supabase client trio + middleware
-    utils.ts          # cn(), case transforms
-    validation.ts     # Zod schemas, validate() helper
-  middleware.ts       # Auth session refresh, route protection
-  store/              # Zustand stores
-  test/               # Test setup and mocks
-  types/              # Shared TypeScript types
+    auth.ts              # requireAuth(), getUserOrNull()
+    couples.ts           # Couple CRUD, invite logic, partner lookup
+    email/               # Resend client, send helpers, templates
+    stripe/              # Stripe client, QC plan config (free/pro)
+    subscription/        # Server-side subscription limit checks
+    supabase/            # Supabase client trio + middleware
+    utils.ts             # cn(), case transforms
+    validation.ts        # Zod schemas, validate() helper
+    animations.ts        # Framer Motion variants + spring configs
+    text-formatting.ts   # Markdown parsing, sanitization
+    haptics.ts           # Capacitor haptic feedback patterns
+  middleware.ts          # Auth session refresh, onboarding redirect
+  store/                 # Zustand stores
+  test/                  # Test setup and mocks
+  types/
+    index.ts             # QC domain types + type unions
+    database.ts          # Supabase row types (Db* interfaces)
+    checkin.ts           # Check-in session state types
+    bookends.ts          # Bookend flow types
 supabase/
-  config.toml         # Local Supabase config
-  migrations/         # SQL migration files (append-only)
-  seed.sql            # Local dev seed data
+  migrations/            # 8 SQL migration files (append-only)
+  config.toml            # Local Supabase config
+  seed.sql               # Local dev seed data
 ```
 
 ## Commands
@@ -115,17 +158,38 @@ Three Supabase clients for different contexts -- never mix them:
 ### Auth Flow
 
 1. Middleware (`src/middleware.ts`) refreshes session on every request
-2. Public routes: `/`, `/login`, `/signup`, `/auth/callback`, `/api/health`, webhooks, cron
+2. Public routes: `/`, `/login`, `/signup`, `/auth/callback`, `/api/health`, `/onboarding`, `/invite`, webhooks, cron
 3. Protected routes redirect to `/login?redirect=<original_path>` when unauthenticated
-4. `requireAuth()` returns `{ user, supabase }` -- use in server components/actions
-5. `getUserOrNull()` returns `User | null` -- use for conditional rendering
+4. Authenticated users without a `couple_id` are redirected to `/onboarding`
+5. After onboarding: couple is created, partner invite sent via email
+6. `requireAuth()` returns `{ user, supabase }` -- use in server components/actions
+7. `getUserOrNull()` returns `User | null` -- use for conditional rendering
 
 ### Middleware Pattern
 
 - Refreshes Supabase auth cookies on every request
 - Protects all routes except explicit public routes
+- Redirects users without couples to `/onboarding` (guards `(app)` routes)
 - Adds security headers (X-Frame-Options, CSP, Referrer-Policy)
 - Runs before every route via Next.js matcher
+
+### Couple-Scoped Data
+
+All QC data is scoped to a couple, not a user:
+
+- Every data table has a `couple_id` column
+- RLS policies use `couple_id IN (SELECT couple_id FROM profiles WHERE id = auth.uid())`
+- Both partners in a couple see the same data (except private notes/love languages)
+- `lib/couples.ts` provides `getCouple()`, `getPartner()`, `joinCouple()`, `createInvite()`, etc.
+
+### Real-time Sync
+
+Partner sync uses Supabase Realtime via the `useRealtimeCouple` hook:
+
+- Subscribes to `postgres_changes` filtered by `couple_id`
+- Tables with realtime enabled: `notes`, `check_ins`, `action_items`, `requests`, `love_actions`
+- Callbacks: `onInsert`, `onUpdate`, `onDelete` fire when partner modifies data
+- Uses refs for callbacks to avoid re-subscribing on every render
 
 ### Server/Client Boundary
 
@@ -181,20 +245,36 @@ Three Supabase clients for different contexts -- never mix them:
 
 ### RLS Patterns
 
-Every table in `public` schema MUST have:
+Every table in `public` schema MUST have RLS enabled. QC tables use **couple-scoped** policies:
 
-- RLS enabled: `ALTER TABLE public.X ENABLE ROW LEVEL SECURITY`
-- SELECT policy: `USING (auth.uid() = user_id)`
-- INSERT policy: `WITH CHECK (auth.uid() = user_id)`
-- UPDATE policy: `USING (auth.uid() = user_id) WITH CHECK (auth.uid() = user_id)`
-- DELETE policy: `USING (auth.uid() = user_id)`
+- SELECT: `USING (couple_id IN (SELECT couple_id FROM profiles WHERE id = auth.uid()))`
+- INSERT: `WITH CHECK (couple_id IN (SELECT couple_id FROM profiles WHERE id = auth.uid()))`
+- UPDATE: same USING + WITH CHECK as above
+- DELETE: same USING as SELECT
+
+Privacy-filtered tables (`notes`, `love_languages`) add `AND (privacy = 'shared' OR user_id = auth.uid())` to SELECT.
 
 Trigger functions use `SECURITY DEFINER SET search_path = ''` for safety.
 
-### Existing Tables
+### Tables (12 total, 8 migrations)
 
-- `profiles` -- auto-created on signup via trigger, references `auth.users`
-- `subscriptions` -- auto-created when profile is created, one per user
+| Table              | Scope       | Migration | Description                              |
+| ------------------ | ----------- | --------- | ---------------------------------------- |
+| `profiles`         | user        | 00001     | Auto-created on signup, has `couple_id`  |
+| `subscriptions`    | user        | 00002     | Stripe subscription status               |
+| `couples`          | couple      | 00003     | Couple entity + settings JSONB           |
+| `couple_invites`   | couple      | 00003     | Partner invite tokens (pending/accepted) |
+| `check_ins`        | couple      | 00004     | Check-in sessions with mood tracking     |
+| `notes`            | couple+user | 00004     | Private/shared notes with tags           |
+| `action_items`     | couple      | 00004     | To-dos from check-in sessions            |
+| `milestones`       | couple      | 00005     | Growth achievements + photo URLs         |
+| `reminders`        | couple      | 00006     | Scheduled reminders (email/in-app)       |
+| `requests`         | couple      | 00006     | Partner-to-partner requests              |
+| `love_languages`   | couple+user | 00007     | Love language profiles (private/shared)  |
+| `love_actions`     | couple      | 00007     | Actions linked to love languages         |
+| `session_settings` | couple      | 00008     | Check-in session config (1:1 per couple) |
+
+Storage bucket: `milestone-photos` (public read, authenticated upload)
 
 ## Claude Code Features
 
@@ -296,5 +376,8 @@ Runs on push to `main` and pull requests:
 - **Never commit `.env` files**: use Doppler (enforced by hook)
 - **Never use `any`**: use `unknown` with type guards
 - **Never skip auth checks**: every API route and server action starts with `requireAuth()`
-- **Always enable RLS**: every new table must have RLS enabled with ownership policies
+- **Always enable RLS**: every new table must have RLS enabled with couple-scoped policies
 - **Always validate inputs**: use Zod schemas for API inputs and form data
+- **Always scope queries by couple_id**: never query data without filtering by the user's couple
+- **Respect privacy flags**: notes and love languages with `privacy = 'private'` are only visible to the author
+- **Use `useRealtimeCouple`** for tables that need partner sync (don't create raw Supabase channel subscriptions)

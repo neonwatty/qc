@@ -45,6 +45,48 @@ function dbRowToMilestone(row: Record<string, unknown>): Milestone {
   }
 }
 
+async function fetchMilestones(supabase: ReturnType<typeof createClient>, coupleId: string): Promise<Milestone[]> {
+  const { data, error } = await supabase
+    .from('milestones')
+    .select('*')
+    .eq('couple_id', coupleId)
+    .order('achieved_at', { ascending: false, nullsFirst: false })
+
+  if (error) throw error
+  return (data ?? []).map(dbRowToMilestone)
+}
+
+async function uploadMilestonePhoto(
+  supabase: ReturnType<typeof createClient>,
+  coupleId: string | null,
+  milestoneId: string,
+  file: File,
+): Promise<string> {
+  const ext = file.name.split('.').pop() ?? 'jpg'
+  const path = `${coupleId}/${milestoneId}.${ext}`
+
+  const { error } = await supabase.storage.from('milestone-photos').upload(path, file, { upsert: true })
+  if (error) throw error
+
+  const {
+    data: { publicUrl },
+  } = supabase.storage.from('milestone-photos').getPublicUrl(path)
+  return publicUrl
+}
+
+function buildDbUpdates(updates: Partial<Milestone>): Record<string, unknown> {
+  const dbUpdates: Record<string, unknown> = {}
+  if (updates.title !== undefined) dbUpdates.title = updates.title
+  if (updates.description !== undefined) dbUpdates.description = updates.description
+  if (updates.category !== undefined) dbUpdates.category = updates.category
+  if (updates.icon !== undefined) dbUpdates.icon = updates.icon
+  if (updates.achievedAt !== undefined) dbUpdates.achieved_at = updates.achievedAt
+  if (updates.rarity !== undefined) dbUpdates.rarity = updates.rarity
+  if (updates.points !== undefined) dbUpdates.points = updates.points
+  if (updates.photoUrl !== undefined) dbUpdates.photo_url = updates.photoUrl
+  return dbUpdates
+}
+
 export function useMilestones(coupleId: string | null): UseMilestonesReturn {
   const [milestones, setMilestones] = useState<Milestone[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -58,23 +100,12 @@ export function useMilestones(coupleId: string | null): UseMilestonesReturn {
       setIsLoading(false)
       return
     }
-
     try {
       setIsLoading(true)
       setError(null)
-
-      const { data, error: fetchError } = await supabase
-        .from('milestones')
-        .select('*')
-        .eq('couple_id', coupleId)
-        .order('achieved_at', { ascending: false, nullsFirst: false })
-
-      if (fetchError) throw fetchError
-
-      setMilestones((data ?? []).map(dbRowToMilestone))
+      setMilestones(await fetchMilestones(supabase, coupleId))
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Failed to load milestones'
-      setError(message)
+      setError(err instanceof Error ? err.message : 'Failed to load milestones')
     } finally {
       setIsLoading(false)
     }
@@ -86,20 +117,7 @@ export function useMilestones(coupleId: string | null): UseMilestonesReturn {
 
   const uploadPhoto = useCallback(
     async (milestoneId: string, file: File): Promise<string> => {
-      const ext = file.name.split('.').pop() ?? 'jpg'
-      const path = `${coupleId}/${milestoneId}.${ext}`
-
-      const { error: uploadError } = await supabase.storage
-        .from('milestone-photos')
-        .upload(path, file, { upsert: true })
-
-      if (uploadError) throw uploadError
-
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from('milestone-photos').getPublicUrl(path)
-
-      return publicUrl
+      return uploadMilestonePhoto(supabase, coupleId, milestoneId, file)
     },
     [coupleId, supabase],
   )
@@ -107,10 +125,8 @@ export function useMilestones(coupleId: string | null): UseMilestonesReturn {
   const createMilestone = useCallback(
     async (input: MilestoneInput): Promise<Milestone> => {
       if (!coupleId) throw new Error('No couple linked')
-
       try {
         setError(null)
-
         const { data, error: insertError } = await supabase
           .from('milestones')
           .insert({
@@ -124,7 +140,6 @@ export function useMilestones(coupleId: string | null): UseMilestonesReturn {
           })
           .select()
           .single()
-
         if (insertError) throw insertError
 
         let photoUrl: string | null = null
@@ -132,7 +147,6 @@ export function useMilestones(coupleId: string | null): UseMilestonesReturn {
           photoUrl = await uploadPhoto(data.id as string, input.photoFile)
           await supabase.from('milestones').update({ photo_url: photoUrl }).eq('id', data.id)
         }
-
         const milestone = dbRowToMilestone({ ...data, photo_url: photoUrl ?? data.photo_url })
         setMilestones((prev) => [milestone, ...prev])
         return milestone
@@ -149,26 +163,13 @@ export function useMilestones(coupleId: string | null): UseMilestonesReturn {
     async (id: string, updates: Partial<Milestone>): Promise<Milestone> => {
       try {
         setError(null)
-
-        const dbUpdates: Record<string, unknown> = {}
-        if (updates.title !== undefined) dbUpdates.title = updates.title
-        if (updates.description !== undefined) dbUpdates.description = updates.description
-        if (updates.category !== undefined) dbUpdates.category = updates.category
-        if (updates.icon !== undefined) dbUpdates.icon = updates.icon
-        if (updates.achievedAt !== undefined) dbUpdates.achieved_at = updates.achievedAt
-        if (updates.rarity !== undefined) dbUpdates.rarity = updates.rarity
-        if (updates.points !== undefined) dbUpdates.points = updates.points
-        if (updates.photoUrl !== undefined) dbUpdates.photo_url = updates.photoUrl
-
         const { data, error: updateError } = await supabase
           .from('milestones')
-          .update(dbUpdates)
+          .update(buildDbUpdates(updates))
           .eq('id', id)
           .select()
           .single()
-
         if (updateError) throw updateError
-
         const milestone = dbRowToMilestone(data)
         setMilestones((prev) => prev.map((m) => (m.id === id ? milestone : m)))
         return milestone
@@ -198,26 +199,24 @@ export function useMilestones(coupleId: string | null): UseMilestonesReturn {
   )
 
   const achieveMilestone = useCallback(
-    async (id: string): Promise<Milestone> => {
-      return updateMilestone(id, { achievedAt: new Date().toISOString() })
-    },
+    async (id: string): Promise<Milestone> => updateMilestone(id, { achievedAt: new Date().toISOString() }),
     [updateMilestone],
   )
 
   const getMilestonesByCategory = useCallback(
-    (category: MilestoneCategory): Milestone[] => {
-      return milestones.filter((m) => m.category === category)
-    },
+    (category: MilestoneCategory): Milestone[] => milestones.filter((m) => m.category === category),
     [milestones],
   )
 
-  const getAchievedMilestones = useCallback((): Milestone[] => {
-    return milestones.filter((m) => m.achievedAt !== null)
-  }, [milestones])
+  const getAchievedMilestones = useCallback(
+    (): Milestone[] => milestones.filter((m) => m.achievedAt !== null),
+    [milestones],
+  )
 
-  const getUpcomingMilestones = useCallback((): Milestone[] => {
-    return milestones.filter((m) => m.achievedAt === null)
-  }, [milestones])
+  const getUpcomingMilestones = useCallback(
+    (): Milestone[] => milestones.filter((m) => m.achievedAt === null),
+    [milestones],
+  )
 
   return {
     milestones,

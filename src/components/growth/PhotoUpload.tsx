@@ -22,6 +22,127 @@ interface PhotoUploadProps {
 
 const EMOJI_OPTIONS = ['📸', '🌅', '🌺', '🎂', '🏖️', '🌟', '💐', '🎉', '🌈', '🦋', '🌸', '🏔️', '🌊', '🍰', '🎈', '⭐']
 
+function EmojiSelector({
+  onSelect,
+  onClose,
+}: {
+  onSelect: (emoji: string) => void
+  onClose: () => void
+}): React.ReactElement {
+  return (
+    <motion.div
+      initial={{ opacity: 0, height: 0 }}
+      animate={{ opacity: 1, height: 'auto' }}
+      exit={{ opacity: 0, height: 0 }}
+      className="rounded-lg border bg-white p-3 dark:bg-gray-900"
+    >
+      <div className="mb-3 flex items-center justify-between">
+        <h4 className="text-sm font-medium">Choose an emoji</h4>
+        <Button variant="ghost" size="sm" onClick={onClose}>
+          <X className="h-4 w-4" />
+        </Button>
+      </div>
+      <div className="grid grid-cols-8 gap-2">
+        {EMOJI_OPTIONS.map((emoji) => (
+          <button
+            key={emoji}
+            onClick={() => onSelect(emoji)}
+            className="flex aspect-square items-center justify-center rounded-lg border text-xl transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
+          >
+            {emoji}
+          </button>
+        ))}
+      </div>
+    </motion.div>
+  )
+}
+
+function PhotoPreview({ value, size = 'md' }: { value: string; size?: 'sm' | 'md' }): React.ReactElement {
+  const imgClass = size === 'sm' ? 'h-8 w-8 rounded' : 'h-12 w-12 rounded-lg'
+
+  if (value.startsWith('http')) {
+    return <img src={value} alt="Preview" className={cn(imgClass, 'object-cover')} />
+  }
+  return <span className={size === 'sm' ? 'text-2xl' : 'text-3xl'}>{value}</span>
+}
+
+function ErrorMessage({ error }: { error: string }): React.ReactElement {
+  return (
+    <div className="flex items-center gap-2 text-sm text-red-600">
+      <AlertCircle className="h-4 w-4" />
+      {error}
+    </div>
+  )
+}
+
+function MinimalVariant({
+  value,
+  onRemove,
+  onOpenFileDialog,
+  onShowEmojis,
+  showEmojiSelector,
+  onEmojiSelect,
+  onCloseEmojis,
+  isUploading,
+  error,
+  fileInputRef,
+  acceptedFormats,
+  onFileInputChange,
+  className,
+}: {
+  value?: string | null
+  onRemove: () => void
+  onOpenFileDialog: () => void
+  onShowEmojis: () => void
+  showEmojiSelector: boolean
+  onEmojiSelect: (emoji: string) => void
+  onCloseEmojis: () => void
+  isUploading: boolean
+  error: string | null
+  fileInputRef: React.RefObject<HTMLInputElement | null>
+  acceptedFormats: string[]
+  onFileInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  className?: string
+}): React.ReactElement {
+  return (
+    <div className={cn('space-y-2', className)}>
+      {value ? (
+        <div className="flex items-center gap-3 rounded-lg bg-gray-50 p-3 dark:bg-gray-800">
+          <PhotoPreview value={value} size="sm" />
+          <span className="flex-1 text-sm text-gray-600 dark:text-gray-400">Photo selected</span>
+          <Button variant="ghost" size="sm" onClick={onRemove} className="text-gray-500 hover:text-red-500">
+            <X className="h-4 w-4" />
+          </Button>
+        </div>
+      ) : (
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={onOpenFileDialog} disabled={isUploading} className="flex-1">
+            {isUploading ? <RefreshCw className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
+            {isUploading ? 'Uploading...' : 'Upload'}
+          </Button>
+          <Button variant="outline" size="sm" onClick={onShowEmojis} disabled={isUploading}>
+            <ImageIcon className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept={acceptedFormats.join(',')}
+        onChange={onFileInputChange}
+        className="hidden"
+      />
+
+      <AnimatePresence>
+        {showEmojiSelector && <EmojiSelector onSelect={onEmojiSelect} onClose={onCloseEmojis} />}
+      </AnimatePresence>
+
+      {error && <ErrorMessage error={error} />}
+    </div>
+  )
+}
+
 export function PhotoUpload({
   value,
   onFileSelect,
@@ -64,16 +185,6 @@ export function PhotoUpload({
     }
   }
 
-  function handleDragOver(e: React.DragEvent): void {
-    e.preventDefault()
-    setIsDragging(true)
-  }
-
-  function handleDragLeave(e: React.DragEvent): void {
-    e.preventDefault()
-    setIsDragging(false)
-  }
-
   function handleFileInputChange(e: React.ChangeEvent<HTMLInputElement>): void {
     const files = e.target.files
     if (files && files.length > 0) {
@@ -81,86 +192,28 @@ export function PhotoUpload({
     }
   }
 
+  function handleEmojiSelect(emoji: string): void {
+    onEmojiSelect(emoji)
+    setShowEmojiSelector(false)
+  }
+
   if (variant === 'minimal') {
     return (
-      <div className={cn('space-y-2', className)}>
-        {value ? (
-          <div className="flex items-center gap-3 rounded-lg bg-gray-50 p-3 dark:bg-gray-800">
-            {value.startsWith('http') ? (
-              <img src={value} alt="Preview" className="h-8 w-8 rounded object-cover" />
-            ) : (
-              <span className="text-2xl">{value}</span>
-            )}
-            <span className="flex-1 text-sm text-gray-600 dark:text-gray-400">Photo selected</span>
-            <Button variant="ghost" size="sm" onClick={onRemove} className="text-gray-500 hover:text-red-500">
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-        ) : (
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isUploading}
-              className="flex-1"
-            >
-              {isUploading ? <RefreshCw className="mr-2 h-4 w-4 animate-spin" /> : <Upload className="mr-2 h-4 w-4" />}
-              {isUploading ? 'Uploading...' : 'Upload'}
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => setShowEmojiSelector(true)} disabled={isUploading}>
-              <ImageIcon className="h-4 w-4" />
-            </Button>
-          </div>
-        )}
-
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept={acceptedFormats.join(',')}
-          onChange={handleFileInputChange}
-          className="hidden"
-        />
-
-        <AnimatePresence>
-          {showEmojiSelector && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="rounded-lg border bg-white p-3 dark:bg-gray-900"
-            >
-              <div className="mb-3 flex items-center justify-between">
-                <h4 className="text-sm font-medium">Choose an emoji</h4>
-                <Button variant="ghost" size="sm" onClick={() => setShowEmojiSelector(false)}>
-                  <X className="h-4 w-4" />
-                </Button>
-              </div>
-              <div className="grid grid-cols-8 gap-2">
-                {EMOJI_OPTIONS.map((emoji) => (
-                  <button
-                    key={emoji}
-                    onClick={() => {
-                      onEmojiSelect(emoji)
-                      setShowEmojiSelector(false)
-                    }}
-                    className="flex aspect-square items-center justify-center rounded-lg border text-xl transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
-                  >
-                    {emoji}
-                  </button>
-                ))}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {error && (
-          <div className="flex items-center gap-2 text-sm text-red-600">
-            <AlertCircle className="h-4 w-4" />
-            {error}
-          </div>
-        )}
-      </div>
+      <MinimalVariant
+        value={value}
+        onRemove={onRemove}
+        onOpenFileDialog={() => fileInputRef.current?.click()}
+        onShowEmojis={() => setShowEmojiSelector(true)}
+        showEmojiSelector={showEmojiSelector}
+        onEmojiSelect={handleEmojiSelect}
+        onCloseEmojis={() => setShowEmojiSelector(false)}
+        isUploading={isUploading}
+        error={error}
+        fileInputRef={fileInputRef}
+        acceptedFormats={acceptedFormats}
+        onFileInputChange={handleFileInputChange}
+        className={className}
+      />
     )
   }
 
@@ -170,11 +223,7 @@ export function PhotoUpload({
       {value ? (
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="relative">
           <div className="flex items-center gap-3 rounded-lg border bg-white p-4 dark:bg-gray-900">
-            {value.startsWith('http') ? (
-              <img src={value} alt="Preview" className="h-12 w-12 rounded-lg object-cover" />
-            ) : (
-              <span className="text-3xl">{value}</span>
-            )}
+            <PhotoPreview value={value} />
             <div className="flex-1">
               <div className="mb-1 flex items-center gap-1 text-green-600">
                 <Check className="h-4 w-4" />
@@ -190,8 +239,14 @@ export function PhotoUpload({
       ) : (
         <div
           onDrop={handleDrop}
-          onDragOver={handleDragOver}
-          onDragLeave={handleDragLeave}
+          onDragOver={(e) => {
+            e.preventDefault()
+            setIsDragging(true)
+          }}
+          onDragLeave={(e) => {
+            e.preventDefault()
+            setIsDragging(false)
+          }}
           className={cn(
             'relative rounded-lg border-2 border-dashed p-6 text-center transition-colors',
             isDragging
@@ -225,42 +280,11 @@ export function PhotoUpload({
 
       <AnimatePresence>
         {showEmojiSelector && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="rounded-lg border bg-white p-3 dark:bg-gray-900"
-          >
-            <div className="mb-3 flex items-center justify-between">
-              <h4 className="text-sm font-medium">Choose an emoji</h4>
-              <Button variant="ghost" size="sm" onClick={() => setShowEmojiSelector(false)}>
-                <X className="h-4 w-4" />
-              </Button>
-            </div>
-            <div className="grid grid-cols-8 gap-2">
-              {EMOJI_OPTIONS.map((emoji) => (
-                <button
-                  key={emoji}
-                  onClick={() => {
-                    onEmojiSelect(emoji)
-                    setShowEmojiSelector(false)
-                  }}
-                  className="flex aspect-square items-center justify-center rounded-lg border text-xl transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
-                >
-                  {emoji}
-                </button>
-              ))}
-            </div>
-          </motion.div>
+          <EmojiSelector onSelect={handleEmojiSelect} onClose={() => setShowEmojiSelector(false)} />
         )}
       </AnimatePresence>
 
-      {error && (
-        <div className="flex items-center gap-2 text-sm text-red-600">
-          <AlertCircle className="h-4 w-4" />
-          {error}
-        </div>
-      )}
+      {error && <ErrorMessage error={error} />}
     </div>
   )
 }

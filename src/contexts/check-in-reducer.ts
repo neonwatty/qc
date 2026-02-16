@@ -55,16 +55,41 @@ export function createInitialSession(categories: string[], coupleId: string): Ch
   }
 }
 
+function handleCompleteStep(state: CheckInContextState, step: CheckInStep): CheckInContextState {
+  if (!state.session) return state
+  const completedSteps = [...state.session.progress.completedSteps]
+  if (!completedSteps.includes(step)) {
+    completedSteps.push(step)
+  }
+  const currentStepIndex = STEPS.indexOf(state.session.progress.currentStep)
+  const nextStep = STEPS[currentStepIndex + 1] || state.session.progress.currentStep
+  return {
+    ...state,
+    session: {
+      ...state.session,
+      progress: {
+        ...state.session.progress,
+        completedSteps,
+        currentStep: nextStep,
+        percentage: calculateProgress(completedSteps),
+      },
+      lastSavedAt: new Date().toISOString(),
+    },
+  }
+}
+
+function withTimestamp(state: CheckInContextState): CheckInContextState {
+  if (!state.session) return state
+  return {
+    ...state,
+    session: { ...state.session, lastSavedAt: new Date().toISOString() },
+  }
+}
+
 export function checkInReducer(state: CheckInContextState, action: CheckInAction): CheckInContextState {
   switch (action.type) {
-    case 'START_CHECKIN': {
-      return {
-        ...state,
-        // Session is created externally and set via RESTORE_SESSION
-        isLoading: false,
-        error: null,
-      }
-    }
+    case 'START_CHECKIN':
+      return { ...state, isLoading: false, error: null }
 
     case 'GO_TO_STEP': {
       if (!state.session) return state
@@ -72,50 +97,25 @@ export function checkInReducer(state: CheckInContextState, action: CheckInAction
         ...state,
         session: {
           ...state.session,
-          progress: {
-            ...state.session.progress,
-            currentStep: action.payload.step,
-          },
+          progress: { ...state.session.progress, currentStep: action.payload.step },
           lastSavedAt: new Date().toISOString(),
         },
       }
     }
 
-    case 'COMPLETE_STEP': {
-      if (!state.session) return state
-      const { step } = action.payload
-      const completedSteps = [...state.session.progress.completedSteps]
-      if (!completedSteps.includes(step)) {
-        completedSteps.push(step)
-      }
-      const currentStepIndex = STEPS.indexOf(state.session.progress.currentStep)
-      const nextStep = STEPS[currentStepIndex + 1] || state.session.progress.currentStep
-      return {
-        ...state,
-        session: {
-          ...state.session,
-          progress: {
-            ...state.session.progress,
-            completedSteps,
-            currentStep: nextStep,
-            percentage: calculateProgress(completedSteps),
-          },
-          lastSavedAt: new Date().toISOString(),
-        },
-      }
-    }
+    case 'COMPLETE_STEP':
+      return handleCompleteStep(state, action.payload.step)
 
     case 'SET_CATEGORY_PROGRESS': {
       if (!state.session) return state
       const { categoryId, progress } = action.payload
-      const updatedCategoryProgress = state.session.categoryProgress.map((cp) =>
-        cp.categoryId === categoryId ? { ...cp, ...progress, lastUpdated: new Date().toISOString() } : cp,
-      )
       return {
         ...state,
         session: {
           ...state.session,
-          categoryProgress: updatedCategoryProgress,
+          categoryProgress: state.session.categoryProgress.map((cp) =>
+            cp.categoryId === categoryId ? { ...cp, ...progress, lastUpdated: new Date().toISOString() } : cp,
+          ),
           lastSavedAt: new Date().toISOString(),
         },
       }
@@ -160,63 +160,19 @@ export function checkInReducer(state: CheckInContextState, action: CheckInAction
       }
     }
 
-    case 'ADD_ACTION_ITEM': {
-      if (!state.session) return state
-      return {
-        ...state,
-        session: {
-          ...state.session,
-          lastSavedAt: new Date().toISOString(),
-        },
-      }
-    }
-
+    case 'ADD_ACTION_ITEM':
     case 'UPDATE_ACTION_ITEM':
     case 'REMOVE_ACTION_ITEM':
-    case 'TOGGLE_ACTION_ITEM': {
-      if (!state.session) return state
-      return {
-        ...state,
-        session: {
-          ...state.session,
-          lastSavedAt: new Date().toISOString(),
-        },
-      }
-    }
+    case 'TOGGLE_ACTION_ITEM':
+    case 'SAVE_SESSION':
+      return withTimestamp(state)
 
-    case 'SAVE_SESSION': {
-      if (!state.session) return state
-      return {
-        ...state,
-        session: {
-          ...state.session,
-          lastSavedAt: new Date().toISOString(),
-        },
-      }
-    }
+    case 'COMPLETE_CHECKIN':
+    case 'ABANDON_CHECKIN':
+      return { ...state, session: null }
 
-    case 'COMPLETE_CHECKIN': {
-      return {
-        ...state,
-        session: null,
-      }
-    }
-
-    case 'ABANDON_CHECKIN': {
-      return {
-        ...state,
-        session: null,
-      }
-    }
-
-    case 'RESTORE_SESSION': {
-      return {
-        ...state,
-        session: action.payload.session,
-        isLoading: false,
-        error: null,
-      }
-    }
+    case 'RESTORE_SESSION':
+      return { ...state, session: action.payload.session, isLoading: false, error: null }
 
     default:
       return state

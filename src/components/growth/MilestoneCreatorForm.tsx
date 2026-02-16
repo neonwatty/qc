@@ -15,6 +15,62 @@ interface MilestoneCreatorFormProps {
   onClose: () => void
 }
 
+function CategoryGrid({
+  selected,
+  onSelect,
+}: {
+  selected: string
+  onSelect: (id: string) => void
+}): React.ReactElement {
+  return (
+    <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+      {CATEGORY_OPTIONS.map((cat) => (
+        <button
+          key={cat.id}
+          onClick={() => onSelect(cat.id)}
+          className={cn(
+            'flex items-center gap-2 rounded-lg border p-3 text-left transition-all',
+            selected === cat.id
+              ? 'border-pink-500 bg-pink-50 dark:bg-pink-900/20'
+              : 'border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600',
+          )}
+        >
+          <span className="text-lg">{cat.icon}</span>
+          <span className="text-sm font-medium">{cat.name}</span>
+        </button>
+      ))}
+    </div>
+  )
+}
+
+function RaritySelector({
+  selected,
+  onSelect,
+}: {
+  selected: string
+  onSelect: (id: string) => void
+}): React.ReactElement {
+  return (
+    <div className="flex gap-2">
+      {RARITY_OPTIONS.map((r) => (
+        <button
+          key={r.id}
+          onClick={() => onSelect(r.id)}
+          className={cn(
+            'flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition-all',
+            selected === r.id
+              ? 'border-pink-500 bg-pink-50 dark:bg-pink-900/20'
+              : 'border-gray-200 hover:border-gray-300 dark:border-gray-700',
+          )}
+        >
+          <span>{r.icon}</span>
+          <span>{r.name}</span>
+        </button>
+      ))}
+    </div>
+  )
+}
+
 export function MilestoneCreatorForm({
   formData,
   errors,
@@ -65,45 +121,13 @@ export function MilestoneCreatorForm({
       <div>
         <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Category</label>
         {errors.category && <p className="mb-2 text-xs text-red-600">{errors.category}</p>}
-        <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-          {CATEGORY_OPTIONS.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => onUpdateField('category', cat.id)}
-              className={cn(
-                'flex items-center gap-2 rounded-lg border p-3 text-left transition-all',
-                formData.category === cat.id
-                  ? 'border-pink-500 bg-pink-50 dark:bg-pink-900/20'
-                  : 'border-gray-200 hover:border-gray-300 dark:border-gray-700 dark:hover:border-gray-600',
-              )}
-            >
-              <span className="text-lg">{cat.icon}</span>
-              <span className="text-sm font-medium">{cat.name}</span>
-            </button>
-          ))}
-        </div>
+        <CategoryGrid selected={formData.category} onSelect={(id) => onUpdateField('category', id)} />
       </div>
 
       {/* Rarity */}
       <div>
         <label className="mb-2 block text-sm font-medium text-gray-700 dark:text-gray-300">Rarity</label>
-        <div className="flex gap-2">
-          {RARITY_OPTIONS.map((r) => (
-            <button
-              key={r.id}
-              onClick={() => onUpdateField('rarity', r.id)}
-              className={cn(
-                'flex items-center gap-1.5 rounded-lg border px-3 py-2 text-sm transition-all',
-                formData.rarity === r.id
-                  ? 'border-pink-500 bg-pink-50 dark:bg-pink-900/20'
-                  : 'border-gray-200 hover:border-gray-300 dark:border-gray-700',
-              )}
-            >
-              <span>{r.icon}</span>
-              <span>{r.name}</span>
-            </button>
-          ))}
-        </div>
+        <RaritySelector selected={formData.rarity} onSelect={(id) => onUpdateField('rarity', id)} />
       </div>
 
       {/* Points */}
