@@ -1,5 +1,11 @@
 'use client'
 
-export function Providers({ children }: { children: React.ReactNode }) {
-  return <>{children}</>
+import { ThemeProvider } from '@/contexts/ThemeContext'
+
+interface ProvidersProps {
+  children: React.ReactNode
+}
+
+export function Providers({ children }: ProvidersProps): React.ReactNode {
+  return <ThemeProvider>{children}</ThemeProvider>
 }
