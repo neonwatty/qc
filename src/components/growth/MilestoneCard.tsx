@@ -2,23 +2,12 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { format, parseISO, isThisYear } from 'date-fns'
-import {
-  Award,
-  CheckCircle,
-  Clock,
-  Trophy,
-  Target,
-  Heart,
-  Users,
-  TrendingUp,
-  ChevronRight,
-  ChevronDown,
-} from 'lucide-react'
+import { Award, CheckCircle, ChevronDown, ChevronRight, Clock } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
-import type { Milestone, MilestoneCategory, MilestoneRarity } from '@/types'
+import { CATEGORY_CONFIG, RARITY_CONFIG, formatMilestoneDate } from './milestone-card-config'
+import type { Milestone } from '@/types'
 
 interface MilestoneCardProps {
   milestone: Milestone
@@ -26,90 +15,6 @@ interface MilestoneCardProps {
   showActions?: boolean
   className?: string
   onClick?: (milestone: Milestone) => void
-}
-
-const CATEGORY_CONFIG: Record<
-  MilestoneCategory,
-  {
-    color: string
-    bgColor: string
-    borderColor: string
-    gradientFrom: string
-    gradientTo: string
-    icon: React.ComponentType<{ className?: string }>
-  }
-> = {
-  communication: {
-    color: 'text-blue-600',
-    bgColor: 'bg-blue-100',
-    borderColor: 'border-blue-200',
-    gradientFrom: 'from-blue-500',
-    gradientTo: 'to-blue-600',
-    icon: Users,
-  },
-  intimacy: {
-    color: 'text-red-600',
-    bgColor: 'bg-red-100',
-    borderColor: 'border-red-200',
-    gradientFrom: 'from-red-500',
-    gradientTo: 'to-red-600',
-    icon: Heart,
-  },
-  growth: {
-    color: 'text-purple-600',
-    bgColor: 'bg-purple-100',
-    borderColor: 'border-purple-200',
-    gradientFrom: 'from-purple-500',
-    gradientTo: 'to-purple-600',
-    icon: TrendingUp,
-  },
-  relationship: {
-    color: 'text-pink-600',
-    bgColor: 'bg-pink-100',
-    borderColor: 'border-pink-200',
-    gradientFrom: 'from-pink-500',
-    gradientTo: 'to-pink-600',
-    icon: Trophy,
-  },
-  adventure: {
-    color: 'text-orange-600',
-    bgColor: 'bg-orange-100',
-    borderColor: 'border-orange-200',
-    gradientFrom: 'from-orange-500',
-    gradientTo: 'to-orange-600',
-    icon: CheckCircle,
-  },
-  milestone: {
-    color: 'text-indigo-600',
-    bgColor: 'bg-indigo-100',
-    borderColor: 'border-indigo-200',
-    gradientFrom: 'from-indigo-500',
-    gradientTo: 'to-indigo-600',
-    icon: Target,
-  },
-  custom: {
-    color: 'text-gray-600',
-    bgColor: 'bg-gray-100',
-    borderColor: 'border-gray-200',
-    gradientFrom: 'from-gray-500',
-    gradientTo: 'to-gray-600',
-    icon: Award,
-  },
-}
-
-const RARITY_CONFIG: Record<MilestoneRarity, { borderColor: string; badgeColor: string }> = {
-  common: { borderColor: 'border-gray-300', badgeColor: 'bg-gray-100 text-gray-700' },
-  rare: { borderColor: 'border-blue-300', badgeColor: 'bg-blue-100 text-blue-700' },
-  epic: { borderColor: 'border-purple-300', badgeColor: 'bg-purple-100 text-purple-700' },
-  legendary: { borderColor: 'border-yellow-300', badgeColor: 'bg-yellow-100 text-yellow-700' },
-}
-
-function formatMilestoneDate(dateStr: string): string {
-  const date = parseISO(dateStr)
-  if (isThisYear(date)) {
-    return format(date, 'MMM d')
-  }
-  return format(date, 'MMM d, yyyy')
 }
 
 export function MilestoneCard({
@@ -236,7 +141,7 @@ export function MilestoneCard({
       onClick={handleClick}
     >
       <div className="mb-3 flex items-start justify-between">
-        <div className="flex items-start gap-3 flex-1">
+        <div className="flex flex-1 items-start gap-3">
           <div className={cn('flex-shrink-0 rounded-lg p-2', config.bgColor)}>
             {milestone.icon ? (
               <span className="text-xl">{milestone.icon}</span>
