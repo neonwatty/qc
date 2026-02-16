@@ -153,5 +153,3 @@ export function FeatureGrid(): React.ReactNode {
     </section>
   )
 }
-
-export default FeatureGrid

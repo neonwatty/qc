@@ -88,5 +88,3 @@ const link = {
   color: '#111827',
   textDecoration: 'underline',
 }
-
-export default InviteEmail

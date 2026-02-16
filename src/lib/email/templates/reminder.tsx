@@ -72,5 +72,3 @@ const footer = {
   lineHeight: '20px',
   color: '#6b7280',
 }
-
-export default ReminderEmail

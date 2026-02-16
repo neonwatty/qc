@@ -9,6 +9,7 @@ export const createItemSchema = z.object({
   description: z.string().max(2000, 'Description must be 2000 characters or less').optional(),
 })
 
+/** @public */
 export const updateItemSchema = createItemSchema.partial()
 
 interface ValidateSuccess<T> {

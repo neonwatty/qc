@@ -36,6 +36,7 @@ interface BatchEmailResult {
   errors: string[]
 }
 
+/** @public */
 export async function sendBatchEmails({ recipients, subject, react }: BatchEmailParams): Promise<BatchEmailResult> {
   const result: BatchEmailResult = { sent: 0, failed: 0, errors: [] }
 
