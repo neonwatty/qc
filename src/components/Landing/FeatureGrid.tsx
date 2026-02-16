@@ -1,6 +1,5 @@
 'use client'
 
-import React from 'react'
 import { motion } from 'framer-motion'
 import { MessageSquare, Heart, TrendingUp, Shield, Users, Sparkles, Target, Settings, Bell } from 'lucide-react'
 import { staggerContainer, staggerItem } from '@/lib/animations'

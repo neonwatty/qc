@@ -30,6 +30,6 @@ export function validate<T>(schema: z.ZodSchema<T>, input: unknown): ValidateRes
     return { data: result.data }
   }
 
-  const message = result.error.errors.map((e) => e.message).join(', ')
+  const message = result.error.issues.map((e: { message: string }) => e.message).join(', ')
   return { error: message }
 }

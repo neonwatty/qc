@@ -1,6 +1,5 @@
 'use client'
 
-import React from 'react'
 import { Clock, Pause, Users, Coffee, Sparkles } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'

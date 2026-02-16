@@ -1,6 +1,5 @@
 'use client'
 
-import React from 'react'
 import { motion } from 'framer-motion'
 import { ArrowRight, Check, Clock, Edit } from 'lucide-react'
 import type { CategoryProgress } from '@/types/checkin'

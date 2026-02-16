@@ -7,7 +7,7 @@ import { createClient } from '@/lib/supabase/client'
 
 type RealtimeTable = 'notes' | 'check_ins' | 'action_items' | 'requests' | 'love_languages' | 'love_actions'
 
-interface UseRealtimeCoupleOptions<T extends Record<string, unknown>> {
+interface UseRealtimeCoupleOptions<T> {
   table: RealtimeTable
   coupleId: string | null
   onInsert?: (record: T) => void
@@ -15,7 +15,7 @@ interface UseRealtimeCoupleOptions<T extends Record<string, unknown>> {
   onDelete?: (oldRecord: T) => void
 }
 
-export function useRealtimeCouple<T extends Record<string, unknown>>({
+export function useRealtimeCouple<T>({
   table,
   coupleId,
   onInsert,
@@ -47,7 +47,7 @@ export function useRealtimeCouple<T extends Record<string, unknown>>({
           table,
           filter: `couple_id=eq.${coupleId}`,
         },
-        (payload: RealtimePostgresChangesPayload<T>) => {
+        (payload: RealtimePostgresChangesPayload<Record<string, unknown>>) => {
           if (payload.eventType === 'INSERT' && onInsertRef.current) {
             onInsertRef.current(payload.new as T)
           } else if (payload.eventType === 'UPDATE' && onUpdateRef.current) {

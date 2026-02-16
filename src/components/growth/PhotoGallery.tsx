@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { Plus, Heart, Calendar, Award } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'

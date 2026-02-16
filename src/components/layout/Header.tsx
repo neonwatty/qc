@@ -1,6 +1,5 @@
 'use client'
 
-import React from 'react'
 import { Heart, Moon, Sun } from 'lucide-react'
 import { useTheme } from '@/contexts/ThemeContext'
 import { cn } from '@/lib/utils'

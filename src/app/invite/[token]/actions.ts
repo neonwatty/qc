@@ -43,8 +43,8 @@ export async function acceptInviteAction(_prev: InviteState, formData: FormData)
 
   const { data: input, error: validationError } = validate(tokenSchema, { token })
 
-  if (validationError) {
-    return { error: validationError }
+  if (validationError || !input) {
+    return { error: validationError ?? 'Validation failed' }
   }
 
   // Check that the user is not already in a couple

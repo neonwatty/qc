@@ -1,14 +1,14 @@
 'use client'
 
-import React, { Suspense } from 'react'
+import { Suspense, useState, useRef, useEffect, type ReactNode } from 'react'
 
 function LoadingFallback({ className }: { className?: string }) {
   return <div className={`animate-pulse bg-gray-200 rounded ${className || 'h-8 w-full'}`} />
 }
 
 interface LazyWrapperProps {
-  children: React.ReactNode
-  fallback?: React.ReactNode
+  children: ReactNode
+  fallback?: ReactNode
   className?: string
 }
 
@@ -34,11 +34,11 @@ interface UseViewportLazyLoadingProps {
 }
 
 export function useViewportLazyLoading({ threshold = 0.1, rootMargin = '50px' }: UseViewportLazyLoadingProps = {}) {
-  const [isVisible, setIsVisible] = React.useState(false)
-  const [hasBeenVisible, setHasBeenVisible] = React.useState(false)
-  const elementRef = React.useRef<HTMLDivElement>(null)
+  const [isVisible, setIsVisible] = useState(false)
+  const [hasBeenVisible, setHasBeenVisible] = useState(false)
+  const elementRef = useRef<HTMLDivElement>(null)
 
-  React.useEffect(() => {
+  useEffect(() => {
     const element = elementRef.current
     if (!element || hasBeenVisible) return
 
@@ -62,8 +62,8 @@ export function useViewportLazyLoading({ threshold = 0.1, rootMargin = '50px' }:
 }
 
 interface ViewportLazyComponentProps {
-  children: React.ReactNode
-  fallback?: React.ReactNode
+  children: ReactNode
+  fallback?: ReactNode
   threshold?: number
   rootMargin?: string
   className?: string

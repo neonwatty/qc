@@ -1,6 +1,6 @@
 'use client'
 
-import React, { createContext, useContext, useReducer, useCallback, useEffect, useState } from 'react'
+import { createContext, useContext, useReducer, useCallback, useEffect, useState } from 'react'
 import type { Note, ActionItem, DbCheckIn, DbActionItem } from '@/types'
 import type { CheckInContextValue, CheckInStep, CategoryProgress } from '@/types/checkin'
 import { useRealtimeCouple } from '@/hooks/useRealtimeCouple'

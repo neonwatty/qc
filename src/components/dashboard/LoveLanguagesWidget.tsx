@@ -1,6 +1,5 @@
 'use client'
 
-import React from 'react'
 import Link from 'next/link'
 import { Heart, Plus } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'

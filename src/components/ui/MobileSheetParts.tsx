@@ -1,7 +1,5 @@
 'use client'
 
-import React from 'react'
-
 import { cn } from '@/lib/utils'
 import { TouchButton } from '@/components/ui/TouchButton'
 import { MobileSheet } from '@/components/ui/MobileSheet'

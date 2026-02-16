@@ -1,6 +1,6 @@
 'use client'
 
-import React, { createContext, useContext, useReducer, useCallback, useEffect } from 'react'
+import { createContext, useContext, useReducer, useCallback, useEffect } from 'react'
 import type { BookendsState, QuickReflection, PreparationTopic } from '@/types/bookends'
 import { createClient } from '@/lib/supabase/client'
 

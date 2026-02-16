@@ -1,6 +1,6 @@
 'use client'
 
-import React, { ReactNode } from 'react'
+import { ReactNode } from 'react'
 import { AlertCircle, RefreshCw, Home, WifiOff, AlertTriangle, FileX, UserX, Settings } from 'lucide-react'
 import Link from 'next/link'
 

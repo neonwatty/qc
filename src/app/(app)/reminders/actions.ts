@@ -39,7 +39,7 @@ export async function createReminder(_prev: ReminderActionState, formData: FormD
   }
 
   const { data, error: validationError } = validate(reminderSchema, raw)
-  if (validationError) return { error: validationError }
+  if (validationError || !data) return { error: validationError ?? 'Validation failed' }
 
   const { error } = await supabase.from('reminders').insert({
     couple_id: profile.couple_id,

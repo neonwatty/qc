@@ -1,6 +1,6 @@
 'use client'
 
-import React, { createContext, useContext, useCallback, useEffect, useState } from 'react'
+import { createContext, useContext, useCallback, useEffect, useState } from 'react'
 import type {
   LoveLanguage,
   LoveAction,

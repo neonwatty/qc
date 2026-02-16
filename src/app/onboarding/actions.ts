@@ -31,8 +31,8 @@ export async function completeOnboarding(_prev: OnboardingState, formData: FormD
 
   const { data: input, error: validationError } = validate(onboardingSchema, raw)
 
-  if (validationError) {
-    return { error: validationError }
+  if (validationError || !input) {
+    return { error: validationError ?? 'Validation failed' }
   }
 
   // Update display name on profile

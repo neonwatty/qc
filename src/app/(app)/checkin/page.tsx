@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { MessageCircle, Clock, Users, ArrowRight, Play, Settings, Sparkles, FileText } from 'lucide-react'
 import { MotionBox, StaggerContainer, StaggerItem } from '@/components/ui/motion'
 import { Button } from '@/components/ui/button'

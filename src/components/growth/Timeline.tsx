@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { StaggerContainer, StaggerItem } from '@/components/ui/motion'
 import { Button } from '@/components/ui/button'

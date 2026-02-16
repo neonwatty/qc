@@ -145,7 +145,6 @@ export function usePullToRefresh(
     disabled?: boolean
   },
 ) {
-  const threshold = options?.threshold ?? 60
   const disabled = options?.disabled ?? false
 
   const [isRefreshing, setIsRefreshing] = React.useState(false)

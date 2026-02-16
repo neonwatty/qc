@@ -24,7 +24,7 @@ export const Skeleton: React.FC<SkeletonProps> = ({ className, animated = true, 
       case 'wave':
         return {
           animate: { x: [-100, 200] },
-          transition: { duration: 2, repeat: Infinity, ease: 'easeInOut' },
+          transition: { duration: 2, repeat: Infinity, ease: 'easeInOut' as const },
         }
       case 'shimmer':
       default:

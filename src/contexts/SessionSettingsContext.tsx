@@ -1,6 +1,6 @@
 'use client'
 
-import React, { createContext, useContext, useState, useCallback, useEffect } from 'react'
+import { createContext, useContext, useState, useCallback, useEffect } from 'react'
 import type { SessionSettings, SessionTemplate } from '@/types'
 import type { DbSessionSettings } from '@/types/database'
 import { createClient } from '@/lib/supabase/client'

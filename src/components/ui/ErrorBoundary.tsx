@@ -1,6 +1,6 @@
 'use client'
 
-import React, { Component, ErrorInfo, ReactNode } from 'react'
+import { Component, ErrorInfo, ReactNode } from 'react'
 import { AlertCircle, RefreshCw, Home, Bug } from 'lucide-react'
 import Link from 'next/link'
 

@@ -39,7 +39,7 @@ export async function createRequest(_prev: RequestActionState, formData: FormDat
   }
 
   const { data, error: validationError } = validate(requestSchema, raw)
-  if (validationError) return { error: validationError }
+  if (validationError || !data) return { error: validationError ?? 'Validation failed' }
 
   const { error } = await supabase.from('requests').insert({
     couple_id: profile.couple_id,

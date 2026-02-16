@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { TrendingUp, Award, Target, Camera, Plus } from 'lucide-react'
 
 import { MotionBox, StaggerContainer, StaggerItem } from '@/components/ui/motion'

@@ -1,9 +1,6 @@
 'use client'
 
-import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-
-import { cn } from '@/lib/utils'
 
 export const HoverLift: React.FC<{
   children: React.ReactNode

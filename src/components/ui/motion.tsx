@@ -1,10 +1,9 @@
 'use client'
 
-import React from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 
 import { cn } from '@/lib/utils'
-import { pageTransition, fadeIn, slideUp, slideInFromRight, scaleIn, smoothSpring } from '@/lib/animations'
+import { pageTransition, fadeIn, smoothSpring } from '@/lib/animations'
 
 interface MotionBoxProps {
   variant?: 'fade' | 'slideUp' | 'slideRight' | 'scale' | 'page'

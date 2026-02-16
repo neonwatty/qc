@@ -37,8 +37,8 @@ export async function createNote(_prev: NoteActionState, formData: FormData): Pr
 
   const { data: input, error: validationError } = validate(noteSchema, raw)
 
-  if (validationError) {
-    return { error: validationError }
+  if (validationError || !input) {
+    return { error: validationError ?? 'Validation failed' }
   }
 
   const { data: profile } = await supabase.from('profiles').select('couple_id').eq('id', user.id).single()
@@ -82,8 +82,8 @@ export async function updateNote(_prev: NoteActionState, formData: FormData): Pr
 
   const { data: input, error: validationError } = validate(updateNoteSchema, raw)
 
-  if (validationError) {
-    return { error: validationError }
+  if (validationError || !input) {
+    return { error: validationError ?? 'Validation failed' }
   }
 
   const { error: updateError } = await supabase.from('notes').update(input).eq('id', id).eq('author_id', user.id)
@@ -101,8 +101,8 @@ export async function deleteNote(_prev: NoteActionState, formData: FormData): Pr
 
   const { data: input, error: validationError } = validate(deleteSchema, { id: formData.get('id') })
 
-  if (validationError) {
-    return { error: validationError }
+  if (validationError || !input) {
+    return { error: validationError ?? 'Validation failed' }
   }
 
   const { error: deleteError } = await supabase.from('notes').delete().eq('id', input.id).eq('author_id', user.id)
@@ -120,8 +120,8 @@ export async function deleteNoteById(noteId: string): Promise<{ error: string | 
 
   const { data: input, error: validationError } = validate(deleteSchema, { id: noteId })
 
-  if (validationError) {
-    return { error: validationError }
+  if (validationError || !input) {
+    return { error: validationError ?? 'Validation failed' }
   }
 
   const { error: deleteError } = await supabase.from('notes').delete().eq('id', input.id).eq('author_id', user.id)

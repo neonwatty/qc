@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
@@ -14,7 +14,6 @@ import {
   Bell,
   Heart,
   HeartHandshake,
-  LogOut,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { SignOutButton } from '@/components/sign-out-button'

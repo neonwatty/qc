@@ -1,6 +1,5 @@
 'use client'
 
-import React from 'react'
 import { ThemeProvider } from '@/contexts/ThemeContext'
 
 // These providers will be created by other agents (Agent 2, Agent 6, etc.)

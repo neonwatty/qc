@@ -1,6 +1,5 @@
 'use client'
 
-import React from 'react'
 import { FileX, HelpCircle, Home, ChevronRight } from 'lucide-react'
 import Link from 'next/link'
 
