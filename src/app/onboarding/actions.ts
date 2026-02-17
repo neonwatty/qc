@@ -46,8 +46,8 @@ export async function completeOnboarding(_prev: OnboardingState, formData: FormD
     return { error: 'Failed to update profile. Please try again.' }
   }
 
-  // Create couple with optional relationship start date
-  const { data: couple, error: coupleError } = await createCouple(input.displayName)
+  // Create couple with optional relationship start date (pass existing client to share auth context)
+  const { data: couple, error: coupleError } = await createCouple(input.displayName, supabase)
 
   if (coupleError || !couple) {
     return { error: coupleError ?? 'Failed to create couple. Please try again.' }
@@ -58,8 +58,8 @@ export async function completeOnboarding(_prev: OnboardingState, formData: FormD
     await supabase.from('couples').update({ relationship_start_date: input.relationshipStartDate }).eq('id', couple.id)
   }
 
-  // Create invite and send email
-  const { data: invite, error: inviteError } = await createInvite(input.partnerEmail)
+  // Create invite and send email (pass existing client to share auth context)
+  const { data: invite, error: inviteError } = await createInvite(input.partnerEmail, supabase)
 
   if (inviteError || !invite) {
     // Couple was created but invite failed -- still redirect, they can resend later

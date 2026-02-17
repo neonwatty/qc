@@ -1,11 +1,16 @@
+import { type SupabaseClient } from '@supabase/supabase-js'
+
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import type { DbCouple, DbProfile, DbCoupleInvite } from '@/types'
 
 // --- User-scoped operations (respects RLS) ---
 
-export async function createCouple(name?: string): Promise<{ data: DbCouple | null; error: string | null }> {
-  const supabase = await createClient()
+export async function createCouple(
+  name?: string,
+  existingClient?: SupabaseClient,
+): Promise<{ data: DbCouple | null; error: string | null }> {
+  const supabase = existingClient ?? (await createClient())
   const {
     data: { user },
   } = await supabase.auth.getUser()
@@ -91,11 +96,14 @@ export async function leaveCouple(): Promise<{ error: string | null }> {
   return { error: null }
 }
 
-export async function createInvite(email: string): Promise<{
+export async function createInvite(
+  email: string,
+  existingClient?: SupabaseClient,
+): Promise<{
   data: DbCoupleInvite | null
   error: string | null
 }> {
-  const supabase = await createClient()
+  const supabase = existingClient ?? (await createClient())
   const {
     data: { user },
   } = await supabase.auth.getUser()
