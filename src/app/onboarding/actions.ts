@@ -69,11 +69,15 @@ export async function completeOnboarding(_prev: OnboardingState, formData: FormD
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
   const inviteUrl = `${baseUrl}/invite/${invite.token}`
 
-  await sendEmail({
-    to: input.partnerEmail,
-    subject: `${input.displayName} invited you to QC`,
-    react: InviteEmail({ inviterName: input.displayName, inviteUrl }),
-  })
+  try {
+    await sendEmail({
+      to: input.partnerEmail,
+      subject: `${input.displayName} invited you to QC`,
+      react: InviteEmail({ inviterName: input.displayName, inviteUrl }),
+    })
+  } catch {
+    // Email send failed (e.g. RESEND_API_KEY not configured) -- still redirect, they can resend later
+  }
 
   redirect('/dashboard')
 }
