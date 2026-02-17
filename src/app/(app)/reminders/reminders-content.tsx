@@ -23,7 +23,8 @@ export function RemindersContent({ initialReminders, userId, coupleId }: Props):
 
   const [formState, formAction, isPending] = useActionState<ReminderActionState, FormData>(async (prev, formData) => {
     const result = await createReminder(prev, formData)
-    if (result.success) {
+    if (result.success && result.reminder) {
+      setReminders((r) => [...r, result.reminder!])
       setShowForm(false)
     }
     return result

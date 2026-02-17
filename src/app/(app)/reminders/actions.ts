@@ -5,6 +5,7 @@ import { z } from 'zod'
 
 import { requireAuth } from '@/lib/auth'
 import { validate } from '@/lib/validation'
+import type { DbReminder } from '@/types/database'
 
 const reminderSchema = z.object({
   title: z.string().min(1, 'Title is required').max(200),
@@ -18,6 +19,7 @@ const reminderSchema = z.object({
 export interface ReminderActionState {
   error?: string
   success?: boolean
+  reminder?: DbReminder
 }
 
 export async function createReminder(_prev: ReminderActionState, formData: FormData): Promise<ReminderActionState> {
@@ -41,23 +43,27 @@ export async function createReminder(_prev: ReminderActionState, formData: FormD
   const { data, error: validationError } = validate(reminderSchema, raw)
   if (validationError || !data) return { error: validationError ?? 'Validation failed' }
 
-  const { error } = await supabase.from('reminders').insert({
-    couple_id: profile.couple_id,
-    created_by: user.id,
-    title: data.title,
-    message: data.message ?? null,
-    category: data.category,
-    frequency: data.frequency,
-    scheduled_for: data.scheduled_for,
-    notification_channel: data.notification_channel,
-    is_active: true,
-    custom_schedule: null,
-  })
+  const { data: reminder, error } = await supabase
+    .from('reminders')
+    .insert({
+      couple_id: profile.couple_id,
+      created_by: user.id,
+      title: data.title,
+      message: data.message ?? null,
+      category: data.category,
+      frequency: data.frequency,
+      scheduled_for: data.scheduled_for,
+      notification_channel: data.notification_channel,
+      is_active: true,
+      custom_schedule: null,
+    })
+    .select()
+    .single()
 
   if (error) return { error: error.message }
 
   revalidatePath('/reminders')
-  return { success: true }
+  return { success: true, reminder: reminder as DbReminder }
 }
 
 export async function toggleReminder(reminderId: string, isActive: boolean): Promise<{ error?: string }> {

@@ -64,13 +64,16 @@ describe('createCouple', () => {
     const { createCouple } = await import('@/lib/couples')
     setupAuthenticatedUser()
 
+    mockSupabase.rpc.mockResolvedValueOnce({ data: 'couple-1', error: null })
     mockSupabase._queryBuilder.single.mockResolvedValueOnce({ data: mockCouple, error: null })
-    mockSupabase._queryBuilder.eq.mockResolvedValueOnce({ data: null, error: null })
 
     const result = await createCouple('Our Couple')
 
+    expect(mockSupabase.rpc).toHaveBeenCalledWith('create_couple_for_user', {
+      p_user_id: mockUser.id,
+      p_couple_name: 'Our Couple',
+    })
     expect(mockSupabase.from).toHaveBeenCalledWith('couples')
-    expect(mockSupabase._queryBuilder.insert).toHaveBeenCalledWith({ name: 'Our Couple' })
     expect(result).toEqual({ data: mockCouple, error: null })
   })
 
@@ -78,12 +81,15 @@ describe('createCouple', () => {
     const { createCouple } = await import('@/lib/couples')
     setupAuthenticatedUser()
 
+    mockSupabase.rpc.mockResolvedValueOnce({ data: 'couple-1', error: null })
     mockSupabase._queryBuilder.single.mockResolvedValueOnce({ data: mockCouple, error: null })
-    mockSupabase._queryBuilder.eq.mockResolvedValueOnce({ data: null, error: null })
 
     await createCouple()
 
-    expect(mockSupabase._queryBuilder.insert).toHaveBeenCalledWith({ name: null })
+    expect(mockSupabase.rpc).toHaveBeenCalledWith('create_couple_for_user', {
+      p_user_id: mockUser.id,
+      p_couple_name: null,
+    })
   })
 
   it('returns error when not authenticated', async () => {
@@ -95,11 +101,11 @@ describe('createCouple', () => {
     expect(result).toEqual({ data: null, error: 'Not authenticated' })
   })
 
-  it('returns error when couple insert fails', async () => {
+  it('returns error when couple rpc fails', async () => {
     const { createCouple } = await import('@/lib/couples')
     setupAuthenticatedUser()
 
-    mockSupabase._queryBuilder.single.mockResolvedValueOnce({
+    mockSupabase.rpc.mockResolvedValueOnce({
       data: null,
       error: { message: 'Insert failed' },
     })
@@ -109,19 +115,20 @@ describe('createCouple', () => {
     expect(result).toEqual({ data: null, error: 'Insert failed' })
   })
 
-  it('returns error when profile update fails', async () => {
+  it('falls back to minimal response when fetch after create fails', async () => {
     const { createCouple } = await import('@/lib/couples')
     setupAuthenticatedUser()
 
-    mockSupabase._queryBuilder.single.mockResolvedValueOnce({ data: mockCouple, error: null })
-    mockSupabase._queryBuilder.eq.mockResolvedValueOnce({
+    mockSupabase.rpc.mockResolvedValueOnce({ data: 'couple-1', error: null })
+    mockSupabase._queryBuilder.single.mockResolvedValueOnce({
       data: null,
-      error: { message: 'Profile update failed' },
+      error: { message: 'Fetch failed' },
     })
 
     const result = await createCouple('Test')
 
-    expect(result).toEqual({ data: null, error: 'Profile update failed' })
+    expect(result.error).toBeNull()
+    expect(result.data).toMatchObject({ id: 'couple-1', name: 'Test' })
   })
 })
 
