@@ -100,11 +100,19 @@ function NoteEditorForm({ note, onClose }: { note?: DbNote | null; onClose: () =
 
   const action = isEditing ? updateNote : createNote
   const [state, formAction, isPending] = useActionState<NoteActionState, FormData>(action, { error: null })
+  const [hasSubmitted, setHasSubmitted] = useState(false)
 
   useEffect(() => {
     const timer = setTimeout(() => textareaRef.current?.focus(), 100)
     return () => clearTimeout(timer)
   }, [])
+
+  // Close dialog on successful save
+  useEffect(() => {
+    if (hasSubmitted && !isPending && !state.error) {
+      onClose()
+    }
+  }, [hasSubmitted, isPending, state.error, onClose])
 
   const handleAddTag = useCallback(() => {
     const tag = tagInput.trim().toLowerCase()
@@ -147,7 +155,13 @@ function NoteEditorForm({ note, onClose }: { note?: DbNote | null; onClose: () =
           </button>
         </div>
 
-        <form action={formAction} className="flex flex-1 flex-col overflow-hidden">
+        <form
+          action={(formData) => {
+            setHasSubmitted(true)
+            formAction(formData)
+          }}
+          className="flex flex-1 flex-col overflow-hidden"
+        >
           {isEditing && <input type="hidden" name="id" value={note.id} />}
           <input type="hidden" name="privacy" value={privacy} />
           <input type="hidden" name="tags" value={JSON.stringify(tags)} />
