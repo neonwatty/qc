@@ -118,7 +118,7 @@ function bookEndsReducer(state: BookendsState, action: BookendsAction): Bookends
     case 'CLOSE_PREPARATION_MODAL':
       return { ...state, isPreparationModalOpen: false }
     case 'OPEN_REFLECTION_MODAL':
-      return { ...state, isReflectionModalOpen: true }
+      return { ...state, isReflectionModalOpen: true, reflection: null }
     case 'CLOSE_REFLECTION_MODAL':
       return { ...state, isReflectionModalOpen: false }
     case 'MARK_PREP_REMINDER_SEEN':

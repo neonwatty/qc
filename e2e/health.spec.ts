@@ -36,9 +36,9 @@ test.describe('Health & Smoke Tests', () => {
     test('displays feature pills', async ({ page }) => {
       await page.goto('/')
 
-      await expect(page.getByText('Structured Sessions')).toBeVisible()
-      await expect(page.getByText('Relationship Reminders')).toBeVisible()
-      await expect(page.getByText('Progress Tracking')).toBeVisible()
+      await expect(page.getByText('Structured Sessions').first()).toBeVisible()
+      await expect(page.getByText('Relationship Reminders').first()).toBeVisible()
+      await expect(page.getByText('Progress Tracking').first()).toBeVisible()
     })
 
     test('displays call-to-action buttons', async ({ page }) => {

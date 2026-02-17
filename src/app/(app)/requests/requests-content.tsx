@@ -77,9 +77,16 @@ export function RequestsContent({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">Requests</h1>
-        <Button onClick={() => setShowForm(!showForm)} disabled={!partnerId}>
-          {showForm ? 'Cancel' : 'New Request'}
-        </Button>
+        <div className="flex flex-col items-end gap-1">
+          <Button
+            onClick={() => setShowForm(!showForm)}
+            disabled={!partnerId}
+            title={!partnerId ? 'Connect with a partner to send requests' : undefined}
+          >
+            {showForm ? 'Cancel' : 'New Request'}
+          </Button>
+          {!partnerId && <p className="text-xs text-muted-foreground">Connect with a partner to send requests</p>}
+        </div>
       </div>
 
       {showForm && partnerId && (
