@@ -18,6 +18,16 @@ export default function SignupPage() {
     setError(null)
     setLoading(true)
 
+    const allowedEmails = process.env.NEXT_PUBLIC_ALLOWED_EMAILS
+    if (allowedEmails) {
+      const list = allowedEmails.split(',').map((e) => e.trim().toLowerCase())
+      if (!list.includes(email.toLowerCase())) {
+        setError('Access restricted to approved accounts only.')
+        setLoading(false)
+        return
+      }
+    }
+
     const supabase = createClient()
     const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? window.location.origin
 

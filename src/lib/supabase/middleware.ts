@@ -28,6 +28,13 @@ function isAppRoute(pathname: string): boolean {
   )
 }
 
+function isAllowedEmail(email: string): boolean {
+  const allowedEmails = process.env.ALLOWED_EMAILS
+  if (!allowedEmails) return true // no restriction if env var not set
+  const list = allowedEmails.split(',').map((e) => e.trim().toLowerCase())
+  return list.includes(email.toLowerCase())
+}
+
 function addSecurityHeaders(response: NextResponse): void {
   response.headers.set('X-Frame-Options', 'DENY')
   response.headers.set('X-Content-Type-Options', 'nosniff')
@@ -68,6 +75,17 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   const { pathname } = request.nextUrl
+
+  // Block users not on the allowlist
+  if (user && !isAllowedEmail(user.email ?? '')) {
+    await supabase.auth.signOut()
+    const redirectUrl = request.nextUrl.clone()
+    redirectUrl.pathname = '/login'
+    redirectUrl.searchParams.set('error', 'Access restricted')
+    response = NextResponse.redirect(redirectUrl)
+    addSecurityHeaders(response)
+    return response
+  }
 
   if (!user && !isPublicRoute(pathname) && pathname !== '/') {
     const redirectUrl = request.nextUrl.clone()
