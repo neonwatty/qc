@@ -16,17 +16,21 @@ export async function createCouple(
   } = await supabase.auth.getUser()
   if (!user) return { data: null, error: 'Not authenticated' }
 
-  const { data: couple, error: coupleError } = await supabase
-    .from('couples')
-    .insert({ name: name ?? null })
-    .select()
-    .single()
+  // Use SECURITY DEFINER function to bypass RLS (auth.uid() may be NULL in server context)
+  const { data: coupleId, error: rpcError } = await supabase.rpc('create_couple_for_user', {
+    p_user_id: user.id,
+    p_couple_name: name ?? null,
+  })
 
-  if (coupleError) return { data: null, error: coupleError.message }
+  if (rpcError) return { data: null, error: rpcError.message }
 
-  const { error: profileError } = await supabase.from('profiles').update({ couple_id: couple.id }).eq('id', user.id)
+  // Fetch the created couple to return it
+  const { data: couple, error: fetchError } = await supabase.from('couples').select('*').eq('id', coupleId).single()
 
-  if (profileError) return { data: null, error: profileError.message }
+  if (fetchError) {
+    // Couple was created but we can't fetch it via RLS — construct minimal response
+    return { data: { id: coupleId, name: name ?? null } as DbCouple, error: null }
+  }
 
   return { data: couple, error: null }
 }
