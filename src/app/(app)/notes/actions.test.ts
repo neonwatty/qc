@@ -1,0 +1,175 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+
+import { createMockSupabaseClient } from '@/test/mocks/supabase'
+
+const mockUser = { id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa' }
+const mockCoupleId = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'
+
+let mockSupabase: ReturnType<typeof createMockSupabaseClient>
+
+vi.mock('@/lib/auth', () => ({
+  requireAuth: vi.fn(),
+}))
+vi.mock('next/cache', () => ({ revalidatePath: vi.fn() }))
+
+beforeEach(async () => {
+  vi.clearAllMocks()
+  mockSupabase = createMockSupabaseClient()
+
+  const { requireAuth } = await import('@/lib/auth')
+  ;(requireAuth as ReturnType<typeof vi.fn>).mockResolvedValue({
+    user: mockUser,
+    supabase: mockSupabase,
+  })
+})
+
+function makeFormData(entries: Record<string, string>): FormData {
+  const fd = new FormData()
+  for (const [k, v] of Object.entries(entries)) fd.append(k, v)
+  return fd
+}
+
+describe('createNote', () => {
+  it('creates a note with valid data', async () => {
+    const { createNote } = await import('./actions')
+
+    mockSupabase._queryBuilder.single.mockResolvedValueOnce({
+      data: { couple_id: mockCoupleId },
+      error: null,
+    })
+    mockSupabase._queryBuilder.insert = vi.fn().mockReturnValue(mockSupabase._queryBuilder)
+    mockSupabase._queryBuilder.insert.mockReturnValue({ data: null, error: null })
+
+    const fd = makeFormData({ content: 'Hello', privacy: 'shared', tags: '[]' })
+    const result = await createNote({ error: null }, fd)
+
+    expect(result).toEqual({ error: null })
+    expect(mockSupabase.from).toHaveBeenCalledWith('profiles')
+    expect(mockSupabase.from).toHaveBeenCalledWith('notes')
+  })
+
+  it('returns error when content is missing', async () => {
+    const { createNote } = await import('./actions')
+
+    const fd = makeFormData({ content: '', privacy: 'shared', tags: '[]' })
+    const result = await createNote({ error: null }, fd)
+
+    expect(result.error).toBeTruthy()
+    expect(result.error).toContain('Content is required')
+  })
+
+  it('returns error when user has no couple', async () => {
+    const { createNote } = await import('./actions')
+
+    mockSupabase._queryBuilder.single.mockResolvedValueOnce({
+      data: { couple_id: null },
+      error: null,
+    })
+
+    const fd = makeFormData({ content: 'Hi', privacy: 'shared', tags: '[]' })
+    const result = await createNote({ error: null }, fd)
+
+    expect(result.error).toBe('You must be in a couple to create notes.')
+  })
+
+  it('returns error on database insert failure', async () => {
+    const { createNote } = await import('./actions')
+
+    mockSupabase._queryBuilder.single.mockResolvedValueOnce({
+      data: { couple_id: mockCoupleId },
+      error: null,
+    })
+    mockSupabase._queryBuilder.insert = vi.fn().mockReturnValue({
+      data: null,
+      error: { message: 'DB insert failed' },
+    })
+
+    const fd = makeFormData({ content: 'Hi', privacy: 'shared', tags: '[]' })
+    const result = await createNote({ error: null }, fd)
+
+    expect(result.error).toBe('DB insert failed')
+  })
+})
+
+describe('updateNote', () => {
+  it('updates a note with valid data', async () => {
+    const { updateNote } = await import('./actions')
+
+    mockSupabase._queryBuilder.eq = vi.fn().mockReturnThis()
+    mockSupabase._queryBuilder.update = vi.fn().mockReturnValue(mockSupabase._queryBuilder)
+    // Chain resolves with no error at the end
+    mockSupabase._queryBuilder.eq.mockReturnValueOnce(mockSupabase._queryBuilder).mockReturnValue({
+      data: null,
+      error: null,
+    })
+
+    const fd = makeFormData({ id: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc', content: 'Updated' })
+    const result = await updateNote({ error: null }, fd)
+
+    expect(result).toEqual({ error: null })
+    expect(mockSupabase.from).toHaveBeenCalledWith('notes')
+  })
+
+  it('returns error when id is missing', async () => {
+    const { updateNote } = await import('./actions')
+
+    const fd = makeFormData({ content: 'Updated' })
+    const result = await updateNote({ error: null }, fd)
+
+    expect(result.error).toBe('Note ID is required')
+  })
+
+  it('returns error on database update failure', async () => {
+    const { updateNote } = await import('./actions')
+
+    mockSupabase._queryBuilder.update = vi.fn().mockReturnValue(mockSupabase._queryBuilder)
+    mockSupabase._queryBuilder.eq = vi
+      .fn()
+      .mockReturnValueOnce(mockSupabase._queryBuilder)
+      .mockReturnValue({ data: null, error: { message: 'Update failed' } })
+
+    const fd = makeFormData({ id: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc', content: 'Updated' })
+    const result = await updateNote({ error: null }, fd)
+
+    expect(result.error).toBe('Update failed')
+  })
+})
+
+describe('deleteNoteById', () => {
+  it('deletes a note with valid id', async () => {
+    const { deleteNoteById } = await import('./actions')
+
+    mockSupabase._queryBuilder.delete = vi.fn().mockReturnValue(mockSupabase._queryBuilder)
+    mockSupabase._queryBuilder.eq = vi
+      .fn()
+      .mockReturnValueOnce(mockSupabase._queryBuilder)
+      .mockReturnValue({ data: null, error: null })
+
+    const result = await deleteNoteById('cccccccc-cccc-4ccc-8ccc-cccccccccccc')
+
+    expect(result).toEqual({ error: null })
+    expect(mockSupabase.from).toHaveBeenCalledWith('notes')
+  })
+
+  it('returns error for invalid uuid', async () => {
+    const { deleteNoteById } = await import('./actions')
+
+    const result = await deleteNoteById('not-a-uuid')
+
+    expect(result.error).toBeTruthy()
+  })
+
+  it('returns error on database delete failure', async () => {
+    const { deleteNoteById } = await import('./actions')
+
+    mockSupabase._queryBuilder.delete = vi.fn().mockReturnValue(mockSupabase._queryBuilder)
+    mockSupabase._queryBuilder.eq = vi
+      .fn()
+      .mockReturnValueOnce(mockSupabase._queryBuilder)
+      .mockReturnValue({ data: null, error: { message: 'Delete failed' } })
+
+    const result = await deleteNoteById('cccccccc-cccc-4ccc-8ccc-cccccccccccc')
+
+    expect(result.error).toBe('Delete failed')
+  })
+})
