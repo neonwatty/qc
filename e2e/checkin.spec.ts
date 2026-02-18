@@ -17,7 +17,7 @@ test.describe('Check-In Flow', () => {
     test('displays quick start section', async ({ authedPage: page }) => {
       await page.goto('/checkin')
 
-      await expect(page.getByText(/quick check-in/i)).toBeVisible()
+      await expect(page.getByRole('heading', { name: /quick check-in/i })).toBeVisible()
       await expect(page.getByText(/typically takes 5-10 minutes/i)).toBeVisible()
       await expect(page.getByText(/best done together/i)).toBeVisible()
     })
@@ -31,10 +31,10 @@ test.describe('Check-In Flow', () => {
     test('displays all check-in categories', async ({ authedPage: page }) => {
       await page.goto('/checkin')
 
-      await expect(page.getByText('Emotional Connection')).toBeVisible()
-      await expect(page.getByText('Communication')).toBeVisible()
-      await expect(page.getByText('Physical & Emotional Intimacy')).toBeVisible()
-      await expect(page.getByText('Shared Goals & Future')).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Emotional Connection', exact: true })).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Communication', exact: true })).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Physical & Emotional Intimacy', exact: true })).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Shared Goals & Future', exact: true })).toBeVisible()
     })
 
     test('displays category descriptions', async ({ authedPage: page }) => {
@@ -56,7 +56,7 @@ test.describe('Check-In Flow', () => {
       await page.goto('/checkin')
 
       // Click on Emotional Connection category
-      await page.getByText('Emotional Connection').click()
+      await page.getByRole('heading', { name: 'Emotional Connection', exact: true }).click()
 
       // Should show the "Ready to explore" prompt
       await expect(page.getByText(/ready to explore emotional connection/i)).toBeVisible()
@@ -67,10 +67,10 @@ test.describe('Check-In Flow', () => {
       await page.goto('/checkin')
 
       // Select and then deselect
-      await page.getByText('Emotional Connection').click()
+      await page.getByRole('heading', { name: 'Emotional Connection', exact: true }).click()
       await expect(page.getByText(/ready to explore/i)).toBeVisible()
 
-      await page.getByText('Emotional Connection').click()
+      await page.getByRole('heading', { name: 'Emotional Connection', exact: true }).click()
       await expect(page.getByText(/ready to explore/i)).not.toBeVisible()
     })
 
