@@ -66,6 +66,22 @@ VALUES
     now(),
     '',
     ''
+  ),
+  -- User C (Charlie): no couple, used for onboarding E2E tests
+  (
+    '00000000-0000-0000-0000-000000000000',
+    'cccccccc-cccc-cccc-cccc-cccccccccccc',
+    'authenticated',
+    'authenticated',
+    'charlie@test.com',
+    crypt('password123', gen_salt('bf')),
+    now(),
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    '{"display_name":"Charlie"}'::jsonb,
+    now(),
+    now(),
+    '',
+    ''
   )
 ON CONFLICT (id) DO NOTHING;
 
@@ -96,6 +112,16 @@ VALUES
     '22222222-2222-2222-2222-222222222222',
     '22222222-2222-2222-2222-222222222222',
     '{"sub":"22222222-2222-2222-2222-222222222222","email":"bob@test.com"}'::jsonb,
+    'email',
+    now(),
+    now(),
+    now()
+  ),
+  (
+    'cccccccc-cccc-cccc-cccc-cccccccccccc',
+    'cccccccc-cccc-cccc-cccc-cccccccccccc',
+    'cccccccc-cccc-cccc-cccc-cccccccccccc',
+    '{"sub":"cccccccc-cccc-cccc-cccc-cccccccccccc","email":"charlie@test.com"}'::jsonb,
     'email',
     now(),
     now(),

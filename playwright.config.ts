@@ -17,13 +17,17 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
     },
-    {
-      name: 'Mobile Safari',
-      use: { ...devices['iPhone 12'] },
-    },
+    ...(!process.env.CI
+      ? [
+          {
+            name: 'Mobile Safari',
+            use: { ...devices['iPhone 12'] },
+          },
+        ]
+      : []),
   ],
   webServer: {
-    command: 'next dev',
+    command: process.env.CI ? 'npx next start' : 'npx next dev',
     url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
   },
