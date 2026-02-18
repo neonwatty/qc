@@ -611,14 +611,14 @@ INSERT INTO public.session_settings (id, couple_id, session_duration, timeouts_p
 VALUES (
   'dddddddd-1111-1111-1111-111111111111',
   '33333333-3333-3333-3333-333333333333',
-  1800,    -- 30 minutes
+  30,      -- 30 minutes
   2,       -- 2 timeouts per partner
-  60,      -- 60-second timeouts
+  2,       -- 2-minute timeouts
   false,   -- free-form (not turn-based)
   120,     -- 2-minute turns (if enabled)
   true,    -- allow session extensions
   true,    -- show warm-up questions
-  60       -- 60-second cool-down
+  3        -- 3-minute cool-down
 )
 ON CONFLICT (couple_id) DO NOTHING;
 
