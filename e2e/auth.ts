@@ -14,13 +14,17 @@ export const test = base.extend<{
 }>({
   authedPage: async ({ page }, use) => {
     await login(page, TEST_USER.email, TEST_USER.password)
-    await page.waitForURL('/dashboard', { timeout: 15000 })
+    // Wait for login to complete — page leaves /login after auth + redirect
+    await page.waitForURL((url) => !url.pathname.startsWith('/login'), {
+      timeout: 30000,
+    })
     await use(page)
   },
 
   noCoupleAuthedPage: async ({ page }, use) => {
     await login(page, TEST_USER_NO_COUPLE.email, TEST_USER_NO_COUPLE.password)
-    await page.waitForURL('/onboarding', { timeout: 15000 })
+    // Charlie has no couple → login redirects to /dashboard → middleware redirects to /onboarding
+    await page.waitForURL('**/onboarding', { timeout: 30000 })
     await use(page)
   },
 })
