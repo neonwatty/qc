@@ -84,19 +84,26 @@ jobs:
           echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$(supabase status -o json | jq -r '.ANON_KEY')" >> $GITHUB_ENV
           echo "SUPABASE_SERVICE_ROLE_KEY=$(supabase status -o json | jq -r '.SERVICE_ROLE_KEY')" >> $GITHUB_ENV
 
+      - name: Verify seed data exists
+        run: |
+          echo "Checking auth.users table..."
+          supabase db execute --local "SELECT id, email FROM auth.users;" 2>&1 || echo "Failed to query auth.users"
+
       - name: Verify Supabase auth is ready
         run: |
           ANON_KEY=$(supabase status -o json | jq -r '.ANON_KEY')
           for i in $(seq 1 30); do
-            RESULT=$(curl -sf http://127.0.0.1:54321/auth/v1/token?grant_type=password \
+            HTTP_CODE=$(curl -s -o /tmp/auth-response.json -w '%{http_code}' \
+              http://127.0.0.1:54321/auth/v1/token?grant_type=password \
               -H "apikey: $ANON_KEY" \
               -H "Content-Type: application/json" \
-              -d '{"email":"alice@test.com","password":"password123"}' 2>&1) || true
-            if echo "$RESULT" | jq -e '.access_token' > /dev/null 2>&1; then
+              -d '{"email":"alice@test.com","password":"password123"}') || true
+            BODY=$(cat /tmp/auth-response.json 2>/dev/null || echo "no response")
+            if [ "$HTTP_CODE" = "200" ]; then
               echo "Auth verified: login works (attempt $i)"
               exit 0
             fi
-            echo "Auth not ready (attempt $i): $RESULT"
+            echo "Auth not ready (attempt $i): HTTP $HTTP_CODE - $BODY"
             sleep 5
           done
           echo "Auth service failed after 30 attempts"
