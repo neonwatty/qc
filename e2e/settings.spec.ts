@@ -67,7 +67,7 @@ test.describe('Settings — Relationship tab', () => {
 
     await page.getByRole('button', { name: /^relationship$/i }).click()
 
-    await expect(page.getByText('Bob')).toBeVisible()
+    await expect(page.getByText('Bob', { exact: true })).toBeVisible()
   })
 
   test('Danger Zone section with Leave Couple button', async ({ authedPage: page }) => {

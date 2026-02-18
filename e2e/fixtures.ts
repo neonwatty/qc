@@ -2,24 +2,25 @@
  * E2E test fixtures and constants.
  *
  * These UUIDs and credentials match the seed data in supabase/seed.sql.
+ * All UUIDs use RFC 4122 v4 format (required by Zod v4 uuid validation).
  */
 
 export const TEST_USER = {
-  id: '11111111-1111-1111-1111-111111111111',
+  id: 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
   email: 'alice@test.com',
   password: 'password123',
   displayName: 'Alice',
 } as const
 
 export const TEST_PARTNER = {
-  id: '22222222-2222-2222-2222-222222222222',
+  id: 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
   email: 'bob@test.com',
   password: 'password123',
   displayName: 'Bob',
 } as const
 
 export const TEST_COUPLE = {
-  id: '33333333-3333-3333-3333-333333333333',
+  id: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
   name: 'Alice & Bob',
 } as const
 
@@ -28,7 +29,7 @@ export const TEST_COUPLE = {
  * Charlie is seeded with no couple association.
  */
 export const TEST_USER_NO_COUPLE = {
-  id: 'cccccccc-cccc-cccc-cccc-cccccccccccc',
+  id: 'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
   email: 'charlie@test.com',
   password: 'password123',
   displayName: 'Charlie',
