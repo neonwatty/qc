@@ -6,9 +6,9 @@
 -- requests, and session settings.
 --
 -- Fixed UUIDs for predictable E2E test references:
---   User A (Alice):  11111111-1111-1111-1111-111111111111
---   User B (Bob):    22222222-2222-2222-2222-222222222222
---   Couple:          33333333-3333-3333-3333-333333333333
+--   User A (Alice):  aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa
+--   User B (Bob):    bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb
+--   Couple:          cccccccc-cccc-4ccc-8ccc-cccccccccccc
 -- =============================================================================
 
 BEGIN;
@@ -45,7 +45,7 @@ INSERT INTO auth.users (
 VALUES
   (
     '00000000-0000-0000-0000-000000000000',
-    '11111111-1111-1111-1111-111111111111',
+    'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
     'authenticated',
     'authenticated',
     'alice@test.com',
@@ -59,7 +59,7 @@ VALUES
   ),
   (
     '00000000-0000-0000-0000-000000000000',
-    '22222222-2222-2222-2222-222222222222',
+    'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
     'authenticated',
     'authenticated',
     'bob@test.com',
@@ -74,7 +74,7 @@ VALUES
   -- User C (Charlie): no couple, used for onboarding E2E tests
   (
     '00000000-0000-0000-0000-000000000000',
-    'cccccccc-cccc-cccc-cccc-cccccccccccc',
+    'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
     'authenticated',
     'authenticated',
     'charlie@test.com',
@@ -101,30 +101,30 @@ INSERT INTO auth.identities (
 )
 VALUES
   (
-    '11111111-1111-1111-1111-111111111111',
-    '11111111-1111-1111-1111-111111111111',
-    '11111111-1111-1111-1111-111111111111',
-    '{"sub":"11111111-1111-1111-1111-111111111111","email":"alice@test.com"}'::jsonb,
+    'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+    'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+    'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+    '{"sub":"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa","email":"alice@test.com"}'::jsonb,
     'email',
     now(),
     now(),
     now()
   ),
   (
-    '22222222-2222-2222-2222-222222222222',
-    '22222222-2222-2222-2222-222222222222',
-    '22222222-2222-2222-2222-222222222222',
-    '{"sub":"22222222-2222-2222-2222-222222222222","email":"bob@test.com"}'::jsonb,
+    'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+    'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+    'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+    '{"sub":"bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb","email":"bob@test.com"}'::jsonb,
     'email',
     now(),
     now(),
     now()
   ),
   (
-    'cccccccc-cccc-cccc-cccc-cccccccccccc',
-    'cccccccc-cccc-cccc-cccc-cccccccccccc',
-    'cccccccc-cccc-cccc-cccc-cccccccccccc',
-    '{"sub":"cccccccc-cccc-cccc-cccc-cccccccccccc","email":"charlie@test.com"}'::jsonb,
+    'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
+    'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
+    'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
+    '{"sub":"dddddddd-dddd-4ddd-8ddd-dddddddddddd","email":"charlie@test.com"}'::jsonb,
     'email',
     now(),
     now(),
@@ -138,7 +138,7 @@ ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO public.couples (id, name, relationship_start_date, settings, created_at)
 VALUES (
-  '33333333-3333-3333-3333-333333333333',
+  'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
   'Alice & Bob',
   '2023-06-15',
   '{"theme":"default","notifications":true}'::jsonb,
@@ -157,15 +157,15 @@ UPDATE public.profiles
 SET
   display_name = 'Alice',
   avatar_url = 'https://api.dicebear.com/7.x/avataaars/svg?seed=alice',
-  couple_id = '33333333-3333-3333-3333-333333333333'
-WHERE id = '11111111-1111-1111-1111-111111111111';
+  couple_id = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc'
+WHERE id = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 
 UPDATE public.profiles
 SET
   display_name = 'Bob',
   avatar_url = 'https://api.dicebear.com/7.x/avataaars/svg?seed=bob',
-  couple_id = '33333333-3333-3333-3333-333333333333'
-WHERE id = '22222222-2222-2222-2222-222222222222';
+  couple_id = 'cccccccc-cccc-4ccc-8ccc-cccccccccccc'
+WHERE id = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
 
 -- -----------------------------------------------------------------------------
 -- 4. Couple Invite (accepted -- mirrors the onboarding flow)
@@ -173,9 +173,9 @@ WHERE id = '22222222-2222-2222-2222-222222222222';
 
 INSERT INTO public.couple_invites (id, couple_id, invited_by, invited_email, token, status, created_at, expires_at)
 VALUES (
-  '44444444-4444-4444-4444-444444444444',
-  '33333333-3333-3333-3333-333333333333',
-  '11111111-1111-1111-1111-111111111111',
+  'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee',
+  'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
   'bob@test.com',
   'seed-invite-token-accepted',
   'accepted',
@@ -195,8 +195,8 @@ INSERT INTO public.check_ins (id, couple_id, started_at, completed_at, status, c
 VALUES
   -- Check-in 1: Communication focus, 2 weeks ago
   (
-    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
-    '33333333-3333-3333-3333-333333333333',
+    'a1111111-1111-4111-8111-111111111111',
+    'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
     now() - INTERVAL '14 days',
     now() - INTERVAL '14 days' + INTERVAL '35 minutes',
     'completed',
@@ -207,8 +207,8 @@ VALUES
   ),
   -- Check-in 2: Intimacy & quality time, 7 days ago
   (
-    'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
-    '33333333-3333-3333-3333-333333333333',
+    'b2222222-2222-4222-8222-222222222222',
+    'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
     now() - INTERVAL '7 days',
     now() - INTERVAL '7 days' + INTERVAL '25 minutes',
     'completed',
@@ -219,8 +219,8 @@ VALUES
   ),
   -- Check-in 3: Goals & growth, 2 days ago
   (
-    'cccccccc-cccc-cccc-cccc-cccccccccccc',
-    '33333333-3333-3333-3333-333333333333',
+    'c3333333-3333-4333-8333-333333333333',
+    'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
     now() - INTERVAL '2 days',
     now() - INTERVAL '2 days' + INTERVAL '40 minutes',
     'completed',
@@ -239,10 +239,10 @@ INSERT INTO public.notes (id, couple_id, author_id, check_in_id, content, privac
 VALUES
   -- Shared note from check-in 1
   (
-    'aaaa1111-1111-1111-1111-111111111111',
-    '33333333-3333-3333-3333-333333333333',
-    '11111111-1111-1111-1111-111111111111',
-    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    'aaaa1111-1111-4111-8111-111111111111',
+    'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+    'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+    'a1111111-1111-4111-8111-111111111111',
     'We both agreed that pausing before reacting during arguments would help. Alice suggested a 10-second rule.',
     'shared',
     ARRAY['communication', 'conflict-resolution'],
@@ -252,10 +252,10 @@ VALUES
   ),
   -- Private note by Bob from check-in 2
   (
-    'aaaa2222-2222-2222-2222-222222222222',
-    '33333333-3333-3333-3333-333333333333',
-    '22222222-2222-2222-2222-222222222222',
-    'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+    'aaaa2222-2222-4222-8222-222222222222',
+    'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+    'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+    'b2222222-2222-4222-8222-222222222222',
     'I want to plan something special for our anniversary. Maybe a weekend getaway?',
     'private',
     ARRAY['date-ideas', 'anniversary'],
@@ -265,10 +265,10 @@ VALUES
   ),
   -- Shared note from check-in 3
   (
-    'aaaa3333-3333-3333-3333-333333333333',
-    '33333333-3333-3333-3333-333333333333',
-    '11111111-1111-1111-1111-111111111111',
-    'cccccccc-cccc-cccc-cccc-cccccccccccc',
+    'aaaa3333-3333-4333-8333-333333333333',
+    'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+    'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+    'c3333333-3333-4333-8333-333333333333',
     'Savings target: $5,000 by end of year. Alice will research high-yield accounts, Bob will track monthly expenses.',
     'shared',
     ARRAY['finances', 'goals'],
@@ -278,9 +278,9 @@ VALUES
   ),
   -- Standalone draft note (not linked to a check-in)
   (
-    'aaaa4444-4444-4444-4444-444444444444',
-    '33333333-3333-3333-3333-333333333333',
-    '22222222-2222-2222-2222-222222222222',
+    'aaaa4444-4444-4444-8444-444444444444',
+    'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+    'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
     NULL,
     'Things I appreciate about Alice: her patience, how she always makes coffee in the morning, her laugh.',
     'draft',
@@ -299,12 +299,12 @@ INSERT INTO public.action_items (id, couple_id, check_in_id, title, description,
 VALUES
   -- Completed: from check-in 1
   (
-    'dddddddd-dddd-dddd-dddd-dddddddddddd',
-    '33333333-3333-3333-3333-333333333333',
-    'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+    'd4444444-4444-4444-8444-444444444444',
+    'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+    'a1111111-1111-4111-8111-111111111111',
     'Practice "I feel" statements this week',
     'Both partners try using "I feel [emotion] when [situation]" format during disagreements.',
-    '11111111-1111-1111-1111-111111111111',
+    'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
     (now() - INTERVAL '7 days')::date,
     true,
     now() - INTERVAL '8 days',
@@ -312,12 +312,12 @@ VALUES
   ),
   -- Pending: from check-in 2
   (
-    'eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee',
-    '33333333-3333-3333-3333-333333333333',
-    'bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb',
+    'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee',
+    'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+    'b2222222-2222-4222-8222-222222222222',
     'Plan weekly date night for Friday',
     'Bob picks the restaurant this week. Alternate each week.',
-    '22222222-2222-2222-2222-222222222222',
+    'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
     (now() + INTERVAL '3 days')::date,
     false,
     NULL,
@@ -325,12 +325,12 @@ VALUES
   ),
   -- Pending: from check-in 3
   (
-    'ffffffff-ffff-ffff-ffff-ffffffffffff',
-    '33333333-3333-3333-3333-333333333333',
-    'cccccccc-cccc-cccc-cccc-cccccccccccc',
+    'ffffffff-ffff-4fff-8fff-ffffffffffff',
+    'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+    'c3333333-3333-4333-8333-333333333333',
     'Research high-yield savings accounts',
     'Compare rates from at least 3 banks and share findings by next check-in.',
-    '11111111-1111-1111-1111-111111111111',
+    'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
     (now() + INTERVAL '5 days')::date,
     false,
     NULL,
@@ -346,8 +346,8 @@ INSERT INTO public.milestones (id, couple_id, title, description, category, icon
 VALUES
   -- First check-in milestone
   (
-    '55555555-5555-5555-5555-555555555555',
-    '33333333-3333-3333-3333-333333333333',
+    '55555555-5555-4555-8555-555555555555',
+    'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
     'First Check-In',
     'Completed your very first relationship check-in together.',
     'communication',
@@ -359,8 +359,8 @@ VALUES
   ),
   -- Anniversary milestone
   (
-    '66666666-6666-6666-6666-666666666666',
-    '33333333-3333-3333-3333-333333333333',
+    '66666666-6666-4666-8666-666666666666',
+    'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
     '6-Month Anniversary',
     'Celebrated 6 months of being together!',
     'milestone',
@@ -372,8 +372,8 @@ VALUES
   ),
   -- Growth streak milestone
   (
-    '77777777-7777-7777-7777-777777777777',
-    '33333333-3333-3333-3333-333333333333',
+    '77777777-7777-4777-8777-777777777777',
+    'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
     'Three in a Row',
     'Completed 3 check-ins without missing a scheduled session.',
     'growth',
@@ -393,9 +393,9 @@ INSERT INTO public.reminders (id, couple_id, created_by, title, message, categor
 VALUES
   -- Weekly check-in reminder
   (
-    '88888888-8888-8888-8888-888888888881',
-    '33333333-3333-3333-3333-333333333333',
-    '11111111-1111-1111-1111-111111111111',
+    '88888888-8888-4888-8888-888888888881',
+    'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+    'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
     'Weekly Check-In',
     'Time for your weekly relationship check-in! Take 30 minutes to connect.',
     'check-in',
@@ -407,9 +407,9 @@ VALUES
   ),
   -- Anniversary reminder
   (
-    '88888888-8888-8888-8888-888888888882',
-    '33333333-3333-3333-3333-333333333333',
-    '22222222-2222-2222-2222-222222222222',
+    '88888888-8888-4888-8888-888888888882',
+    'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+    'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
     'Anniversary Coming Up!',
     'Your 1-year anniversary is approaching. Start planning something special!',
     'special-date',
@@ -429,10 +429,10 @@ INSERT INTO public.requests (id, couple_id, requested_by, requested_for, title, 
 VALUES
   -- Pending: Bob requests a date night
   (
-    '99999999-9999-9999-9999-999999999991',
-    '33333333-3333-3333-3333-333333333333',
-    '22222222-2222-2222-2222-222222222222',
-    '11111111-1111-1111-1111-111111111111',
+    '99999999-9999-4999-8999-999999999991',
+    'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+    'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
+    'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
     'Plan a Surprise Date Night',
     'I would love if we could do something spontaneous this weekend -- dealer''s choice!',
     'date-night',
@@ -443,10 +443,10 @@ VALUES
   ),
   -- Accepted: Alice requests a conversation
   (
-    '99999999-9999-9999-9999-999999999992',
-    '33333333-3333-3333-3333-333333333333',
-    '11111111-1111-1111-1111-111111111111',
-    '22222222-2222-2222-2222-222222222222',
+    '99999999-9999-4999-8999-999999999992',
+    'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+    'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+    'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
     'Talk About Summer Travel Plans',
     'Can we sit down and discuss where we want to travel this summer? I have some ideas.',
     'conversation',
@@ -465,9 +465,9 @@ INSERT INTO public.love_languages (id, couple_id, user_id, title, description, c
 VALUES
   -- Alice's primary love language
   (
-    'aabbccdd-1111-1111-1111-111111111111',
-    '33333333-3333-3333-3333-333333333333',
-    '11111111-1111-1111-1111-111111111111',
+    'aabbccdd-1111-4111-8111-111111111111',
+    'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+    'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
     'Words of Affirmation',
     'I feel most loved when Bob tells me what he appreciates about me or leaves sweet notes.',
     'words',
@@ -480,9 +480,9 @@ VALUES
   ),
   -- Alice's secondary love language
   (
-    'aabbccdd-1111-1111-1111-222222222222',
-    '33333333-3333-3333-3333-333333333333',
-    '11111111-1111-1111-1111-111111111111',
+    'aabbccdd-1111-4111-8111-222222222222',
+    'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+    'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
     'Quality Time',
     'Undivided attention -- no phones, just us -- means the world to me.',
     'time',
@@ -495,9 +495,9 @@ VALUES
   ),
   -- Bob's primary love language
   (
-    'aabbccdd-2222-2222-2222-111111111111',
-    '33333333-3333-3333-3333-333333333333',
-    '22222222-2222-2222-2222-222222222222',
+    'aabbccdd-2222-4222-8222-111111111111',
+    'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+    'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
     'Acts of Service',
     'When Alice helps me with something without me asking, it makes me feel incredibly loved.',
     'acts',
@@ -510,9 +510,9 @@ VALUES
   ),
   -- Bob's secondary love language
   (
-    'aabbccdd-2222-2222-2222-222222222222',
-    '33333333-3333-3333-3333-333333333333',
-    '22222222-2222-2222-2222-222222222222',
+    'aabbccdd-2222-4222-8222-222222222222',
+    'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+    'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb',
     'Physical Touch',
     'Hugs, holding hands, and physical closeness help me feel connected.',
     'touch',
@@ -533,9 +533,9 @@ INSERT INTO public.love_actions (id, couple_id, linked_language_id, title, descr
 VALUES
   -- Action for Alice's "Words of Affirmation"
   (
-    'aabbcc11-1111-1111-1111-111111111111',
-    '33333333-3333-3333-3333-333333333333',
-    'aabbccdd-1111-1111-1111-111111111111',
+    'aabbcc11-1111-4111-8111-111111111111',
+    'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+    'aabbccdd-1111-4111-8111-111111111111',
     'Write a morning appreciation text',
     'Send Alice a text each morning with one thing you appreciate about her.',
     'recurring',
@@ -547,9 +547,9 @@ VALUES
   ),
   -- Action for Alice's "Words of Affirmation"
   (
-    'aabbcc11-1111-1111-1111-222222222222',
-    '33333333-3333-3333-3333-333333333333',
-    'aabbccdd-1111-1111-1111-111111111111',
+    'aabbcc11-1111-4111-8111-222222222222',
+    'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+    'aabbccdd-1111-4111-8111-111111111111',
     'Leave a sticky note on the bathroom mirror',
     'Write a short love note and leave it where Alice will find it.',
     'completed',
@@ -561,9 +561,9 @@ VALUES
   ),
   -- Action for Alice's "Quality Time"
   (
-    'aabbcc11-1111-1111-1111-333333333333',
-    '33333333-3333-3333-3333-333333333333',
-    'aabbccdd-1111-1111-1111-222222222222',
+    'aabbcc11-1111-4111-8111-333333333333',
+    'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+    'aabbccdd-1111-4111-8111-222222222222',
     'Phone-free dinner once a week',
     'Put both phones in another room and have an uninterrupted dinner together.',
     'planned',
@@ -575,9 +575,9 @@ VALUES
   ),
   -- Action for Bob's "Acts of Service"
   (
-    'aabbcc22-2222-2222-2222-111111111111',
-    '33333333-3333-3333-3333-333333333333',
-    'aabbccdd-2222-2222-2222-111111111111',
+    'aabbcc22-2222-4222-8222-111111111111',
+    'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+    'aabbccdd-2222-4222-8222-111111111111',
     'Cook Bob''s favorite pasta dish',
     'Surprise Bob by making his favorite carbonara on a weeknight.',
     'suggested',
@@ -589,9 +589,9 @@ VALUES
   ),
   -- Action for Bob's "Physical Touch"
   (
-    'aabbcc22-2222-2222-2222-222222222222',
-    '33333333-3333-3333-3333-333333333333',
-    'aabbccdd-2222-2222-2222-222222222222',
+    'aabbcc22-2222-4222-8222-222222222222',
+    'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+    'aabbccdd-2222-4222-8222-222222222222',
     'Welcome-home hug ritual',
     'Greet each other with a long hug when the other gets home from work.',
     'recurring',
@@ -609,8 +609,8 @@ ON CONFLICT (id) DO NOTHING;
 
 INSERT INTO public.session_settings (id, couple_id, session_duration, timeouts_per_partner, timeout_duration, turn_based_mode, turn_duration, allow_extensions, warm_up_questions, cool_down_time)
 VALUES (
-  'dddddddd-1111-1111-1111-111111111111',
-  '33333333-3333-3333-3333-333333333333',
+  'dddddddd-1111-4111-8111-111111111111',
+  'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
   30,      -- 30 minutes
   2,       -- 2 timeouts per partner
   2,       -- 2-minute timeouts
