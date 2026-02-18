@@ -102,12 +102,7 @@ jobs:
             sleep 5
           done
           echo "Auth service failed after 30 attempts"
-          echo "--- GoTrue container logs ---"
-          docker logs supabase_auth_qc 2>&1 | tail -50
-          echo "--- Seed data check ---"
-          docker exec supabase_db_qc psql -U supabase_admin -d postgres -c "SELECT id, email FROM auth.users;" 2>&1 || true
-          echo "--- Auth schema check ---"
-          docker exec supabase_db_qc psql -U supabase_admin -d postgres -c "SELECT tablename FROM pg_tables WHERE schemaname = 'auth' ORDER BY tablename;" 2>&1 || true
+          docker logs supabase_auth_qc 2>&1 | tail -20
           exit 1
 
       - name: Build app
