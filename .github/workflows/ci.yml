@@ -57,9 +57,6 @@ jobs:
     name: E2E Tests
     runs-on: ubuntu-latest
     needs: [lint-and-typecheck, unit-tests]
-    strategy:
-      matrix:
-        shard: [1, 2]
     steps:
       - uses: actions/checkout@v4
 
@@ -78,9 +75,6 @@ jobs:
       - name: Start local Supabase
         run: supabase start
 
-      - name: Push migrations
-        run: supabase db push --local
-
       - name: Install Playwright browsers
         run: npx playwright install --with-deps chromium
 
@@ -90,17 +84,38 @@ jobs:
           echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$(supabase status -o json | jq -r '.ANON_KEY')" >> $GITHUB_ENV
           echo "SUPABASE_SERVICE_ROLE_KEY=$(supabase status -o json | jq -r '.SERVICE_ROLE_KEY')" >> $GITHUB_ENV
 
+      - name: Verify Supabase auth is ready
+        run: |
+          ANON_KEY=$(supabase status -o json | jq -r '.ANON_KEY')
+          for i in $(seq 1 30); do
+            HTTP_CODE=$(curl -s -o /tmp/auth-response.json -w '%{http_code}' \
+              http://127.0.0.1:54321/auth/v1/token?grant_type=password \
+              -H "apikey: $ANON_KEY" \
+              -H "Content-Type: application/json" \
+              -d '{"email":"alice@test.com","password":"password123"}') || true
+            BODY=$(cat /tmp/auth-response.json 2>/dev/null || echo "no response")
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "Auth verified: login works (attempt $i)"
+              exit 0
+            fi
+            echo "Auth not ready (attempt $i): HTTP $HTTP_CODE - $BODY"
+            sleep 5
+          done
+          echo "Auth service failed after 30 attempts"
+          docker logs supabase_auth_qc 2>&1 | tail -20
+          exit 1
+
       - name: Build app
         run: npx next build
 
       - name: Run Playwright tests
-        run: npx playwright test --shard=${{ matrix.shard }}/2
+        run: npx playwright test
 
       - name: Upload Playwright report
         if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-report-shard-${{ matrix.shard }}
+          name: playwright-report
           path: playwright-report/
           retention-days: 7
 

@@ -28,5 +28,12 @@ export default tseslint.config(
       },
     },
   },
+  {
+    files: ['e2e/**/*.ts'],
+    rules: {
+      'react-hooks/rules-of-hooks': 'off',
+      'react-hooks/exhaustive-deps': 'off',
+    },
+  },
   prettier,
 )
