@@ -84,11 +84,6 @@ jobs:
           echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$(supabase status -o json | jq -r '.ANON_KEY')" >> $GITHUB_ENV
           echo "SUPABASE_SERVICE_ROLE_KEY=$(supabase status -o json | jq -r '.SERVICE_ROLE_KEY')" >> $GITHUB_ENV
 
-      - name: Verify seed data exists
-        run: |
-          echo "Checking auth.users table..."
-          supabase db execute --local "SELECT id, email FROM auth.users;" 2>&1 || echo "Failed to query auth.users"
-
       - name: Verify Supabase auth is ready
         run: |
           ANON_KEY=$(supabase status -o json | jq -r '.ANON_KEY')
@@ -107,8 +102,12 @@ jobs:
             sleep 5
           done
           echo "Auth service failed after 30 attempts"
-          docker ps
-          supabase status
+          echo "--- GoTrue container logs ---"
+          docker logs supabase_auth_qc 2>&1 | tail -50
+          echo "--- Seed data check ---"
+          docker exec supabase_db_qc psql -U supabase_admin -d postgres -c "SELECT id, email FROM auth.users;" 2>&1 || true
+          echo "--- Auth schema check ---"
+          docker exec supabase_db_qc psql -U supabase_admin -d postgres -c "SELECT tablename FROM pg_tables WHERE schemaname = 'auth' ORDER BY tablename;" 2>&1 || true
           exit 1
 
       - name: Build app
