@@ -138,8 +138,8 @@ export function GrowthContent({ coupleId }: GrowthContentProps): React.ReactElem
             <TrendingUp className="h-8 w-8 text-green-600" />
           </div>
         </div>
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 sm:text-4xl">Growth Gallery</h1>
-        <p className="mx-auto mt-4 max-w-2xl text-lg text-gray-600 dark:text-gray-400">
+        <h1 className="text-3xl font-bold text-foreground sm:text-4xl">Growth Gallery</h1>
+        <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
           Track your relationship journey and celebrate your achievements together.
         </p>
       </div>

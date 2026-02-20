@@ -93,7 +93,7 @@ function NoteEditorFooter({
 function NoteEditorForm({ note, onClose }: { note?: DbNote | null; onClose: () => void }): React.ReactNode {
   const isEditing = !!note
   const [content, setContent] = useState(note?.content ?? '')
-  const [privacy, setPrivacy] = useState<NotePrivacy>(note?.privacy ?? 'draft')
+  const [privacy, setPrivacy] = useState<NotePrivacy>(note?.privacy ?? 'shared')
   const [tagInput, setTagInput] = useState('')
   const [tags, setTags] = useState<string[]>(note?.tags ?? [])
   const textareaRef = useRef<HTMLTextAreaElement>(null)
