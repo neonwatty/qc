@@ -1,15 +1,25 @@
 import type { CapacitorConfig } from '@capacitor/cli'
 
-// Customize these values for your app
+/**
+ * Capacitor 8 configuration for QC iOS app.
+ *
+ * Mode: Remote URL — WKWebView loads tryqc.co (not a local bundle).
+ * Override with CAPACITOR_SERVER_URL for local dev testing.
+ *
+ * Reference: mean-weasel/bullhorn capacitor.config.ts
+ */
 const config: CapacitorConfig = {
-  appId: 'com.template.app',
-  appName: 'My App',
-  webDir: 'out',
+  appId: 'co.tryqc.app',
+  appName: 'QC',
+  webDir: 'public',
   server: {
-    androidScheme: 'https',
+    url: process.env.CAPACITOR_SERVER_URL || 'https://tryqc.co',
+    cleartext: false,
   },
   ios: {
     contentInset: 'automatic',
+    backgroundColor: '#ffffff',
+    appendUserAgent: 'QCCapacitor',
   },
 }
 
