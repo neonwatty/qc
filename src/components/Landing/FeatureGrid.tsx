@@ -114,10 +114,8 @@ export function FeatureGrid(): React.ReactNode {
           viewport={{ once: true }}
         >
           <motion.div className="max-w-2xl mx-auto" variants={staggerItem}>
-            <h3 className="text-2xl sm:text-3xl font-bold mb-4">Ready to engineer a better relationship?</h3>
-            <p className="text-[hsl(var(--muted-foreground))] mb-8">
-              Start your systematic approach to relationship improvement.
-            </p>
+            <h3 className="text-2xl sm:text-3xl font-bold mb-4">Ready to build a stronger relationship?</h3>
+            <p className="text-[hsl(var(--muted-foreground))] mb-8">Simple tools that help you grow together.</p>
             <motion.a
               href="/signup"
               className="inline-flex items-center justify-center px-8 py-3 text-base font-medium rounded-lg bg-[hsl(var(--primary))] text-white hover:opacity-90 transition-colors"
