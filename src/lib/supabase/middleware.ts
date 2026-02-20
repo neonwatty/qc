@@ -10,6 +10,8 @@ const PUBLIC_ROUTES = [
   '/api/cron',
   '/onboarding',
   '/invite',
+  '/privacy',
+  '/terms',
 ]
 
 function isPublicRoute(pathname: string): boolean {

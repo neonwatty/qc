@@ -14,7 +14,7 @@ const FEATURES = [
 
 export function Hero(): React.ReactNode {
   return (
-    <section className="min-h-[85vh] flex items-start justify-center pt-20 sm:pt-24 lg:pt-32 px-2 sm:px-6 lg:px-8 relative overflow-hidden">
+    <section className="min-h-[80vh] flex items-center justify-center px-2 sm:px-6 lg:px-8 relative overflow-hidden">
       {/* Soft romantic background */}
       <div className="absolute inset-0 gradient-blush opacity-50 dark:opacity-10" />
       <div className="absolute inset-0 bg-gradient-to-br from-rose-50/80 via-pink-50/80 to-orange-50/80 dark:from-rose-950/30 dark:via-pink-950/30 dark:to-orange-950/30" />
