@@ -11,7 +11,10 @@
     "tailwindcss-animate",
     "eslint-config-next",
     "@eslint/js",
-    "zustand"
+    "zustand",
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    "@semantic-release/github"
   ],
   "ignoreBinaries": ["doppler"],
   "exclude": ["types", "enumMembers"],
