@@ -77,7 +77,7 @@ export function Hero(): React.ReactNode {
           <Button
             variant="outline"
             size="lg"
-            className="border-2 border-rose-300 hover:bg-rose-50 text-rose-600 shadow-md hover:shadow-lg transition-all px-8 py-4 text-lg font-semibold"
+            className="border-2 border-rose-300 dark:border-rose-500/40 hover:bg-rose-50 dark:hover:bg-rose-950/30 text-rose-600 dark:text-rose-400 shadow-md hover:shadow-lg transition-all px-8 py-4 text-lg font-semibold"
             asChild
           >
             <a href="#features">Learn more</a>
