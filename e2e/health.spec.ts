@@ -23,22 +23,23 @@ test.describe('Health & Smoke Tests', () => {
     test('displays navigation with sign in and sign up links', async ({ page }) => {
       await page.goto('/')
 
-      await expect(page.getByRole('link', { name: /sign in/i })).toBeVisible()
-      await expect(page.getByRole('link', { name: /sign up/i })).toBeVisible()
+      const nav = page.getByRole('navigation')
+      await expect(nav.getByRole('link', { name: /sign in/i })).toBeVisible()
+      await expect(nav.getByRole('link', { name: /sign up/i })).toBeVisible()
     })
 
     test('displays hero subtitle text', async ({ page }) => {
       await page.goto('/')
 
-      await expect(page.getByText(/simple tools to engineer a stronger relationship/i)).toBeVisible()
+      await expect(page.getByText(/simple tools to build a stronger relationship together/i)).toBeVisible()
     })
 
     test('displays feature pills', async ({ page }) => {
       await page.goto('/')
 
-      await expect(page.getByText('Structured Sessions').first()).toBeVisible()
-      await expect(page.getByText('Relationship Reminders').first()).toBeVisible()
-      await expect(page.getByText('Progress Tracking').first()).toBeVisible()
+      await expect(page.getByText('Weekly Check-ins').first()).toBeVisible()
+      await expect(page.getByText('Never Forget What Matters').first()).toBeVisible()
+      await expect(page.getByText('See Your Growth').first()).toBeVisible()
     })
 
     test('displays call-to-action buttons', async ({ page }) => {
@@ -59,7 +60,7 @@ test.describe('Health & Smoke Tests', () => {
       await page.goto('/')
 
       await expect(page.getByText('Guided Check-ins')).toBeVisible()
-      await expect(page.getByText('Session Rules')).toBeVisible()
+      await expect(page.getByText('Action Items')).toBeVisible()
       await expect(page.getByText('Privacy First')).toBeVisible()
     })
   })
