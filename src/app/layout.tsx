@@ -11,28 +11,31 @@ const inter = Inter({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://tryqc.co'),
   title: {
-    default: 'Quality Control - Relationship Wellness',
-    template: '%s | Quality Control',
+    default: 'QC - Quality Control for Your Relationship',
+    template: '%s | QC',
   },
-  description: 'A thoughtful approach to relationship wellness through regular check-ins',
-  keywords: 'relationship, wellness, check-in, couples, communication',
+  description:
+    'Simple tools to build a stronger relationship together. Weekly check-ins, shared notes, and growth tracking for couples.',
+  keywords: 'relationship, wellness, check-in, couples, communication, love languages, relationship tools',
   openGraph: {
-    title: 'Quality Control - Relationship Wellness',
-    description: 'A thoughtful approach to relationship wellness through regular check-ins',
-    siteName: 'Quality Control',
+    title: 'QC - Quality Control for Your Relationship',
+    description:
+      'Simple tools to build a stronger relationship together. Weekly check-ins, shared notes, and growth tracking for couples.',
+    siteName: 'QC',
     locale: 'en_US',
     type: 'website',
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Quality Control - Relationship Wellness',
-    description: 'A thoughtful approach to relationship wellness through regular check-ins',
+    title: 'QC - Quality Control for Your Relationship',
+    description: 'Simple tools to build a stronger relationship together.',
   },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'Quality Control',
+    title: 'QC',
   },
 }
 
