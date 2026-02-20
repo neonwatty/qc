@@ -41,7 +41,10 @@ export function Header({ className = '', displayName, partnerName, avatarUrl }: 
             {/* Theme toggle */}
             <button
               onClick={toggle}
-              className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              className={cn(
+                'p-2 rounded-lg transition-colors',
+                isDark ? 'text-yellow-400 bg-yellow-500/10 hover:bg-yellow-500/20' : 'text-gray-500 hover:bg-gray-100',
+              )}
               aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
             >
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}

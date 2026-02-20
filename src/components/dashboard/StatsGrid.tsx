@@ -28,10 +28,10 @@ function StatCard({
       <CardContent className="pt-0">
         <div className="space-y-1">
           <div className="flex items-baseline gap-1">
-            <span className="text-2xl font-bold text-gray-900 dark:text-white">{value}</span>
-            {suffix && <span className="text-sm text-gray-700 dark:text-gray-300 font-medium">{suffix}</span>}
+            <span className="text-2xl font-bold text-card-foreground">{value}</span>
+            {suffix && <span className="text-sm text-muted-foreground font-medium">{suffix}</span>}
           </div>
-          <p className="text-sm text-gray-800 dark:text-gray-200 font-semibold">{label}</p>
+          <p className="text-sm text-card-foreground font-semibold">{label}</p>
         </div>
       </CardContent>
     </Card>
