@@ -3,7 +3,10 @@
 import Link from 'next/link'
 import { Heart } from 'lucide-react'
 import { Hero } from '@/components/Landing/Hero'
+import { HowItWorks } from '@/components/Landing/HowItWorks'
+import { SocialProof } from '@/components/Landing/SocialProof'
 import { FeatureGrid } from '@/components/Landing/FeatureGrid'
+import { Footer } from '@/components/Landing/Footer'
 
 export function LandingPage(): React.ReactNode {
   return (
@@ -13,12 +16,12 @@ export function LandingPage(): React.ReactNode {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 flex items-center justify-between h-16">
           <div className="flex items-center gap-2">
             <Heart className="w-6 h-6 text-pink-500 fill-current" />
-            <span className="text-xl font-semibold text-gray-900 dark:text-white">QC</span>
+            <span className="text-xl font-semibold text-foreground">QC</span>
           </div>
           <div className="flex gap-3">
             <Link
               href="/login"
-              className="rounded-lg px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              className="rounded-lg px-4 py-2 text-sm font-medium text-muted-foreground hover:bg-muted transition-colors"
             >
               Sign In
             </Link>
@@ -33,7 +36,10 @@ export function LandingPage(): React.ReactNode {
       </nav>
 
       <Hero />
+      <HowItWorks />
+      <SocialProof />
       <FeatureGrid />
+      <Footer />
     </main>
   )
 }
