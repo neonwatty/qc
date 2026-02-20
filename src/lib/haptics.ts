@@ -4,8 +4,9 @@
  * On web, falls back to the Vibration API where available.
  */
 
-import { Capacitor } from '@capacitor/core'
 import { Haptics, ImpactStyle, NotificationType } from '@capacitor/haptics'
+
+import { isNativePlatform } from '@/lib/capacitor'
 
 export type HapticIntensity = 'light' | 'medium' | 'heavy'
 
@@ -34,7 +35,7 @@ export const HAPTIC_PATTERNS = {
   dailyGratitude: [50, 50, 100] as number[],
 } as const
 
-const isNative = Capacitor.isNativePlatform()
+const isNative = isNativePlatform()
 
 /**
  * Check if haptic feedback is supported (native or web vibration)

@@ -38,14 +38,42 @@ function isAllowedEmail(email: string): boolean {
   return list.includes(email.toLowerCase())
 }
 
-function addSecurityHeaders(response: NextResponse): void {
+function addSecurityHeaders(response: NextResponse, isCapacitor = false): void {
   response.headers.set('X-Frame-Options', 'DENY')
   response.headers.set('X-Content-Type-Options', 'nosniff')
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
   response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()')
+
+  // Capacitor WKWebView requires 'unsafe-inline' for script-src because
+  // the bridge injects inline scripts. See: mean-weasel/bullhorn PR #130
+  const scriptExtra = isCapacitor ? " 'unsafe-inline'" : ''
+  const isDev = process.env.NODE_ENV === 'development'
+
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
+  const extraConnectSrc = supabaseUrl && !supabaseUrl.includes('.supabase.co') ? ` ${supabaseUrl}` : ''
+
+  const csp = [
+    "default-src 'self'",
+    `script-src 'self'${isDev ? " 'unsafe-eval'" : ''}${scriptExtra}`,
+    "style-src 'self' 'unsafe-inline'",
+    `img-src 'self' data: https://*.supabase.co${extraConnectSrc}`,
+    "font-src 'self'",
+    `connect-src 'self' https://*.supabase.co${extraConnectSrc}${isDev ? ' ws://localhost:* ws://127.0.0.1:*' : ''}`,
+    "object-src 'none'",
+    "frame-src 'none'",
+    "frame-ancestors 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+  ].join('; ')
+
+  response.headers.set('Content-Security-Policy', csp)
 }
 
 export async function updateSession(request: NextRequest) {
+  // Detect Capacitor WKWebView via user agent marker
+  const ua = request.headers.get('user-agent') || ''
+  const isCapacitor = ua.includes('QCCapacitor')
+
   let response = NextResponse.next({
     request: { headers: request.headers },
   })
@@ -86,7 +114,7 @@ export async function updateSession(request: NextRequest) {
     redirectUrl.pathname = '/login'
     redirectUrl.searchParams.set('error', 'Access restricted')
     response = NextResponse.redirect(redirectUrl)
-    addSecurityHeaders(response)
+    addSecurityHeaders(response, isCapacitor)
     return response
   }
 
@@ -95,7 +123,7 @@ export async function updateSession(request: NextRequest) {
     redirectUrl.pathname = '/login'
     redirectUrl.searchParams.set('redirect', pathname)
     response = NextResponse.redirect(redirectUrl)
-    addSecurityHeaders(response)
+    addSecurityHeaders(response, isCapacitor)
     return response
   }
 
@@ -108,7 +136,7 @@ export async function updateSession(request: NextRequest) {
       const redirectUrl = request.nextUrl.clone()
       redirectUrl.pathname = '/onboarding'
       response = NextResponse.redirect(redirectUrl)
-      addSecurityHeaders(response)
+      addSecurityHeaders(response, isCapacitor)
       return response
     }
 
@@ -116,12 +144,12 @@ export async function updateSession(request: NextRequest) {
       const redirectUrl = request.nextUrl.clone()
       redirectUrl.pathname = '/dashboard'
       response = NextResponse.redirect(redirectUrl)
-      addSecurityHeaders(response)
+      addSecurityHeaders(response, isCapacitor)
       return response
     }
   }
 
-  addSecurityHeaders(response)
+  addSecurityHeaders(response, isCapacitor)
 
   return response
 }
