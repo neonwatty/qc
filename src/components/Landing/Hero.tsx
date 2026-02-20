@@ -2,22 +2,22 @@
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { Heart, MessageCircle, TrendingUp, ArrowRight } from 'lucide-react'
+import { Heart, MessageCircle, TrendingUp, ArrowRight, ChevronDown } from 'lucide-react'
 import { staggerContainer, slideUp, staggerItem } from '@/lib/animations'
 import { Button } from '@/components/ui/button'
 
 const FEATURES = [
-  { icon: MessageCircle, text: 'Structured Sessions' },
-  { icon: Heart, text: 'Relationship Reminders' },
-  { icon: TrendingUp, text: 'Progress Tracking' },
+  { icon: MessageCircle, text: 'Weekly Check-ins' },
+  { icon: Heart, text: 'Never Forget What Matters' },
+  { icon: TrendingUp, text: 'See Your Growth' },
 ] as const
 
 export function Hero(): React.ReactNode {
   return (
-    <section className="min-h-screen flex items-start justify-center pt-20 sm:pt-24 lg:pt-32 px-2 sm:px-6 lg:px-8 relative overflow-hidden">
+    <section className="min-h-[85vh] flex items-start justify-center pt-20 sm:pt-24 lg:pt-32 px-2 sm:px-6 lg:px-8 relative overflow-hidden">
       {/* Soft romantic background */}
-      <div className="absolute inset-0 gradient-blush opacity-50" />
-      <div className="absolute inset-0 bg-gradient-to-br from-rose-50/80 via-pink-50/80 to-orange-50/80" />
+      <div className="absolute inset-0 gradient-blush opacity-50 dark:opacity-10" />
+      <div className="absolute inset-0 bg-gradient-to-br from-rose-50/80 via-pink-50/80 to-orange-50/80 dark:from-rose-950/30 dark:via-pink-950/30 dark:to-orange-950/30" />
 
       <motion.div
         className="w-full sm:max-w-4xl mx-auto text-center relative z-10"
@@ -37,10 +37,10 @@ export function Hero(): React.ReactNode {
 
         {/* Subtitle */}
         <motion.p
-          className="text-lg sm:text-xl text-gray-700 mb-8 max-w-2xl mx-auto leading-relaxed"
+          className="text-lg sm:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed"
           variants={staggerItem}
         >
-          Simple tools to engineer a stronger relationship.
+          Simple tools to build a stronger relationship together.
         </motion.p>
 
         {/* Feature Pills */}
@@ -50,7 +50,7 @@ export function Hero(): React.ReactNode {
             return (
               <motion.div
                 key={index}
-                className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/80 border border-rose-200/50 text-sm font-medium text-gray-900 hover:shadow-lg hover:border-rose-300/50 transition-all cursor-pointer backdrop-blur-sm"
+                className="flex items-center gap-2 px-5 py-2.5 rounded-full bg-white/80 dark:bg-white/10 border border-rose-200/50 dark:border-rose-500/20 text-sm font-medium text-foreground hover:shadow-lg hover:border-rose-300/50 transition-all cursor-pointer backdrop-blur-sm"
                 variants={staggerItem}
                 whileHover={{ scale: 1.05 }}
               >
@@ -82,6 +82,18 @@ export function Hero(): React.ReactNode {
           >
             <a href="#features">Learn more</a>
           </Button>
+        </motion.div>
+
+        {/* Scroll indicator */}
+        <motion.div
+          className="mt-12"
+          variants={staggerItem}
+          animate={{ y: [0, 8, 0] }}
+          transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+        >
+          <a href="#how-it-works" className="text-muted-foreground hover:text-foreground transition-colors">
+            <ChevronDown className="w-6 h-6 mx-auto" />
+          </a>
         </motion.div>
       </motion.div>
     </section>
