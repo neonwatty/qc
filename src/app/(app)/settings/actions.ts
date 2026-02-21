@@ -6,6 +6,8 @@ import { z } from 'zod'
 
 import { requireAuth } from '@/lib/auth'
 import { leaveCouple, resendInvite } from '@/lib/couples'
+import { sendEmail } from '@/lib/email/send'
+import { InviteEmail } from '@/lib/email/templates/invite'
 import { validate } from '@/lib/validation'
 
 const profileSchema = z.object({
@@ -90,9 +92,26 @@ export async function leaveCoupleAction(): Promise<{ error?: string }> {
 }
 
 export async function resendInviteAction(inviteId: string): Promise<{ error?: string }> {
-  await requireAuth()
+  const { user, supabase } = await requireAuth()
   const result = await resendInvite(inviteId)
   if (result.error) return { error: result.error }
+
+  if (result.data) {
+    const { data: profile } = await supabase.from('profiles').select('display_name').eq('id', user.id).single()
+    const inviterName = profile?.display_name ?? 'Your partner'
+    const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
+    const inviteUrl = `${baseUrl}/invite/${result.data.token}`
+
+    try {
+      await sendEmail({
+        to: result.data.invited_email,
+        subject: `${inviterName} invited you to QC`,
+        react: InviteEmail({ inviterName, inviteUrl }),
+      })
+    } catch {
+      // Email send failed -- don't block the UI, they can try again
+    }
+  }
 
   revalidatePath('/settings')
   return {}
