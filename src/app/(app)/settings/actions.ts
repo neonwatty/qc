@@ -24,6 +24,8 @@ const sessionSettingsSchema = z.object({
   allow_extensions: z.boolean(),
   warm_up_questions: z.boolean(),
   cool_down_time: z.number().min(0).max(15),
+  pause_notifications: z.boolean(),
+  auto_save_drafts: z.boolean(),
 })
 
 export interface SettingsActionState {
@@ -69,6 +71,8 @@ export async function updateSessionSettings(
     allow_extensions: formData.getAll('allow_extensions').includes('true'),
     warm_up_questions: formData.getAll('warm_up_questions').includes('true'),
     cool_down_time: Number(formData.get('cool_down_time')),
+    pause_notifications: formData.getAll('pause_notifications').includes('true'),
+    auto_save_drafts: formData.getAll('auto_save_drafts').includes('true'),
   }
 
   const { data, error: validationError } = validate(sessionSettingsSchema, raw)

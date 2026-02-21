@@ -1,20 +1,26 @@
 'use client'
 
 import { useState } from 'react'
-import { TrendingUp, Award, Target, Camera, Plus } from 'lucide-react'
+import { TrendingUp, Award, Target, Camera, Plus, BarChart3 } from 'lucide-react'
 
 import { MotionBox, StaggerContainer, StaggerItem } from '@/components/ui/motion'
 import { Button } from '@/components/ui/button'
 import { Timeline, PhotoGallery, MilestoneCreator } from '@/components/growth'
+import { GrowthProgressBars } from '@/components/growth/GrowthProgressBars'
+import { HealthChart } from '@/components/growth/HealthChart'
 import { useMilestones } from '@/hooks/useMilestones'
 import type { MilestoneInput } from '@/hooks/useMilestones'
 import type { Milestone } from '@/types'
+import type { GrowthAreaScore } from '@/lib/growth-scoring'
+import type { MoodDataPoint } from '@/lib/chart-data'
 
 interface GrowthContentProps {
   coupleId: string | null
+  growthScores: GrowthAreaScore[]
+  moodHistory: MoodDataPoint[]
 }
 
-type ActiveView = 'timeline' | 'progress' | 'memories'
+type ActiveView = 'timeline' | 'progress' | 'memories' | 'analytics'
 
 interface StatsGridProps {
   achievedCount: number
@@ -100,7 +106,7 @@ function ProgressView({ upcoming, achieved }: ProgressViewProps): React.ReactEle
   )
 }
 
-export function GrowthContent({ coupleId }: GrowthContentProps): React.ReactElement {
+export function GrowthContent({ coupleId, growthScores, moodHistory }: GrowthContentProps): React.ReactElement {
   const [activeView, setActiveView] = useState<ActiveView>('timeline')
   const [isCreatorOpen, setIsCreatorOpen] = useState(false)
 
@@ -182,6 +188,15 @@ export function GrowthContent({ coupleId }: GrowthContentProps): React.ReactElem
               <Camera className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
               Memories
             </Button>
+            <Button
+              variant={activeView === 'analytics' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setActiveView('analytics')}
+              className="rounded-md text-xs sm:text-sm"
+            >
+              <BarChart3 className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
+              Analytics
+            </Button>
           </div>
         </div>
 
@@ -214,6 +229,7 @@ export function GrowthContent({ coupleId }: GrowthContentProps): React.ReactElem
           {activeView === 'memories' && (
             <PhotoGallery milestones={milestones} onAddMemory={() => setIsCreatorOpen(true)} />
           )}
+          {activeView === 'analytics' && <AnalyticsView scores={growthScores} moodHistory={moodHistory} />}
         </>
       )}
 
@@ -224,5 +240,30 @@ export function GrowthContent({ coupleId }: GrowthContentProps): React.ReactElem
         onSubmit={handleCreateMilestone}
       />
     </MotionBox>
+  )
+}
+
+function AnalyticsView({
+  scores,
+  moodHistory,
+}: {
+  scores: GrowthAreaScore[]
+  moodHistory: MoodDataPoint[]
+}): React.ReactElement {
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-6 lg:grid-cols-2">
+        <GrowthProgressBars scores={scores} />
+        <HealthChart data={moodHistory} />
+      </div>
+      {scores.length > 0 && (
+        <div className="rounded-lg border bg-card p-6 text-center">
+          <p className="text-sm text-muted-foreground">Overall Growth Score</p>
+          <p className="mt-1 text-4xl font-bold text-foreground">
+            {Math.round(scores.reduce((sum, s) => sum + s.score, 0) / scores.length)}%
+          </p>
+        </div>
+      )}
+    </div>
   )
 }

@@ -78,6 +78,8 @@ const DEFAULT_SETTINGS: SessionSettings = {
   allowExtensions: true,
   warmUpQuestions: false,
   coolDownTime: 2,
+  pauseNotifications: false,
+  autoSaveDrafts: true,
 }
 
 function mapDbToSettings(row: DbSessionSettings): SessionSettings {
@@ -92,6 +94,8 @@ function mapDbToSettings(row: DbSessionSettings): SessionSettings {
     allowExtensions: row.allow_extensions,
     warmUpQuestions: row.warm_up_questions,
     coolDownTime: row.cool_down_time,
+    pauseNotifications: row.pause_notifications,
+    autoSaveDrafts: row.auto_save_drafts,
   }
 }
 
@@ -146,6 +150,8 @@ export function SessionSettingsProvider({ children, coupleId }: SessionSettingsP
         allow_extensions: updated.allowExtensions,
         warm_up_questions: updated.warmUpQuestions,
         cool_down_time: updated.coolDownTime,
+        pause_notifications: updated.pauseNotifications,
+        auto_save_drafts: updated.autoSaveDrafts,
       })
     },
     [currentSettings, coupleId],

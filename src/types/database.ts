@@ -94,6 +94,12 @@ export interface DbReminder {
   is_active: boolean
   notification_channel: 'in-app' | 'email' | 'both' | 'none'
   custom_schedule: Record<string, unknown> | null
+  is_snoozed: boolean
+  snooze_until: string | null
+  last_notified_at: string | null
+  assigned_to: string | null
+  related_check_in_id: string | null
+  related_action_item_id: string | null
 }
 
 export interface DbRequest {
@@ -150,4 +156,6 @@ export interface DbSessionSettings {
   allow_extensions: boolean
   warm_up_questions: boolean
   cool_down_time: number
+  pause_notifications: boolean
+  auto_save_drafts: boolean
 }

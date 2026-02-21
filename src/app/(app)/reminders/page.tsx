@@ -9,9 +9,21 @@ export default async function RemindersPage(): Promise<React.ReactElement> {
 
   const coupleId = profile?.couple_id ?? null
 
-  const { data: reminders } = coupleId
-    ? await supabase.from('reminders').select('*').eq('couple_id', coupleId).order('scheduled_for', { ascending: true })
-    : { data: [] }
+  const [{ data: reminders }, { data: partner }] = await Promise.all([
+    coupleId
+      ? supabase.from('reminders').select('*').eq('couple_id', coupleId).order('scheduled_for', { ascending: true })
+      : Promise.resolve({ data: [] as never[] }),
+    coupleId
+      ? supabase.from('profiles').select('id').eq('couple_id', coupleId).neq('id', user.id).maybeSingle()
+      : Promise.resolve({ data: null }),
+  ])
 
-  return <RemindersContent initialReminders={reminders ?? []} userId={user.id} coupleId={coupleId} />
+  return (
+    <RemindersContent
+      initialReminders={reminders ?? []}
+      userId={user.id}
+      coupleId={coupleId}
+      partnerId={partner?.id ?? null}
+    />
+  )
 }
