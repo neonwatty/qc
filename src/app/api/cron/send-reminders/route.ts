@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 
-import { sendEmail, shouldSendEmail } from '@/lib/email/send'
+import { sendEmail } from '@/lib/email/send'
 import { ReminderEmail } from '@/lib/email/templates/reminder'
 import { createAdminClient } from '@/lib/supabase/admin'
 
@@ -39,11 +39,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
   const { data: profiles } = await supabase
     .from('profiles')
-    .select('id, email, email_unsubscribe_token')
+    .select('id, email, email_unsubscribe_token, email_bounced_at, email_complained_at, email_opted_out_at')
     .in('id', userIds)
 
-  const emailMap = new Map(profiles?.map((p) => [p.id, p.email]) ?? [])
-  const tokenMap = new Map(profiles?.map((p) => [p.id, p.email_unsubscribe_token]) ?? [])
+  const profileMap = new Map(profiles?.map((p) => [p.id, p]) ?? [])
 
   let sent = 0
   let failed = 0
@@ -53,17 +52,18 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://example.com'
 
   for (const reminder of reminders) {
-    const email = emailMap.get(reminder.created_by)
-    if (!email) continue
+    const profile = profileMap.get(reminder.created_by)
+    if (!profile?.email) continue
 
-    const canSend = await shouldSendEmail(email)
-    if (!canSend) continue
+    // Skip bounced, complained, or opted-out emails (inline check avoids redundant DB query)
+    if (profile.email_bounced_at || profile.email_complained_at || profile.email_opted_out_at) continue
 
-    const unsubscribeToken = tokenMap.get(reminder.created_by)
-    const unsubscribeUrl = unsubscribeToken ? `${baseUrl}/api/email/unsubscribe/${unsubscribeToken}` : undefined
+    const unsubscribeUrl = profile.email_unsubscribe_token
+      ? `${baseUrl}/api/email/unsubscribe/${profile.email_unsubscribe_token}`
+      : undefined
 
     const { error: sendError } = await sendEmail({
-      to: email,
+      to: profile.email,
       subject: `Reminder: ${reminder.title}`,
       react: ReminderEmail({
         title: reminder.title,

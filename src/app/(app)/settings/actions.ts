@@ -8,6 +8,7 @@ import { requireAuth } from '@/lib/auth'
 import { leaveCouple, resendInvite } from '@/lib/couples'
 import { sendEmail, shouldSendEmail } from '@/lib/email/send'
 import { InviteEmail } from '@/lib/email/templates/invite'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { validate } from '@/lib/validation'
 
 const profileSchema = z.object({
@@ -110,7 +111,9 @@ export async function resendInviteAction(inviteId: string): Promise<{ error?: st
     const inviteUrl = `${baseUrl}/invite/${result.data.token}`
 
     // Check if invitee already has a profile (e.g. partial signup) and build unsubscribe link
-    const { data: inviteeProfile } = await supabase
+    // Uses admin client to bypass RLS — invitee may not be in the same couple yet
+    const adminClient = createAdminClient()
+    const { data: inviteeProfile } = await adminClient
       .from('profiles')
       .select('email_unsubscribe_token')
       .eq('email', result.data.invited_email)
