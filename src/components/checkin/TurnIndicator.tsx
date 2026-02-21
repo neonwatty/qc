@@ -1,7 +1,7 @@
 'use client'
 
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowRightLeft, Timer } from 'lucide-react'
+import { ArrowRightLeft, Plus, Timer } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { useTurnState } from '@/hooks/useTurnState'
 import { useSessionSettings } from '@/contexts/SessionSettingsContext'
@@ -34,9 +34,19 @@ export function TurnIndicator({
   const { getActiveSettings } = useSessionSettings()
   const settings = getActiveSettings()
 
-  const { currentTurn, switchTurn, formattedTurnTime, turnTimeRemaining, isActive } = useTurnState({
+  const {
+    currentTurn,
+    switchTurn,
+    formattedTurnTime,
+    turnTimeRemaining,
+    isActive,
+    extendTurn,
+    extensionsUsed,
+    maxExtensions,
+  } = useTurnState({
     turnDuration: settings.turnDuration,
     enabled: settings.turnBasedMode,
+    allowExtensions: settings.allowExtensions,
     onTurnSwitch: (newTurn) => {
       hapticFeedback.toggle()
       onTurnSwitch?.(newTurn)
@@ -47,7 +57,7 @@ export function TurnIndicator({
 
   const isUserTurn = currentTurn === 'user'
   const isLowTime = turnTimeRemaining <= 15
-  const totalDuration = settings.turnDuration
+  const totalDuration = settings.turnDuration + extensionsUsed * 60
 
   function handlePassTurn(): void {
     hapticFeedback.tap()
@@ -126,6 +136,23 @@ export function TurnIndicator({
           <ArrowRightLeft className="mr-1 h-3 w-3" />
           Pass Turn
         </Button>
+
+        {/* Extend turn button */}
+        {settings.allowExtensions && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              hapticFeedback.tap()
+              extendTurn()
+            }}
+            disabled={extensionsUsed >= maxExtensions}
+            className="h-7 px-2 text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 disabled:opacity-40"
+          >
+            <Plus className="mr-1 h-3 w-3" />
+            +1 min {extensionsUsed > 0 && `(${extensionsUsed}/${maxExtensions})`}
+          </Button>
+        )}
       </div>
 
       {/* Partner avatar */}
