@@ -85,6 +85,21 @@ VALUES
     now(),
     now(),
     '', '', '', '', '', '', '', ''
+  ),
+  -- User D (Diana): no couple, used for invite acceptance E2E tests
+  (
+    '00000000-0000-0000-0000-000000000000',
+    '11111111-1111-4111-8111-111111111111',
+    'authenticated',
+    'authenticated',
+    'diana@test.com',
+    crypt('password123', gen_salt('bf')),
+    now(),
+    '{"provider":"email","providers":["email"]}'::jsonb,
+    '{"display_name":"Diana"}'::jsonb,
+    now(),
+    now(),
+    '', '', '', '', '', '', '', ''
   )
 ON CONFLICT (id) DO NOTHING;
 
@@ -125,6 +140,16 @@ VALUES
     'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
     'dddddddd-dddd-4ddd-8ddd-dddddddddddd',
     '{"sub":"dddddddd-dddd-4ddd-8ddd-dddddddddddd","email":"charlie@test.com"}'::jsonb,
+    'email',
+    now(),
+    now(),
+    now()
+  ),
+  (
+    '11111111-1111-4111-8111-111111111111',
+    '11111111-1111-4111-8111-111111111111',
+    '11111111-1111-4111-8111-111111111111',
+    '{"sub":"11111111-1111-4111-8111-111111111111","email":"diana@test.com"}'::jsonb,
     'email',
     now(),
     now(),
@@ -172,16 +197,29 @@ WHERE id = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
 -- -----------------------------------------------------------------------------
 
 INSERT INTO public.couple_invites (id, couple_id, invited_by, invited_email, token, status, created_at, expires_at)
-VALUES (
-  'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee',
-  'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
-  'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
-  'bob@test.com',
-  'seed-invite-token-accepted',
-  'accepted',
-  now() - INTERVAL '6 months',
-  now() - INTERVAL '5 months 23 days'
-)
+VALUES
+  -- Accepted invite: Alice invited Bob (already linked)
+  (
+    'eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee',
+    'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+    'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+    'bob@test.com',
+    'aabbccdd-eeee-4fff-8aaa-bbbbccccdddd',
+    'accepted',
+    now() - INTERVAL '6 months',
+    now() - INTERVAL '5 months 23 days'
+  ),
+  -- Pending invite: Alice invited Diana (for invite acceptance E2E tests)
+  (
+    '22222222-2222-4222-8222-222222222222',
+    'cccccccc-cccc-4ccc-8ccc-cccccccccccc',
+    'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+    'diana@test.com',
+    'aabbccdd-1234-4567-8901-aabbccddeeff',
+    'pending',
+    now(),
+    now() + INTERVAL '7 days'
+  )
 ON CONFLICT (id) DO NOTHING;
 
 -- -----------------------------------------------------------------------------

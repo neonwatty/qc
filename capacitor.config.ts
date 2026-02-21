@@ -2,8 +2,8 @@ import type { CapacitorConfig } from '@capacitor/cli'
 
 // Customize these values for your app
 const config: CapacitorConfig = {
-  appId: 'com.template.app',
-  appName: 'My App',
+  appId: 'com.tryqc.app',
+  appName: 'QC',
   webDir: 'out',
   server: {
     androidScheme: 'https',
