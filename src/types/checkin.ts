@@ -3,6 +3,7 @@ import type { CheckIn, Note, ActionItem } from './index'
 export type CheckInStep =
   | 'welcome'
   | 'category-selection'
+  | 'warm-up'
   | 'category-discussion'
   | 'reflection'
   | 'action-items'
