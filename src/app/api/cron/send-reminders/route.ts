@@ -37,9 +37,13 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   // Get unique user IDs that need emails
   const userIds = [...new Set(reminders.map((r) => r.created_by))]
 
-  const { data: profiles } = await supabase.from('profiles').select('id, email').in('id', userIds)
+  const { data: profiles } = await supabase
+    .from('profiles')
+    .select('id, email, email_unsubscribe_token')
+    .in('id', userIds)
 
   const emailMap = new Map(profiles?.map((p) => [p.id, p.email]) ?? [])
+  const tokenMap = new Map(profiles?.map((p) => [p.id, p.email_unsubscribe_token]) ?? [])
 
   let sent = 0
   let failed = 0
@@ -55,6 +59,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const canSend = await shouldSendEmail(email)
     if (!canSend) continue
 
+    const unsubscribeToken = tokenMap.get(reminder.created_by)
+    const unsubscribeUrl = unsubscribeToken ? `${baseUrl}/api/email/unsubscribe/${unsubscribeToken}` : undefined
+
     const { error: sendError } = await sendEmail({
       to: email,
       subject: `Reminder: ${reminder.title}`,
@@ -62,6 +69,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         title: reminder.title,
         message: reminder.message ?? `Your reminder "${reminder.title}" is due.`,
         dashboardUrl: `${baseUrl}/reminders`,
+        unsubscribeUrl,
       }),
     })
 

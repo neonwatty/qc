@@ -3,11 +3,13 @@ import { Html, Head, Body, Container, Text, Button, Link } from '@react-email/co
 interface InviteEmailProps {
   inviterName?: string
   inviteUrl?: string
+  unsubscribeUrl?: string
 }
 
 export function InviteEmail({
   inviterName = 'Your partner',
   inviteUrl = 'https://tryqc.co/invite/token',
+  unsubscribeUrl,
 }: InviteEmailProps) {
   return (
     <Html>
@@ -42,6 +44,13 @@ export function InviteEmail({
               Terms of Service
             </Link>
           </Text>
+          {unsubscribeUrl && (
+            <Text style={footer}>
+              <Link href={unsubscribeUrl} style={link}>
+                Unsubscribe from QC emails
+              </Link>
+            </Text>
+          )}
         </Container>
       </Body>
     </Html>
