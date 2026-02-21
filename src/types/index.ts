@@ -145,6 +145,12 @@ export interface Reminder {
   isActive: boolean
   notificationChannel: NotificationChannel
   customSchedule: Record<string, unknown> | null
+  isSnoozed: boolean
+  snoozeUntil: string | null
+  lastNotifiedAt: string | null
+  assignedTo: string | null
+  relatedCheckInId: string | null
+  relatedActionItemId: string | null
 }
 
 export interface RelationshipRequest {
@@ -201,6 +207,8 @@ export interface SessionSettings {
   allowExtensions: boolean
   warmUpQuestions: boolean
   coolDownTime: number
+  pauseNotifications: boolean
+  autoSaveDrafts: boolean
 }
 
 export interface AppState {

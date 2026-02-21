@@ -1,4 +1,8 @@
 import { requireAuth } from '@/lib/auth'
+import { calculateGrowthScores } from '@/lib/growth-scoring'
+import { getCheckInMoodHistory } from '@/lib/chart-data'
+import type { GrowthAreaScore } from '@/lib/growth-scoring'
+import type { MoodDataPoint } from '@/lib/chart-data'
 
 import { GrowthContent } from './growth-content'
 
@@ -13,5 +17,15 @@ export default async function GrowthPage(): Promise<React.ReactElement> {
 
   const coupleId = profile?.couple_id ?? null
 
-  return <GrowthContent coupleId={coupleId} />
+  let growthScores: GrowthAreaScore[] = []
+  let moodHistory: MoodDataPoint[] = []
+
+  if (coupleId) {
+    ;[growthScores, moodHistory] = await Promise.all([
+      calculateGrowthScores(coupleId, supabase),
+      getCheckInMoodHistory(coupleId, supabase),
+    ])
+  }
+
+  return <GrowthContent coupleId={coupleId} growthScores={growthScores} moodHistory={moodHistory} />
 }

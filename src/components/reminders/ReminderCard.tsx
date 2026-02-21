@@ -1,5 +1,9 @@
 'use client'
 
+import { useState } from 'react'
+import { format, parseISO } from 'date-fns'
+import { AlarmClock, Clock, User } from 'lucide-react'
+
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -8,8 +12,12 @@ import type { DbReminder } from '@/types/database'
 interface Props {
   reminder: DbReminder
   isOwner: boolean
+  isOverdue?: boolean
+  assigneeName?: string
   onToggle: (id: string, isActive: boolean) => Promise<void>
   onDelete: (id: string) => Promise<void>
+  onSnooze: (id: string, duration: '15min' | '1hour' | 'tomorrow') => Promise<void>
+  onUnsnooze: (id: string) => Promise<void>
 }
 
 const CATEGORY_COLORS: Record<DbReminder['category'], string> = {
@@ -41,9 +49,30 @@ function formatSchedule(dateStr: string): string {
   return date.toLocaleDateString()
 }
 
-export function ReminderCard({ reminder, isOwner, onToggle, onDelete }: Props): React.ReactElement {
+function formatSnoozeUntil(dateStr: string): string {
+  return format(parseISO(dateStr), 'MMM d, h:mm a')
+}
+
+const SNOOZE_OPTIONS: { label: string; value: '15min' | '1hour' | 'tomorrow' }[] = [
+  { label: '15 minutes', value: '15min' },
+  { label: '1 hour', value: '1hour' },
+  { label: 'Tomorrow morning', value: 'tomorrow' },
+]
+
+export function ReminderCard({
+  reminder,
+  isOwner,
+  isOverdue,
+  assigneeName,
+  onToggle,
+  onDelete,
+  onSnooze,
+  onUnsnooze,
+}: Props): React.ReactElement {
+  const [snoozeOpen, setSnoozeOpen] = useState(false)
+
   return (
-    <Card className={!reminder.is_active ? 'opacity-60' : ''}>
+    <Card className={`${!reminder.is_active ? 'opacity-60' : ''} ${isOverdue ? 'border-l-4 border-l-red-500' : ''}`}>
       <CardContent className="flex items-start justify-between gap-4 p-4">
         <div className="min-w-0 flex-1 space-y-1">
           <div className="flex items-center gap-2">
@@ -51,16 +80,36 @@ export function ReminderCard({ reminder, isOwner, onToggle, onDelete }: Props): 
             <Badge variant="secondary" className={CATEGORY_COLORS[reminder.category]}>
               {reminder.category}
             </Badge>
+            {isOverdue && (
+              <Badge variant="secondary" className="bg-red-100 text-red-800">
+                Overdue
+              </Badge>
+            )}
+            {reminder.is_snoozed && reminder.snooze_until && (
+              <Badge variant="secondary" className="bg-amber-100 text-amber-800">
+                <Clock className="mr-1 h-3 w-3" />
+                Snoozed until {formatSnoozeUntil(reminder.snooze_until)}
+              </Badge>
+            )}
           </div>
 
           {reminder.message && <p className="text-sm text-muted-foreground">{reminder.message}</p>}
 
-          <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
+          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
             <span>{FREQUENCY_LABELS[reminder.frequency]}</span>
             <span>·</span>
             <span>{formatSchedule(reminder.scheduled_for)}</span>
             <span>·</span>
             <span className="capitalize">{reminder.notification_channel.replace('-', ' ')}</span>
+            {assigneeName && (
+              <>
+                <span>·</span>
+                <span className="inline-flex items-center gap-1">
+                  <User className="h-3 w-3" />
+                  Assigned to {assigneeName}
+                </span>
+              </>
+            )}
           </div>
         </div>
 
@@ -69,6 +118,37 @@ export function ReminderCard({ reminder, isOwner, onToggle, onDelete }: Props): 
             <Button variant="ghost" size="sm" onClick={() => onToggle(reminder.id, !reminder.is_active)}>
               {reminder.is_active ? 'Pause' : 'Resume'}
             </Button>
+
+            {reminder.is_snoozed ? (
+              <Button variant="ghost" size="sm" className="text-amber-600" onClick={() => onUnsnooze(reminder.id)}>
+                <AlarmClock className="mr-1 h-4 w-4" />
+                Unsnooze
+              </Button>
+            ) : (
+              <div className="relative">
+                <Button variant="ghost" size="sm" onClick={() => setSnoozeOpen(!snoozeOpen)}>
+                  <Clock className="mr-1 h-4 w-4" />
+                  Snooze
+                </Button>
+                {snoozeOpen && (
+                  <div className="absolute right-0 top-full z-10 mt-1 w-44 rounded-md border bg-popover p-1 shadow-md">
+                    {SNOOZE_OPTIONS.map((option) => (
+                      <button
+                        key={option.value}
+                        className="w-full rounded-sm px-3 py-2 text-left text-sm hover:bg-muted"
+                        onClick={() => {
+                          onSnooze(reminder.id, option.value)
+                          setSnoozeOpen(false)
+                        }}
+                      >
+                        {option.label}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
             <Button variant="ghost" size="sm" className="text-destructive" onClick={() => onDelete(reminder.id)}>
               Delete
             </Button>

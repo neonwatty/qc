@@ -8,10 +8,13 @@ import { useRouter } from 'next/navigation'
 import { useBookends } from '@/contexts/BookendsContext'
 import { ReflectionForm } from '@/components/bookends/ReflectionForm'
 import { useCheckInContext } from '@/contexts/CheckInContext'
+import { useSessionSettings } from '@/contexts/SessionSettingsContext'
 import { CategoryGrid } from '@/components/checkin/CategoryGrid'
 import { NavigationControls } from '@/components/checkin/NavigationControls'
 import { ActionItems } from '@/components/checkin/ActionItems'
 import { CompletionCelebration } from '@/components/checkin/CompletionCelebration'
+import { SessionTimer } from '@/components/checkin/SessionTimer'
+import { TurnIndicator } from '@/components/checkin/TurnIndicator'
 
 import type { ActionItem } from '@/types'
 
@@ -95,19 +98,27 @@ export function CategorySelectionStep(): React.ReactNode {
 
 export function CategoryDiscussionStep(): React.ReactNode {
   const { completeStep, goToStep, getCurrentCategoryProgress } = useCheckInContext()
+  const { getActiveSettings } = useSessionSettings()
+  const settings = getActiveSettings()
   const currentCategory = getCurrentCategoryProgress()
   const category = CHECK_IN_CATEGORIES.find((c) => c.id === currentCategory?.categoryId)
 
   return (
     <MotionBox variant="page" className="max-w-3xl mx-auto px-4 py-6 space-y-6">
-      <div className="text-center space-y-2">
-        <div className="text-4xl">{category?.icon ?? '💬'}</div>
-        <h2 className="text-2xl font-bold text-gray-900">{category?.name ?? 'Discussion'}</h2>
-        <p className="text-gray-600">{category?.description ?? 'Share your thoughts with your partner.'}</p>
+      <div className="flex items-center justify-center">
+        <SessionTimer durationMinutes={settings.sessionDuration} />
       </div>
 
-      <div className="bg-white rounded-lg border border-gray-200 p-6 text-center">
-        <p className="text-gray-600">
+      <TurnIndicator />
+
+      <div className="text-center space-y-2">
+        <div className="text-4xl">{category?.icon ?? '💬'}</div>
+        <h2 className="text-2xl font-bold text-foreground">{category?.name ?? 'Discussion'}</h2>
+        <p className="text-muted-foreground">{category?.description ?? 'Share your thoughts with your partner.'}</p>
+      </div>
+
+      <div className="rounded-lg border border-border bg-card p-6 text-center">
+        <p className="text-muted-foreground">
           Take turns sharing your thoughts on this topic. Listen actively and respond with empathy.
         </p>
       </div>
@@ -206,6 +217,9 @@ export function CompletionStep(): React.ReactNode {
       categories={session?.selectedCategories}
       timeSpent={timeSpent}
       actionItemsCount={0}
+      notesCount={session?.draftNotes.length ?? 0}
+      moodBefore={session?.baseCheckIn.moodBefore}
+      moodAfter={session?.baseCheckIn.moodAfter}
       onGoHome={handleGoHome}
       onStartNew={handleStartNew}
     />
