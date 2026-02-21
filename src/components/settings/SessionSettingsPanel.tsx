@@ -1,6 +1,7 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useEffect, useRef } from 'react'
+import { toast } from 'sonner'
 
 import { updateSessionSettings } from '@/app/(app)/settings/actions'
 import type { SettingsActionState } from '@/app/(app)/settings/actions'
@@ -28,6 +29,17 @@ const DEFAULTS: Omit<DbSessionSettings, 'id' | 'couple_id'> = {
 
 export function SessionSettingsPanel({ sessionSettings, coupleId }: Props): React.ReactElement {
   const [formState, formAction, isPending] = useActionState<SettingsActionState, FormData>(updateSessionSettings, {})
+  const prevFormState = useRef(formState)
+
+  useEffect(() => {
+    if (formState === prevFormState.current) return
+    prevFormState.current = formState
+    if (formState.error) {
+      toast.error(formState.error)
+    } else if (formState.success) {
+      toast.success('Session settings saved')
+    }
+  }, [formState])
 
   const settings = sessionSettings ?? DEFAULTS
 

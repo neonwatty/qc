@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { toast } from 'sonner'
 
 import { leaveCoupleAction, resendInviteAction } from '@/app/(app)/settings/actions'
 import { Button } from '@/components/ui/button'
@@ -24,7 +25,12 @@ export function RelationshipSettings({ couple, partner, pendingInvite }: Props):
     setResending(true)
     setError(null)
     const result = await resendInviteAction(pendingInvite.id)
-    if (result.error) setError(result.error)
+    if (result.error) {
+      setError(result.error)
+      toast.error(result.error)
+    } else {
+      toast.success('Invite resent')
+    }
     setResending(false)
   }
 
@@ -34,6 +40,7 @@ export function RelationshipSettings({ couple, partner, pendingInvite }: Props):
     const result = await leaveCoupleAction()
     if (result?.error) {
       setError(result.error)
+      toast.error(result.error)
       setLeaving(false)
     }
   }

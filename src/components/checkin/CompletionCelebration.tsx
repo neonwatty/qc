@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { celebrationBurst } from '@/lib/confetti'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
@@ -106,6 +107,7 @@ function CelebrationContent({
   const [showStats, setShowStats] = useState(false)
 
   useEffect(() => {
+    celebrationBurst()
     const timer = setTimeout(() => setShowStats(true), 1500)
     return () => clearTimeout(timer)
   }, [])

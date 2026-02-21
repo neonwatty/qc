@@ -1,6 +1,7 @@
 'use client'
 
 import { useActionState, useState } from 'react'
+import { toast } from 'sonner'
 
 import { ReminderCard } from '@/components/reminders/ReminderCard'
 import { ReminderForm } from '@/components/reminders/ReminderForm'
@@ -26,6 +27,10 @@ export function RemindersContent({ initialReminders, userId, coupleId }: Props):
     if (result.success && result.reminder) {
       setReminders((r) => [...r, result.reminder!])
       setShowForm(false)
+      toast.success('Reminder created')
+    }
+    if (result.error) {
+      toast.error(result.error)
     }
     return result
   }, {})
@@ -34,7 +39,10 @@ export function RemindersContent({ initialReminders, userId, coupleId }: Props):
     setReminders((prev) => prev.map((r) => (r.id === id ? { ...r, is_active: isActive } : r)))
     const result = await toggleReminder(id, isActive)
     if (result.error) {
+      toast.error(result.error)
       setReminders((prev) => prev.map((r) => (r.id === id ? { ...r, is_active: !isActive } : r)))
+    } else {
+      toast.success('Reminder updated')
     }
   }
 
@@ -43,7 +51,10 @@ export function RemindersContent({ initialReminders, userId, coupleId }: Props):
     setReminders((r) => r.filter((rem) => rem.id !== id))
     const result = await deleteReminder(id)
     if (result.error) {
+      toast.error(result.error)
       setReminders(prev)
+    } else {
+      toast.success('Reminder deleted')
     }
   }
 

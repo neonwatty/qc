@@ -1,6 +1,7 @@
 'use client'
 
 import { useActionState, useCallback, useState } from 'react'
+import { toast } from 'sonner'
 
 import { RequestCard } from '@/components/requests/RequestCard'
 import { RequestForm } from '@/components/requests/RequestForm'
@@ -34,6 +35,10 @@ export function RequestsContent({
     const result = await createRequest(prev, formData)
     if (result.success) {
       setShowForm(false)
+      toast.success('Request sent')
+    }
+    if (result.error) {
+      toast.error(result.error)
     }
     return result
   }, {})
@@ -56,7 +61,10 @@ export function RequestsContent({
     setRequests((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)))
     const result = await respondToRequest(id, status)
     if (result.error) {
+      toast.error(result.error)
       setRequests((prev) => prev.map((r) => (r.id === id ? { ...r, status: 'pending' as const } : r)))
+    } else {
+      toast.success('Response sent')
     }
   }
 
@@ -65,7 +73,10 @@ export function RequestsContent({
     setRequests((r) => r.filter((req) => req.id !== id))
     const result = await deleteRequest(id)
     if (result.error) {
+      toast.error(result.error)
       setRequests(prev)
+    } else {
+      toast.success('Request deleted')
     }
   }
 

@@ -69,7 +69,7 @@ test.describe('Onboarding Flow', () => {
       await expect(page.getByText(/optional.*milestones/i)).toBeVisible()
     })
 
-    test('step 3: has back and get started buttons', async ({ noCoupleAuthedPage: page }) => {
+    test('step 3: has back and continue buttons', async ({ noCoupleAuthedPage: page }) => {
       // Navigate through steps 1 and 2
       await page.getByLabel(/your display name/i).fill('Test User')
       await page.getByRole('button', { name: /continue/i }).click()
@@ -78,13 +78,13 @@ test.describe('Onboarding Flow', () => {
       await page.getByRole('button', { name: /continue/i }).click()
 
       await expect(page.getByRole('button', { name: /back/i })).toBeVisible()
-      await expect(page.getByRole('button', { name: /get started/i })).toBeVisible()
+      await expect(page.getByRole('button', { name: /continue/i })).toBeVisible()
     })
 
-    test('shows step indicator with 3 steps', async ({ noCoupleAuthedPage: page }) => {
-      // The step indicator renders 3 progress bars
+    test('shows step indicator with 5 steps', async ({ noCoupleAuthedPage: page }) => {
+      // The step indicator renders 5 progress bars (welcome, partner, date, love languages, feature tour)
       const stepBars = page.locator('.rounded-full.h-2')
-      await expect(stepBars).toHaveCount(3)
+      await expect(stepBars).toHaveCount(5)
     })
   })
 

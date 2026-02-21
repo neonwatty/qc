@@ -14,7 +14,17 @@ const onboardingSchema = z.object({
   displayName: nameSchema,
   partnerEmail: emailSchema,
   relationshipStartDate: z.string().optional(),
+  selectedLanguages: z.string().optional(),
 })
+
+const LANGUAGE_TITLES: Record<string, string> = {
+  words: 'Words of Affirmation',
+  acts: 'Acts of Service',
+  gifts: 'Receiving Gifts',
+  time: 'Quality Time',
+  touch: 'Physical Touch',
+  custom: 'Custom',
+}
 
 export type OnboardingState = {
   error: string | null
@@ -27,6 +37,7 @@ export async function completeOnboarding(_prev: OnboardingState, formData: FormD
     displayName: formData.get('displayName'),
     partnerEmail: formData.get('partnerEmail'),
     relationshipStartDate: formData.get('relationshipStartDate') || undefined,
+    selectedLanguages: formData.get('selectedLanguages') || undefined,
   }
 
   const { data: input, error: validationError } = validate(onboardingSchema, raw)
@@ -56,6 +67,28 @@ export async function completeOnboarding(_prev: OnboardingState, formData: FormD
   // Set relationship start date if provided
   if (input.relationshipStartDate) {
     await supabase.from('couples').update({ relationship_start_date: input.relationshipStartDate }).eq('id', couple.id)
+  }
+
+  // Save love languages if selected
+  const rawLanguages = input.selectedLanguages
+  if (rawLanguages) {
+    try {
+      const categories = JSON.parse(rawLanguages) as string[]
+      if (Array.isArray(categories) && categories.length > 0) {
+        const languageRows = categories.map((category) => ({
+          couple_id: couple.id,
+          user_id: user.id,
+          // eslint-disable-next-line security/detect-object-injection -- category is from user-selected values validated by JSON.parse
+          title: LANGUAGE_TITLES[category] ?? category,
+          category,
+          privacy: 'shared' as const,
+          importance: 'high' as const,
+        }))
+        await supabase.from('love_languages').insert(languageRows)
+      }
+    } catch {
+      // Love language insertion failed -- non-blocking, continue to redirect
+    }
   }
 
   // Create invite and send email (pass existing client to share auth context)
