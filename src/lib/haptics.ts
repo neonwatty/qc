@@ -1,20 +1,22 @@
 /**
- * Haptic feedback utilities for web applications
- * Provides consistent haptic feedback patterns across the application
+ * Haptic feedback utilities with native Capacitor support and web fallback.
+ * On iOS (Capacitor), uses the Haptics plugin for real Taptic Engine feedback.
+ * On web, falls back to the Vibration API where available.
  */
+
+import { Capacitor } from '@capacitor/core'
+import { Haptics, ImpactStyle, NotificationType } from '@capacitor/haptics'
 
 export type HapticIntensity = 'light' | 'medium' | 'heavy'
 
 /**
- * Haptic feedback patterns for different interaction types
+ * Web fallback vibration patterns (ms) for browsers without native haptics
  */
 export const HAPTIC_PATTERNS = {
-  // Basic interaction patterns
   light: 10,
   medium: 50,
   heavy: 100,
 
-  // Specific interaction patterns
   tap: 10,
   select: 25,
   toggle: 40,
@@ -22,30 +24,41 @@ export const HAPTIC_PATTERNS = {
   warning: [100, 50, 100] as number[],
   error: [150, 100, 150, 100, 150] as number[],
 
-  // UI feedback patterns
   swipe: 15,
   longPress: [50, 100] as number[],
   notification: [25, 50, 25] as number[],
 
-  // Custom patterns for QC app
   checkInComplete: [100, 50, 100, 50, 200] as number[],
   milestoneReached: [100, 100, 100, 100, 100] as number[],
   noteAdded: 30,
   dailyGratitude: [50, 50, 100] as number[],
 } as const
 
+const isNative = Capacitor.isNativePlatform()
+
 /**
- * Check if haptic feedback is supported
+ * Check if haptic feedback is supported (native or web vibration)
  */
 export function isHapticSupported(): boolean {
-  return 'vibrate' in navigator && typeof navigator.vibrate === 'function'
+  if (isNative) return true
+  return typeof navigator !== 'undefined' && 'vibrate' in navigator && typeof navigator.vibrate === 'function'
 }
 
 /**
- * Trigger haptic feedback with specified intensity
+ * Trigger haptic feedback with specified intensity.
+ * Uses Capacitor Haptics on native, Vibration API on web.
  */
 export function triggerHaptic(intensity: HapticIntensity): void {
-  if (!isHapticSupported()) {
+  if (!isHapticSupported()) return
+
+  if (isNative) {
+    const styleMap: Record<HapticIntensity, ImpactStyle> = {
+      light: ImpactStyle.Light,
+      medium: ImpactStyle.Medium,
+      heavy: ImpactStyle.Heavy,
+    }
+    // eslint-disable-next-line security/detect-object-injection -- intensity is typed as HapticIntensity
+    void Haptics.impact({ style: styleMap[intensity] })
     return
   }
 
@@ -55,13 +68,40 @@ export function triggerHaptic(intensity: HapticIntensity): void {
 }
 
 /**
- * Trigger haptic feedback with a custom pattern
+ * Trigger haptic feedback with a custom pattern.
+ * On native, uses a single medium impact (patterns aren't supported natively).
  */
 export function triggerHapticPattern(pattern: number | number[]): void {
-  if (!isHapticSupported()) {
+  if (!isHapticSupported()) return
+
+  if (isNative) {
+    void Haptics.impact({ style: ImpactStyle.Medium })
     return
   }
 
+  navigator.vibrate(pattern)
+}
+
+/**
+ * Trigger a native notification haptic (success/warning/error).
+ * Falls back to vibration pattern on web.
+ */
+function triggerNotification(type: 'success' | 'warning' | 'error'): void {
+  if (!isHapticSupported()) return
+
+  if (isNative) {
+    const typeMap: Record<string, NotificationType> = {
+      success: NotificationType.Success,
+      warning: NotificationType.Warning,
+      error: NotificationType.Error,
+    }
+    // eslint-disable-next-line security/detect-object-injection -- type is constrained to 'success' | 'warning' | 'error'
+    void Haptics.notification({ type: typeMap[type] })
+    return
+  }
+
+  // eslint-disable-next-line security/detect-object-injection -- type is constrained to 'success' | 'warning' | 'error'
+  const pattern = HAPTIC_PATTERNS[type]
   navigator.vibrate(pattern)
 }
 
@@ -70,43 +110,43 @@ export function triggerHapticPattern(pattern: number | number[]): void {
  */
 export const hapticFeedback = {
   /** Light tap feedback for buttons and links */
-  tap: () => triggerHapticPattern(HAPTIC_PATTERNS.tap),
+  tap: () => triggerHaptic('light'),
 
   /** Selection feedback for choices and toggles */
-  select: () => triggerHapticPattern(HAPTIC_PATTERNS.select),
+  select: () => triggerHaptic('light'),
 
   /** Toggle feedback for switches and checkboxes */
-  toggle: () => triggerHapticPattern(HAPTIC_PATTERNS.toggle),
+  toggle: () => triggerHaptic('medium'),
 
   /** Success feedback for completed actions */
-  success: () => triggerHapticPattern(HAPTIC_PATTERNS.success),
+  success: () => triggerNotification('success'),
 
   /** Warning feedback for caution states */
-  warning: () => triggerHapticPattern(HAPTIC_PATTERNS.warning),
+  warning: () => triggerNotification('warning'),
 
   /** Error feedback for failed actions */
-  error: () => triggerHapticPattern(HAPTIC_PATTERNS.error),
+  error: () => triggerNotification('error'),
 
   /** Swipe feedback for gesture interactions */
-  swipe: () => triggerHapticPattern(HAPTIC_PATTERNS.swipe),
+  swipe: () => triggerHaptic('light'),
 
   /** Long press feedback for context menus */
-  longPress: () => triggerHapticPattern(HAPTIC_PATTERNS.longPress),
+  longPress: () => triggerHaptic('heavy'),
 
   /** Notification feedback for alerts */
-  notification: () => triggerHapticPattern(HAPTIC_PATTERNS.notification),
+  notification: () => triggerNotification('success'),
 
   /** QC-specific: Check-in completion celebration */
-  checkInComplete: () => triggerHapticPattern(HAPTIC_PATTERNS.checkInComplete),
+  checkInComplete: () => triggerNotification('success'),
 
   /** QC-specific: Milestone achievement celebration */
-  milestoneReached: () => triggerHapticPattern(HAPTIC_PATTERNS.milestoneReached),
+  milestoneReached: () => triggerNotification('success'),
 
   /** QC-specific: Note added confirmation */
-  noteAdded: () => triggerHapticPattern(HAPTIC_PATTERNS.noteAdded),
+  noteAdded: () => triggerHaptic('light'),
 
   /** QC-specific: Daily gratitude moment */
-  dailyGratitude: () => triggerHapticPattern(HAPTIC_PATTERNS.dailyGratitude),
+  dailyGratitude: () => triggerNotification('success'),
 }
 
 /**

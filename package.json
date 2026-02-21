@@ -18,12 +18,13 @@
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "knip": "knip",
-    "build:ios": "STATIC_EXPORT=true doppler run -- npm run build && npx cap sync ios",
+    "build:ios": "npx cap sync ios",
     "ios": "npm run build:ios && npx cap open ios",
     "check": "npm run lint && npm run typecheck && npm run format:check && npm run test"
   },
   "dependencies": {
     "@capacitor/core": "^8",
+    "@capacitor/haptics": "^8.0.0",
     "@capacitor/ios": "^8",
     "@radix-ui/react-dialog": "^1",
     "@radix-ui/react-progress": "^1",

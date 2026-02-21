@@ -6,7 +6,10 @@ const config: CapacitorConfig = {
   appName: 'QC',
   webDir: 'out',
   server: {
+    url: 'https://tryqc.co',
+    iosScheme: 'https',
     androidScheme: 'https',
+    allowNavigation: ['tryqc.co', '*.supabase.co'],
   },
   ios: {
     contentInset: 'automatic',
