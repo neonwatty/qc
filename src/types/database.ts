@@ -10,6 +10,10 @@ export interface DbProfile {
   couple_id: string | null
   created_at: string
   updated_at: string
+  email_bounced_at: string | null
+  email_complained_at: string | null
+  email_unsubscribe_token: string | null
+  email_opted_out_at: string | null
 }
 
 export interface DbCouple {

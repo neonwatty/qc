@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 
+import { createAdminClient } from '@/lib/supabase/admin'
+
 type ResendEventType = 'email.delivered' | 'email.bounced' | 'email.complained'
 
 interface ResendWebhookPayload {
@@ -20,23 +22,35 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
 
   const payload = (await request.json()) as ResendWebhookPayload
+  const supabase = createAdminClient()
 
   switch (payload.type) {
     case 'email.delivered': {
-      // TODO: log successful delivery
       console.log('Email delivered:', payload.data.email_id)
       break
     }
 
     case 'email.bounced': {
-      // TODO: mark email as bounced, disable future sends
       console.log('Email bounced:', payload.data.to)
+      for (const email of payload.data.to) {
+        const { error } = await supabase
+          .from('profiles')
+          .update({ email_bounced_at: new Date().toISOString() })
+          .eq('email', email)
+        if (error) console.error('Failed to record bounce for', email, error.message)
+      }
       break
     }
 
     case 'email.complained': {
-      // TODO: unsubscribe user, log complaint
       console.log('Email complaint:', payload.data.to)
+      for (const email of payload.data.to) {
+        const { error } = await supabase
+          .from('profiles')
+          .update({ email_complained_at: new Date().toISOString() })
+          .eq('email', email)
+        if (error) console.error('Failed to record complaint for', email, error.message)
+      }
       break
     }
   }
