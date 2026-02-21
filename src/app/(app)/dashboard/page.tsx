@@ -1,4 +1,6 @@
 import { requireAuth } from '@/lib/auth'
+import { getStreakData } from '@/lib/streaks'
+import type { StreakData } from '@/lib/streaks'
 
 import { DashboardContent } from './dashboard-content'
 
@@ -21,9 +23,10 @@ export default async function DashboardPage() {
   let actionItemCount = 0
   let totalLanguages = 0
   let sharedLanguages = 0
+  let streakData: StreakData = { currentStreak: 0, longestStreak: 0, lastCheckInDate: null, totalCheckIns: 0 }
 
   if (coupleId) {
-    const [checkIns, notes, milestones, actionItems, languages, shared] = await Promise.all([
+    const [checkIns, notes, milestones, actionItems, languages, shared, streak] = await Promise.all([
       supabase.from('check_ins').select('id', { count: 'exact', head: true }).eq('couple_id', coupleId),
       supabase.from('notes').select('id', { count: 'exact', head: true }).eq('couple_id', coupleId),
       supabase.from('milestones').select('id', { count: 'exact', head: true }).eq('couple_id', coupleId),
@@ -38,6 +41,7 @@ export default async function DashboardPage() {
         .select('id', { count: 'exact', head: true })
         .eq('couple_id', coupleId)
         .eq('privacy', 'shared'),
+      getStreakData(coupleId, supabase),
     ])
 
     checkInCount = checkIns.count ?? 0
@@ -46,6 +50,7 @@ export default async function DashboardPage() {
     actionItemCount = actionItems.count ?? 0
     totalLanguages = languages.count ?? 0
     sharedLanguages = shared.count ?? 0
+    streakData = streak
   }
 
   return (
@@ -57,6 +62,7 @@ export default async function DashboardPage() {
       totalLanguages={totalLanguages}
       sharedLanguages={sharedLanguages}
       hasCoupleId={!!coupleId}
+      streakData={streakData}
     />
   )
 }

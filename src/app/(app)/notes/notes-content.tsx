@@ -1,6 +1,7 @@
 'use client'
 
 import { useCallback, useState } from 'react'
+import { toast } from 'sonner'
 
 import { NoteEditor } from '@/components/notes/NoteEditor'
 import { NoteList } from '@/components/notes/NoteList'
@@ -49,8 +50,11 @@ export function NotesPageContent({ notes: initialNotes, currentUserId, coupleId 
 
     deleteNoteById(note.id).then(({ error }) => {
       if (error) {
+        toast.error('Failed to delete note')
         // Re-add the note on failure
         setNotes((prev) => [...prev, note].sort((a, b) => b.created_at.localeCompare(a.created_at)))
+      } else {
+        toast.success('Note deleted')
       }
     })
   }, [])

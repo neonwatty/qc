@@ -4,8 +4,10 @@ import Link from 'next/link'
 import { Heart, StickyNote, TrendingUp, Bell } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { QuickActions } from '@/components/dashboard/QuickActions'
+import { StreakDisplay } from '@/components/dashboard/StreakDisplay'
 import { StatsGrid } from '@/components/dashboard/StatsGrid'
 import { LoveLanguagesWidget } from '@/components/dashboard/LoveLanguagesWidget'
+import type { StreakData } from '@/lib/streaks'
 
 interface DashboardContentProps {
   checkInCount: number
@@ -15,6 +17,7 @@ interface DashboardContentProps {
   totalLanguages: number
   sharedLanguages: number
   hasCoupleId: boolean
+  streakData: StreakData
 }
 
 export function DashboardContent({
@@ -25,6 +28,7 @@ export function DashboardContent({
   totalLanguages,
   sharedLanguages,
   hasCoupleId,
+  streakData,
 }: DashboardContentProps): React.ReactNode {
   return (
     <div className="space-y-8">
@@ -50,6 +54,9 @@ export function DashboardContent({
 
       {/* Quick Actions */}
       <QuickActions />
+
+      {/* Streak Display */}
+      <StreakDisplay streakData={streakData} />
 
       {/* Stats + Love Languages Widget */}
       <div className="grid gap-6 lg:grid-cols-3">

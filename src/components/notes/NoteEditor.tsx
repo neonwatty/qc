@@ -1,6 +1,7 @@
 'use client'
 
 import { useActionState, useCallback, useEffect, useRef, useState } from 'react'
+import { toast } from 'sonner'
 
 import { cn } from '@/lib/utils'
 import type { DbNote } from '@/types'
@@ -110,9 +111,17 @@ function NoteEditorForm({ note, onClose }: { note?: DbNote | null; onClose: () =
   // Close dialog on successful save
   useEffect(() => {
     if (hasSubmitted && !isPending && !state.error) {
+      toast.success('Note saved')
       onClose()
     }
   }, [hasSubmitted, isPending, state.error, onClose])
+
+  // Show error toast
+  useEffect(() => {
+    if (state.error) {
+      toast.error(state.error)
+    }
+  }, [state.error])
 
   const handleAddTag = useCallback(() => {
     const tag = tagInput.trim().toLowerCase()
