@@ -1,4 +1,4 @@
-import { Html, Head, Body, Container, Text, Button } from '@react-email/components'
+import { Html, Head, Body, Container, Text, Button, Link } from '@react-email/components'
 
 interface ReminderEmailProps {
   title?: string
@@ -9,7 +9,7 @@ interface ReminderEmailProps {
 export function ReminderEmail({
   title = 'Reminder',
   message = 'You have an upcoming reminder.',
-  dashboardUrl = 'https://example.com/reminders',
+  dashboardUrl = 'https://tryqc.co/reminders',
 }: ReminderEmailProps) {
   return (
     <Html>
@@ -22,6 +22,15 @@ export function ReminderEmail({
             View Reminders
           </Button>
           <Text style={footer}>You received this because you have email notifications enabled for this reminder.</Text>
+          <Text style={footerLinks}>
+            <Link href="https://tryqc.co/privacy" style={link}>
+              Privacy Policy
+            </Link>
+            {' · '}
+            <Link href="https://tryqc.co/terms" style={link}>
+              Terms of Service
+            </Link>
+          </Text>
         </Container>
       </Body>
     </Html>
@@ -71,4 +80,17 @@ const footer = {
   fontSize: '14px',
   lineHeight: '20px',
   color: '#6b7280',
+}
+
+const footerLinks = {
+  fontSize: '12px',
+  lineHeight: '16px',
+  color: '#9ca3af',
+  textAlign: 'center' as const,
+  marginTop: '16px',
+}
+
+const link = {
+  color: '#6b7280',
+  textDecoration: 'underline',
 }
