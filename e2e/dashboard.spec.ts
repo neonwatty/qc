@@ -80,13 +80,13 @@ test.describe('Dashboard', () => {
       await expect(page.getByRole('heading', { name: /recent activity/i })).toBeVisible()
     })
 
-    test('shows activity lines', async ({ authedPage: page }) => {
+    test('shows stat cards', async ({ authedPage: page }) => {
       await page.goto('/dashboard')
 
-      await expect(page.getByText(/check-ins completed/i)).toBeVisible()
-      await expect(page.getByText(/notes created/i)).toBeVisible()
-      await expect(page.getByText(/milestones achieved/i)).toBeVisible()
-      await expect(page.getByText(/open action items/i)).toBeVisible()
+      await expect(page.getByText('Check-ins')).toBeVisible()
+      await expect(page.getByText('Notes')).toBeVisible()
+      await expect(page.getByText('Milestones')).toBeVisible()
+      await expect(page.getByText('Action Items')).toBeVisible()
     })
   })
 })
