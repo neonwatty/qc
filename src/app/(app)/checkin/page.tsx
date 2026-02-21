@@ -19,6 +19,7 @@ import {
   ReflectionStep,
   ActionItemsStep,
   CompletionStep,
+  WarmUpStep,
 } from './steps'
 
 import type { SessionSettings } from '@/types'
@@ -186,6 +187,8 @@ function CheckInLanding(): React.ReactNode {
 
 function CheckInWizard(): React.ReactNode {
   const { session } = useCheckInContext()
+  const { getActiveSettings } = useSessionSettings()
+  const sessionSettings = getActiveSettings()
 
   if (!session) return null
 
@@ -196,6 +199,12 @@ function CheckInWizard(): React.ReactNode {
       case 'welcome':
       case 'category-selection':
         return <CategorySelectionStep />
+      case 'warm-up': {
+        if (!sessionSettings?.warmUpQuestions) {
+          return <CategoryDiscussionStep />
+        }
+        return <WarmUpStep />
+      }
       case 'category-discussion':
         return <CategoryDiscussionStep />
       case 'reflection':

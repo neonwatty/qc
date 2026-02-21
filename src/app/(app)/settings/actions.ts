@@ -6,8 +6,9 @@ import { z } from 'zod'
 
 import { requireAuth } from '@/lib/auth'
 import { leaveCouple, resendInvite } from '@/lib/couples'
-import { sendEmail } from '@/lib/email/send'
+import { sendEmail, shouldSendEmail } from '@/lib/email/send'
 import { InviteEmail } from '@/lib/email/templates/invite'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { validate } from '@/lib/validation'
 
 const profileSchema = z.object({
@@ -101,16 +102,31 @@ export async function resendInviteAction(inviteId: string): Promise<{ error?: st
   if (result.error) return { error: result.error }
 
   if (result.data) {
+    const canSend = await shouldSendEmail(result.data.invited_email)
+    if (!canSend) return { error: 'Unable to send to this email address' }
+
     const { data: profile } = await supabase.from('profiles').select('display_name').eq('id', user.id).single()
     const inviterName = profile?.display_name ?? 'Your partner'
     const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
     const inviteUrl = `${baseUrl}/invite/${result.data.token}`
 
+    // Check if invitee already has a profile (e.g. partial signup) and build unsubscribe link
+    // Uses admin client to bypass RLS — invitee may not be in the same couple yet
+    const adminClient = createAdminClient()
+    const { data: inviteeProfile } = await adminClient
+      .from('profiles')
+      .select('email_unsubscribe_token')
+      .eq('email', result.data.invited_email)
+      .maybeSingle()
+    const unsubscribeUrl = inviteeProfile?.email_unsubscribe_token
+      ? `${baseUrl}/api/email/unsubscribe/${inviteeProfile.email_unsubscribe_token}`
+      : undefined
+
     try {
       await sendEmail({
         to: result.data.invited_email,
         subject: `${inviterName} invited you to QC`,
-        react: InviteEmail({ inviterName, inviteUrl }),
+        react: InviteEmail({ inviterName, inviteUrl, unsubscribeUrl }),
       })
     } catch {
       // Email send failed -- don't block the UI, they can try again

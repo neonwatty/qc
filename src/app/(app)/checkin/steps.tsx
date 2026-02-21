@@ -18,6 +18,8 @@ import { TurnIndicator } from '@/components/checkin/TurnIndicator'
 
 import type { ActionItem } from '@/types'
 
+export { WarmUpStep } from '@/components/checkin/WarmUpStep'
+
 export const CHECK_IN_CATEGORIES = [
   {
     id: 'emotional',
@@ -127,13 +129,13 @@ export function CategoryDiscussionStep(): React.ReactNode {
         currentStep="category-discussion"
         canGoBack
         canGoNext
-        onBack={() => goToStep('category-selection')}
+        onBack={() => goToStep('warm-up')}
         onNext={() => completeStep('category-discussion')}
         nextLabel="Continue to Reflection"
         variant="floating"
         showProgress
-        currentStepIndex={2}
-        totalSteps={6}
+        currentStepIndex={3}
+        totalSteps={7}
       />
     </MotionBox>
   )
@@ -169,8 +171,8 @@ export function ReflectionStep(): React.ReactNode {
         nextLabel="Continue to Action Items"
         variant="floating"
         showProgress
-        currentStepIndex={3}
-        totalSteps={6}
+        currentStepIndex={4}
+        totalSteps={7}
       />
     </MotionBox>
   )

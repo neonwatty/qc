@@ -4,12 +4,14 @@ interface ReminderEmailProps {
   title?: string
   message?: string
   dashboardUrl?: string
+  unsubscribeUrl?: string
 }
 
 export function ReminderEmail({
   title = 'Reminder',
   message = 'You have an upcoming reminder.',
   dashboardUrl = 'https://tryqc.co/reminders',
+  unsubscribeUrl,
 }: ReminderEmailProps) {
   return (
     <Html>
@@ -31,6 +33,13 @@ export function ReminderEmail({
               Terms of Service
             </Link>
           </Text>
+          {unsubscribeUrl && (
+            <Text style={footer}>
+              <Link href={unsubscribeUrl} style={link}>
+                Unsubscribe from email notifications
+              </Link>
+            </Text>
+          )}
         </Container>
       </Body>
     </Html>

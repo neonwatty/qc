@@ -11,6 +11,10 @@ interface UseTurnStateOptions {
   enabled: boolean
   /** Called when turn auto-switches due to timer expiry */
   onTurnSwitch?: (newTurn: TurnOwner) => void
+  /** Maximum extensions per turn (default 2) */
+  maxExtensions?: number
+  /** Whether extensions are allowed */
+  allowExtensions?: boolean
 }
 
 interface UseTurnStateReturn {
@@ -24,6 +28,12 @@ interface UseTurnStateReturn {
   formattedTurnTime: string
   /** Whether the turn system is active */
   isActive: boolean
+  /** Extend current turn by 60 seconds. No-op if max extensions reached. */
+  extendTurn: () => void
+  /** Number of extensions used this turn */
+  extensionsUsed: number
+  /** Maximum extensions per turn */
+  maxExtensions: number
 }
 
 function formatTime(seconds: number): string {
@@ -32,9 +42,17 @@ function formatTime(seconds: number): string {
   return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`
 }
 
-export function useTurnState({ turnDuration, enabled, onTurnSwitch }: UseTurnStateOptions): UseTurnStateReturn {
+export function useTurnState({
+  turnDuration,
+  enabled,
+  onTurnSwitch,
+  maxExtensions: maxExtensionsOption,
+  allowExtensions,
+}: UseTurnStateOptions): UseTurnStateReturn {
   const [currentTurn, setCurrentTurn] = useState<TurnOwner>('user')
   const [turnTimeRemaining, setTurnTimeRemaining] = useState<number>(turnDuration)
+  const [extensionsUsed, setExtensionsUsed] = useState(0)
+  const maxExt = maxExtensionsOption ?? 2
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const onTurnSwitchRef = useRef(onTurnSwitch)
 
@@ -55,6 +73,7 @@ export function useTurnState({ turnDuration, enabled, onTurnSwitch }: UseTurnSta
       return next
     })
     setTurnTimeRemaining(turnDuration)
+    setExtensionsUsed(0)
   }, [turnDuration])
 
   // Countdown interval
@@ -70,6 +89,7 @@ export function useTurnState({ turnDuration, enabled, onTurnSwitch }: UseTurnSta
             onTurnSwitchRef.current?.(next)
             return next
           })
+          setExtensionsUsed(0)
           return turnDuration
         }
         return prev - 1
@@ -84,6 +104,15 @@ export function useTurnState({ turnDuration, enabled, onTurnSwitch }: UseTurnSta
     }
   }, [enabled, turnDuration])
 
+  const extendTurn = useCallback(() => {
+    if (!allowExtensions) return
+    setExtensionsUsed((prev) => {
+      if (prev >= maxExt) return prev
+      setTurnTimeRemaining((t) => t + 60)
+      return prev + 1
+    })
+  }, [allowExtensions, maxExt])
+
   const formattedTurnTime = formatTime(turnTimeRemaining)
 
   return {
@@ -92,5 +121,8 @@ export function useTurnState({ turnDuration, enabled, onTurnSwitch }: UseTurnSta
     turnTimeRemaining,
     formattedTurnTime,
     isActive: enabled,
+    extendTurn,
+    extensionsUsed,
+    maxExtensions: maxExt,
   }
 }
