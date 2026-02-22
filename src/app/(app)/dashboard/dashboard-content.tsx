@@ -71,13 +71,13 @@ export function DashboardContent({
       <StreakDisplay streakData={streakData} />
 
       {/* Today's Reminders + Recent Activity */}
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
         <TodayReminders reminders={todayReminders} />
         <RecentActivity activities={activities} />
       </div>
 
       {/* Stats + Love Languages Widget */}
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <StatsGrid
             checkInCount={checkInCount}
