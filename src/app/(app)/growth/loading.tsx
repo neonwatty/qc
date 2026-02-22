@@ -10,7 +10,7 @@ export default function GrowthLoading() {
     >
       {/* Tab bar skeleton */}
       <div className="flex gap-2">
-        {Array.from({ length: 3 }, (_, i) => (
+        {Array.from({ length: 4 }, (_, i) => (
           <Skeleton key={i} className="h-9 w-24 rounded-lg" />
         ))}
       </div>

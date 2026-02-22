@@ -12,7 +12,7 @@ export default function DashboardLoading() {
       </div>
 
       {/* Reminders + Activity skeleton */}
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
         <Skeleton variant="card" className="h-48" />
         <Skeleton variant="card" className="h-48" />
       </div>
