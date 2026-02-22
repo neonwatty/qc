@@ -5,6 +5,7 @@ import { toast } from 'sonner'
 
 import { RequestCard } from '@/components/requests/RequestCard'
 import { RequestForm } from '@/components/requests/RequestForm'
+import { PageContainer } from '@/components/layout/PageContainer'
 import { Button } from '@/components/ui/button'
 import { useRealtimeCouple } from '@/hooks/useRealtimeCouple'
 import type { DbRequest } from '@/types/database'
@@ -84,22 +85,21 @@ export function RequestsContent({
   const sent = requests.filter((r) => r.requested_by === userId)
   const displayed = tab === 'received' ? received : sent
 
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Requests</h1>
-        <div className="flex flex-col items-end gap-1">
-          <Button
-            onClick={() => setShowForm(!showForm)}
-            disabled={!partnerId}
-            title={!partnerId ? 'Connect with a partner to send requests' : undefined}
-          >
-            {showForm ? 'Cancel' : 'New Request'}
-          </Button>
-          {!partnerId && <p className="text-xs text-muted-foreground">Connect with a partner to send requests</p>}
-        </div>
-      </div>
+  const requestButton = (
+    <div className="flex flex-col items-end gap-1">
+      <Button
+        onClick={() => setShowForm(!showForm)}
+        disabled={!partnerId}
+        title={!partnerId ? 'Connect with a partner to send requests' : undefined}
+      >
+        {showForm ? 'Cancel' : 'New Request'}
+      </Button>
+      {!partnerId && <p className="text-xs text-muted-foreground">Connect with a partner to send requests</p>}
+    </div>
+  )
 
+  return (
+    <PageContainer title="Requests" action={requestButton}>
       {showForm && partnerId && (
         <RequestForm
           formAction={formAction}
@@ -141,6 +141,6 @@ export function RequestsContent({
           ))}
         </div>
       )}
-    </div>
+    </PageContainer>
   )
 }

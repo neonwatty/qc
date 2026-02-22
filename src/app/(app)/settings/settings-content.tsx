@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 
+import { PageContainer } from '@/components/layout/PageContainer'
 import { ProfileSettings } from '@/components/settings/ProfileSettings'
 import { RelationshipSettings } from '@/components/settings/RelationshipSettings'
 import { SessionSettingsPanel } from '@/components/settings/SessionSettingsPanel'
@@ -35,9 +36,7 @@ export function SettingsContent({
   const [activeTab, setActiveTab] = useState<SettingsTab>('profile')
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-bold">Settings</h1>
-
+    <PageContainer title="Settings">
       <div className="flex gap-2 overflow-x-auto">
         {TABS.map((tab) => (
           <button
@@ -61,6 +60,6 @@ export function SettingsContent({
       {activeTab === 'session' && (
         <SessionSettingsPanel sessionSettings={sessionSettings} coupleId={couple?.id ?? null} />
       )}
-    </div>
+    </PageContainer>
   )
 }
