@@ -35,7 +35,7 @@ export function NoteCard({ note, isOwn, onSelect, onDelete, className }: Props) 
         if (e.key === 'Enter') onSelect?.(note)
       }}
       className={cn(
-        'group rounded-xl border border-border bg-card p-4 transition-all hover:shadow-md',
+        'group rounded-lg border border-border bg-card p-4 transition-all hover:shadow-md',
         'cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring',
         className,
       )}

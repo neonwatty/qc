@@ -62,7 +62,7 @@ interface QuickActionsProps {
 
 export function QuickActions({ className }: QuickActionsProps): React.ReactNode {
   return (
-    <div className={cn('grid gap-6 sm:grid-cols-2 lg:grid-cols-3', className)}>
+    <div className={cn('grid gap-3 sm:gap-4 lg:gap-6 sm:grid-cols-2 lg:grid-cols-3', className)}>
       {QUICK_ACTIONS.map((action) => {
         const Icon = action.icon
         return (

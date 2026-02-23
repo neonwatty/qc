@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { Heart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { PageContainer } from '@/components/layout/PageContainer'
 import { QuickActions } from '@/components/dashboard/QuickActions'
 import { StreakDisplay } from '@/components/dashboard/StreakDisplay'
 import { StatsGrid } from '@/components/dashboard/StatsGrid'
@@ -45,13 +46,7 @@ export function DashboardContent({
   todayReminders,
 }: DashboardContentProps): React.ReactNode {
   return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="text-center">
-        <h1 className="text-3xl font-bold text-foreground sm:text-4xl">Welcome to Your Dashboard</h1>
-        <p className="mt-4 text-lg text-muted-foreground font-medium">Your relationship command center</p>
-      </div>
-
+    <PageContainer title="Dashboard" description="Your relationship command center" className="space-y-8">
       {/* Couple pairing prompt */}
       {!hasCoupleId && (
         <div className="bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-lg p-6 text-center">
@@ -76,13 +71,13 @@ export function DashboardContent({
       <StreakDisplay streakData={streakData} />
 
       {/* Today's Reminders + Recent Activity */}
-      <div className="grid gap-6 lg:grid-cols-2">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
         <TodayReminders reminders={todayReminders} />
         <RecentActivity activities={activities} />
       </div>
 
       {/* Stats + Love Languages Widget */}
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <StatsGrid
             checkInCount={checkInCount}
@@ -101,6 +96,6 @@ export function DashboardContent({
           />
         </div>
       </div>
-    </div>
+    </PageContainer>
   )
 }

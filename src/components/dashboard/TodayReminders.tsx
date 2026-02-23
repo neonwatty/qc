@@ -57,7 +57,7 @@ function ReminderItem({ reminder }: { reminder: TodayReminder }): React.ReactNod
           >
             {reminder.isOverdue ? `Overdue \u00b7 ${time}` : time}
           </span>
-          <Badge variant="secondary" className="px-1.5 py-0 text-[10px] capitalize leading-4">
+          <Badge variant="secondary" size="xs" className="capitalize">
             {reminder.category}
           </Badge>
         </div>

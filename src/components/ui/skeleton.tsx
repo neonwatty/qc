@@ -20,6 +20,7 @@ export function Skeleton({ className, variant = 'text' }: SkeletonProps): React.
 interface SkeletonGroupProps {
   count?: number
   variant?: SkeletonProps['variant']
+  /** Applied to each individual Skeleton item */
   className?: string
   gap?: string
 }
@@ -31,9 +32,9 @@ export function SkeletonGroup({
   gap = 'gap-3',
 }: SkeletonGroupProps): React.ReactNode {
   return (
-    <div className={cn('flex flex-col', gap, className)}>
+    <div className={cn('flex flex-col', gap)}>
       {Array.from({ length: count }, (_, i) => (
-        <Skeleton key={i} variant={variant} />
+        <Skeleton key={i} variant={variant} className={className} />
       ))}
     </div>
   )

@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 
 import { ReminderCard } from '@/components/reminders/ReminderCard'
 import { ReminderForm } from '@/components/reminders/ReminderForm'
+import { PageContainer } from '@/components/layout/PageContainer'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import type { DbReminder } from '@/types/database'
@@ -150,13 +151,10 @@ export function RemindersContent({ initialReminders, userId, coupleId, partnerId
     return result
   }, [reminders, filter, search])
 
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Reminders</h1>
-        <Button onClick={() => setShowForm(!showForm)}>{showForm ? 'Cancel' : 'New Reminder'}</Button>
-      </div>
+  const reminderButton = <Button onClick={() => setShowForm(!showForm)}>{showForm ? 'Cancel' : 'New Reminder'}</Button>
 
+  return (
+    <PageContainer title="Reminders" action={reminderButton}>
       {showForm && (
         <ReminderForm
           formAction={formAction}
@@ -207,7 +205,7 @@ export function RemindersContent({ initialReminders, userId, coupleId, partnerId
           ))}
         </div>
       )}
-    </div>
+    </PageContainer>
   )
 }
 
