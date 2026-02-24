@@ -20,9 +20,12 @@
     "knip": "knip",
     "build:ios": "npx cap sync ios",
     "ios": "npm run build:ios && npx cap open ios",
+    "build:android": "npx cap sync android",
+    "android": "npm run build:android && npx cap open android",
     "check": "npm run lint && npm run typecheck && npm run format:check && npm run test"
   },
   "dependencies": {
+    "@capacitor/android": "^8.1.0",
     "@capacitor/core": "^8",
     "@capacitor/haptics": "^8.0.0",
     "@capacitor/ios": "^8",
