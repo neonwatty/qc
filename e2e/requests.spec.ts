@@ -25,19 +25,19 @@ test.describe('Requests — Received tab (default)', () => {
   test('displays "Plan a Surprise Date Night" request', async ({ authedPage: page }) => {
     await page.goto('/requests')
 
-    await expect(page.getByText(/plan a surprise date night/i)).toBeVisible()
+    await expect(page.getByText(/plan a surprise date night/i).first()).toBeVisible()
   })
 
   test('shows pending status badge', async ({ authedPage: page }) => {
     await page.goto('/requests')
 
-    await expect(page.getByText('pending', { exact: true })).toBeVisible()
+    await expect(page.getByText('pending', { exact: true }).first()).toBeVisible()
   })
 
   test('shows high priority badge', async ({ authedPage: page }) => {
     await page.goto('/requests')
 
-    await expect(page.getByText('high', { exact: true })).toBeVisible()
+    await expect(page.getByText('high', { exact: true }).first()).toBeVisible()
   })
 
   test('shows Accept and Decline buttons', async ({ authedPage: page }) => {
@@ -157,6 +157,10 @@ test.describe.serial('Requests — CRUD', () => {
     const card = page.locator('.rounded-lg', { has: page.getByText(testTitle) }).first()
     await card.getByRole('button', { name: /delete/i }).click()
 
+    // Wait for the optimistic delete to remove the card from the UI before reloading
+    await expect(page.getByText(testTitle)).not.toBeVisible({ timeout: 10000 })
+
+    // Verify persistence after reload
     await page.reload()
     await page.getByRole('button', { name: /sent/i }).click()
     await expect(page.getByText(testTitle)).not.toBeVisible({ timeout: 10000 })
@@ -166,7 +170,7 @@ test.describe.serial('Requests — CRUD', () => {
     await page.goto('/requests')
 
     // On received tab (default), Bob's pending request is visible
-    await expect(page.getByText(/plan a surprise date night/i)).toBeVisible()
+    await expect(page.getByText(/plan a surprise date night/i).first()).toBeVisible()
 
     await page.getByRole('button', { name: /accept/i }).click()
 

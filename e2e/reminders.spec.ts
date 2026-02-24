@@ -38,8 +38,8 @@ test.describe('Reminders — Seed display', () => {
   test('shows category badge on reminders', async ({ authedPage: page }) => {
     await page.goto('/reminders')
 
-    await expect(page.getByText('check-in', { exact: true })).toBeVisible()
-    await expect(page.getByText('special-date', { exact: true })).toBeVisible()
+    await expect(page.getByText('check-in', { exact: true }).first()).toBeVisible()
+    await expect(page.getByText('special-date', { exact: true }).first()).toBeVisible()
   })
 
   test('shows frequency info on reminders', async ({ authedPage: page }) => {

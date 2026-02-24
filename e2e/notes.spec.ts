@@ -16,7 +16,7 @@ test.describe('Notes — Page structure', () => {
   test('search input visible with placeholder', async ({ authedPage: page }) => {
     await page.goto('/notes')
 
-    await expect(page.getByPlaceholder(/search notes/i)).toBeVisible()
+    await expect(page.getByPlaceholder(/search notes/i).first()).toBeVisible()
   })
 })
 
@@ -35,13 +35,13 @@ test.describe('Notes — Seed note display', () => {
   test('displays the communication shared note', async ({ authedPage: page }) => {
     await page.goto('/notes')
 
-    await expect(page.getByText(/pausing before reacting/i)).toBeVisible()
+    await expect(page.getByText(/pausing before reacting/i).first()).toBeVisible()
   })
 
   test('displays the finances shared note', async ({ authedPage: page }) => {
     await page.goto('/notes')
 
-    await expect(page.getByText(/savings target/i)).toBeVisible()
+    await expect(page.getByText(/savings target/i).first()).toBeVisible()
   })
 
   test("does not display Bob's private note content", async ({ authedPage: page }) => {
@@ -64,8 +64,8 @@ test.describe('Notes — Filtering', () => {
 
     await page.getByRole('button', { name: /^shared$/i }).click()
 
-    await expect(page.getByText(/pausing before reacting/i)).toBeVisible()
-    await expect(page.getByText(/savings target/i)).toBeVisible()
+    await expect(page.getByText(/pausing before reacting/i).first()).toBeVisible()
+    await expect(page.getByText(/savings target/i).first()).toBeVisible()
   })
 
   test('Private filter shows empty state', async ({ authedPage: page }) => {
@@ -89,16 +89,16 @@ test.describe('Notes — Search', () => {
   test('search filters notes by content keyword', async ({ authedPage: page }) => {
     await page.goto('/notes')
 
-    await page.getByPlaceholder(/search notes/i).fill('savings')
+    await page.getByPlaceholder(/search notes/i).first().fill('savings')
 
-    await expect(page.getByText(/savings target/i)).toBeVisible()
+    await expect(page.getByText(/savings target/i).first()).toBeVisible()
     await expect(page.getByText(/pausing before reacting/i)).not.toBeVisible()
   })
 
   test('no-match search shows empty state', async ({ authedPage: page }) => {
     await page.goto('/notes')
 
-    await page.getByPlaceholder(/search notes/i).fill('xyznonexistent')
+    await page.getByPlaceholder(/search notes/i).first().fill('xyznonexistent')
 
     await expect(page.getByRole('heading', { name: /no notes found/i })).toBeVisible()
   })
