@@ -15,6 +15,13 @@ dist
 ios/App/Pods/
 ios/App/App.xcodeproj/project.xcworkspace/
 
+# android
+android/app/build/
+android/build/
+android/.gradle/
+android/app/release/
+android/capacitor-cordova-android-plugins/build/
+
 # vercel
 .vercel
 
