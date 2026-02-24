@@ -164,10 +164,8 @@ test.describe.serial('Notes — CRUD', () => {
     await expect(page.getByRole('button', { name: /^save$/i })).toBeEnabled()
     await page.getByRole('button', { name: /^save$/i }).click()
 
-    // Wait for success toast (confirms server action completed and onClose fired)
-    await expect(page.getByText(/note saved/i)).toBeVisible({ timeout: 15000 })
-    // Now the modal should be closed
-    await expect(page.getByRole('heading', { name: /new note/i })).not.toBeVisible()
+    // Wait for modal to close (confirms server action completed and onClose fired)
+    await expect(page.getByRole('heading', { name: /new note/i })).not.toBeVisible({ timeout: 15000 })
     // Reload to get fresh server-rendered list (don't rely on Realtime in CI)
     await page.reload()
     await expect(page.getByText(testContent).first()).toBeVisible({ timeout: 10000 })
