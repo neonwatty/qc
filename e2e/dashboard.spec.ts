@@ -11,7 +11,8 @@ test.describe('Dashboard', () => {
     test('renders subtitle', async ({ authedPage: page }) => {
       await page.goto('/dashboard')
 
-      await expect(page.getByText(/your relationship command center/i)).toBeVisible()
+      const main = page.getByRole('main')
+      await expect(main.getByText(/your relationship command center/i)).toBeVisible()
     })
 
     test('does not show the no-couple pairing prompt', async ({ authedPage: page }) => {
