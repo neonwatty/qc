@@ -209,9 +209,10 @@ export function StepLoveLanguages({ selectedLanguages, setSelectedLanguages, set
 type StepFeatureTourProps = {
   isPending: boolean
   setStep: (step: number) => void
+  onSubmit: () => void
 }
 
-export function StepFeatureTour({ isPending, setStep }: StepFeatureTourProps) {
+export function StepFeatureTour({ isPending, setStep, onSubmit }: StepFeatureTourProps) {
   return (
     <div className="space-y-4">
       <div className="text-center">
@@ -239,7 +240,8 @@ export function StepFeatureTour({ isPending, setStep }: StepFeatureTourProps) {
           Back
         </button>
         <button
-          type="submit"
+          type="button"
+          onClick={onSubmit}
           disabled={isPending}
           className="touch-target gradient-primary flex-1 rounded-xl px-4 py-3 font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
         >

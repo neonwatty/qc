@@ -7,6 +7,7 @@ import { requireAuth } from '@/lib/auth'
 import { createCouple, createInvite } from '@/lib/couples'
 import { sendEmail } from '@/lib/email/send'
 import { InviteEmail } from '@/lib/email/templates/invite'
+import { WelcomeEmail } from '@/lib/email/templates/welcome'
 import { createClient } from '@/lib/supabase/server'
 import { validate, emailSchema, nameSchema } from '@/lib/validation'
 
@@ -110,6 +111,17 @@ export async function completeOnboarding(_prev: OnboardingState, formData: FormD
     })
   } catch {
     // Email send failed (e.g. RESEND_API_KEY not configured) -- still redirect, they can resend later
+  }
+
+  // Send welcome email to the user
+  try {
+    await sendEmail({
+      to: user.email ?? '',
+      subject: 'Welcome to QC',
+      react: WelcomeEmail({ name: input.displayName, dashboardUrl: `${baseUrl}/dashboard` }),
+    })
+  } catch {
+    // Email send failed -- non-blocking, continue to redirect
   }
 
   redirect('/dashboard')
