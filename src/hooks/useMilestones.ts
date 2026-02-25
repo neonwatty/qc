@@ -219,19 +219,11 @@ export function useMilestones(coupleId: string | null): UseMilestonesReturn {
   )
 
   const getMilestonesByCategory = useCallback(
-    (category: MilestoneCategory): Milestone[] => milestones.filter((m) => m.category === category),
+    (category: MilestoneCategory) => milestones.filter((m) => m.category === category),
     [milestones],
   )
-
-  const getAchievedMilestones = useCallback(
-    (): Milestone[] => milestones.filter((m) => m.achievedAt !== null),
-    [milestones],
-  )
-
-  const getUpcomingMilestones = useCallback(
-    (): Milestone[] => milestones.filter((m) => m.achievedAt === null),
-    [milestones],
-  )
+  const getAchievedMilestones = useCallback(() => milestones.filter((m) => m.achievedAt !== null), [milestones])
+  const getUpcomingMilestones = useCallback(() => milestones.filter((m) => m.achievedAt === null), [milestones])
 
   return {
     milestones,
