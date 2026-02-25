@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import crypto from 'crypto'
 
 import { sendEmail } from '@/lib/email/send'
 import { ReminderEmail } from '@/lib/email/templates/reminder'
@@ -6,8 +7,15 @@ import { createAdminClient } from '@/lib/supabase/admin'
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const authHeader = request.headers.get('authorization')
+  const expectedHeader = `Bearer ${process.env.CRON_SECRET}`
 
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  // Timing-safe comparison to prevent timing attacks
+  if (
+    !authHeader ||
+    !process.env.CRON_SECRET ||
+    authHeader.length !== expectedHeader.length ||
+    !crypto.timingSafeEqual(Buffer.from(authHeader), Buffer.from(expectedHeader))
+  ) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
