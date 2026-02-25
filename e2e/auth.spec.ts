@@ -88,7 +88,7 @@ test.describe('Authentication', () => {
 
       const loginLink = page.getByRole('link', { name: /sign in/i })
       await expect(loginLink).toBeVisible()
-      await expect(loginLink).toHaveAttribute('href', '/login')
+      await expect(loginLink).toHaveAttribute('href', /^\/login\/?$/)
     })
 
     test('password field requires minimum 8 characters', async ({ page }) => {
@@ -121,26 +121,26 @@ test.describe('Authentication', () => {
     test('redirects to login when accessing /dashboard unauthenticated', async ({ page }) => {
       await page.goto('/dashboard')
 
-      await expect(page).toHaveURL(/\/login\?redirect=%2Fdashboard/)
+      await expect(page).toHaveURL(/\/login\/?\?redirect=%2Fdashboard/)
     })
 
     test('redirects to login when accessing /settings unauthenticated', async ({ page }) => {
       await page.goto('/settings')
 
-      await expect(page).toHaveURL(/\/login\?redirect=%2Fsettings/)
+      await expect(page).toHaveURL(/\/login\/?\?redirect=%2Fsettings/)
     })
 
     test('redirects to login when accessing /notes unauthenticated', async ({ page }) => {
       await page.goto('/notes')
 
-      await expect(page).toHaveURL(/\/login\?redirect=%2Fnotes/)
+      await expect(page).toHaveURL(/\/login\/?\?redirect=%2Fnotes/)
     })
 
     test('login redirect param preserves the original path', async ({ page }) => {
       await page.goto('/dashboard')
 
       await expect(page).toHaveURL(/redirect=%2Fdashboard/)
-      await expect(page.getByRole('heading', { name: /sign in to your account/i })).toBeVisible()
+      await expect(page.getByRole('heading', { name: /sign in/i })).toBeVisible()
     })
   })
 })

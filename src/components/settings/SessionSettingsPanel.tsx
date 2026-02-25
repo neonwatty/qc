@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { SessionProposalBanner } from '@/components/settings/SessionProposalBanner'
 import { hapticFeedback } from '@/lib/haptics'
 import type { DbSessionSettings } from '@/types/database'
 
@@ -49,15 +50,18 @@ export function SessionSettingsPanel({ sessionSettings, coupleId }: Props): Reac
   const settings = sessionSettings ?? DEFAULTS
 
   return (
-    <Card>
-      <CardHeader>
-        <h2 className="text-lg font-semibold">Session Rules</h2>
-        <p className="text-sm text-muted-foreground">Configure how check-in sessions work for your couple</p>
-      </CardHeader>
-      <CardContent>
-        <SessionSettingsForm settings={settings} />
-      </CardContent>
-    </Card>
+    <>
+      <SessionProposalBanner />
+      <Card>
+        <CardHeader>
+          <h2 className="text-lg font-semibold">Session Rules</h2>
+          <p className="text-sm text-muted-foreground">Configure how check-in sessions work for your couple</p>
+        </CardHeader>
+        <CardContent>
+          <SessionSettingsForm settings={settings} />
+        </CardContent>
+      </Card>
+    </>
   )
 }
 

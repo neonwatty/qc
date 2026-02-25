@@ -89,7 +89,10 @@ test.describe('Notes — Search', () => {
   test('search filters notes by content keyword', async ({ authedPage: page }) => {
     await page.goto('/notes')
 
-    await page.getByPlaceholder(/search notes/i).first().fill('savings')
+    await page
+      .getByPlaceholder(/search notes/i)
+      .first()
+      .fill('savings')
 
     await expect(page.getByText(/savings target/i).first()).toBeVisible()
     await expect(page.getByText(/pausing before reacting/i)).not.toBeVisible()
@@ -98,7 +101,10 @@ test.describe('Notes — Search', () => {
   test('no-match search shows empty state', async ({ authedPage: page }) => {
     await page.goto('/notes')
 
-    await page.getByPlaceholder(/search notes/i).first().fill('xyznonexistent')
+    await page
+      .getByPlaceholder(/search notes/i)
+      .first()
+      .fill('xyznonexistent')
 
     await expect(page.getByRole('heading', { name: /no notes found/i })).toBeVisible()
   })

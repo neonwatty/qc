@@ -3,13 +3,16 @@
 import { useState } from 'react'
 
 import { PageContainer } from '@/components/layout/PageContainer'
+import { CategoryManager } from '@/components/settings/CategoryManager'
 import { DataExportPanel } from '@/components/settings/DataExportPanel'
+import { NotificationSettings } from '@/components/settings/NotificationSettings'
+import { PrivacySettings } from '@/components/settings/PrivacySettings'
 import { ProfileSettings } from '@/components/settings/ProfileSettings'
 import { RelationshipSettings } from '@/components/settings/RelationshipSettings'
 import { SessionSettingsPanel } from '@/components/settings/SessionSettingsPanel'
 import type { DbCouple, DbProfile, DbSessionSettings } from '@/types/database'
 
-type SettingsTab = 'profile' | 'relationship' | 'session' | 'data'
+type SettingsTab = 'profile' | 'relationship' | 'session' | 'categories' | 'notifications' | 'data'
 
 interface Props {
   profile: DbProfile | null
@@ -24,6 +27,8 @@ const TABS: { id: SettingsTab; label: string }[] = [
   { id: 'profile', label: 'Profile' },
   { id: 'relationship', label: 'Relationship' },
   { id: 'session', label: 'Session Rules' },
+  { id: 'categories', label: 'Categories' },
+  { id: 'notifications', label: 'Notifications' },
   { id: 'data', label: 'Data & Privacy' },
 ]
 
@@ -61,6 +66,15 @@ export function SettingsContent({
 
       {activeTab === 'session' && (
         <SessionSettingsPanel sessionSettings={sessionSettings} coupleId={couple?.id ?? null} />
+      )}
+
+      {activeTab === 'categories' && couple?.id && <CategoryManager coupleId={couple.id} />}
+
+      {activeTab === 'notifications' && couple?.id && (
+        <div className="space-y-6">
+          <NotificationSettings coupleId={couple.id} />
+          <PrivacySettings coupleId={couple.id} />
+        </div>
       )}
 
       {activeTab === 'data' && <DataExportPanel />}

@@ -10,8 +10,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
-import { Plus, Heart, Sparkles, Info } from 'lucide-react'
-import type { LoveLanguage } from '@/types'
+import { DiscoveryCard } from '@/components/love-languages/DiscoveryCard'
+import { Plus, Heart, Sparkles, Info, Lightbulb } from 'lucide-react'
+import type { LoveLanguage, LoveLanguageDiscovery } from '@/types'
 
 interface LanguageGroupProps {
   title: string
@@ -55,6 +56,35 @@ function LanguageGroup({
   )
 }
 
+interface DiscoveriesTabProps {
+  discoveries: LoveLanguageDiscovery[]
+  onDelete: (id: string) => Promise<void>
+}
+
+function DiscoveriesTab({ discoveries, onDelete }: DiscoveriesTabProps): React.ReactNode {
+  if (discoveries.length === 0) {
+    return (
+      <Card className="bg-white">
+        <CardHeader>
+          <CardTitle className="text-gray-900">No Discoveries Yet</CardTitle>
+          <CardDescription className="text-gray-700">
+            Discoveries are insights about love languages that emerge during check-in sessions. They can be converted
+            into full love language entries.
+          </CardDescription>
+        </CardHeader>
+      </Card>
+    )
+  }
+
+  return (
+    <div className="grid gap-4">
+      {discoveries.map((discovery) => (
+        <DiscoveryCard key={discovery.id} discovery={discovery} onDelete={onDelete} />
+      ))}
+    </div>
+  )
+}
+
 interface PartnerLanguagesTabProps {
   partnerLanguages: LoveLanguage[]
 }
@@ -90,8 +120,16 @@ function PartnerLanguagesTab({ partnerLanguages }: PartnerLanguagesTabProps): Re
 }
 
 export default function LoveLanguagesPage(): React.ReactNode {
-  const { languages, partnerLanguages, addLanguage, updateLanguage, deleteLanguage, toggleLanguagePrivacy } =
-    useLoveLanguages()
+  const {
+    languages,
+    partnerLanguages,
+    discoveries,
+    addLanguage,
+    updateLanguage,
+    deleteLanguage,
+    deleteDiscovery,
+    toggleLanguagePrivacy,
+  } = useLoveLanguages()
 
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [editingLanguage, setEditingLanguage] = useState<LoveLanguage | null>(null)
@@ -167,6 +205,10 @@ export default function LoveLanguagesPage(): React.ReactNode {
             <Sparkles className="h-4 w-4 mr-2" />
             Partner&apos;s ({partnerLanguages.length})
           </TabsTrigger>
+          <TabsTrigger value="discoveries" className="text-gray-700 data-[state=active]:text-gray-900">
+            <Lightbulb className="h-4 w-4 mr-2" />
+            Discoveries ({discoveries.length})
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="mine" className="space-y-6">
@@ -209,6 +251,10 @@ export default function LoveLanguagesPage(): React.ReactNode {
 
         <TabsContent value="partner" className="space-y-4">
           <PartnerLanguagesTab partnerLanguages={partnerLanguages} />
+        </TabsContent>
+
+        <TabsContent value="discoveries" className="space-y-4">
+          <DiscoveriesTab discoveries={discoveries} onDelete={deleteDiscovery} />
         </TabsContent>
       </Tabs>
 
