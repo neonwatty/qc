@@ -31,19 +31,19 @@ test.describe('Check-In Flow', () => {
     test('displays all check-in categories', async ({ authedPage: page }) => {
       await page.goto('/checkin')
 
-      await expect(page.getByRole('heading', { name: 'Emotional Connection', exact: true })).toBeVisible()
       await expect(page.getByRole('heading', { name: 'Communication', exact: true })).toBeVisible()
-      await expect(page.getByRole('heading', { name: 'Physical & Emotional Intimacy', exact: true })).toBeVisible()
-      await expect(page.getByRole('heading', { name: 'Shared Goals & Future', exact: true })).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Quality Time', exact: true })).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Future Planning', exact: true })).toBeVisible()
+      await expect(page.getByRole('heading', { name: 'Challenges', exact: true })).toBeVisible()
     })
 
     test('displays category descriptions', async ({ authedPage: page }) => {
       await page.goto('/checkin')
 
-      await expect(page.getByText(/how connected and understood do you feel/i)).toBeVisible()
-      await expect(page.getByText(/how well are you communicating/i)).toBeVisible()
-      await expect(page.getByText(/how satisfied are you with closeness/i)).toBeVisible()
-      await expect(page.getByText(/are you aligned on your future/i)).toBeVisible()
+      await expect(page.getByText(/how we talk and listen to each other/i)).toBeVisible()
+      await expect(page.getByText(/spending meaningful time together/i)).toBeVisible()
+      await expect(page.getByText(/goals, dreams, and plans ahead/i)).toBeVisible()
+      await expect(page.getByText(/issues or concerns we need to address/i)).toBeVisible()
     })
 
     test('displays topic exploration heading', async ({ authedPage: page }) => {
@@ -55,11 +55,11 @@ test.describe('Check-In Flow', () => {
     test('can select a category and see start discussion prompt', async ({ authedPage: page }) => {
       await page.goto('/checkin')
 
-      // Click on Emotional Connection category
-      await page.getByRole('heading', { name: 'Emotional Connection', exact: true }).click()
+      // Click on Communication category
+      await page.getByRole('heading', { name: 'Communication', exact: true }).click()
 
       // Should show the "Ready to explore" prompt
-      await expect(page.getByText(/ready to explore emotional connection/i)).toBeVisible()
+      await expect(page.getByText(/ready to explore communication/i)).toBeVisible()
       await expect(page.getByRole('button', { name: /start discussion/i })).toBeVisible()
     })
 
@@ -67,10 +67,10 @@ test.describe('Check-In Flow', () => {
       await page.goto('/checkin')
 
       // Select and then deselect
-      await page.getByRole('heading', { name: 'Emotional Connection', exact: true }).click()
+      await page.getByRole('heading', { name: 'Communication', exact: true }).click()
       await expect(page.getByText(/ready to explore/i)).toBeVisible()
 
-      await page.getByRole('heading', { name: 'Emotional Connection', exact: true }).click()
+      await page.getByRole('heading', { name: 'Communication', exact: true }).click()
       await expect(page.getByText(/ready to explore/i)).not.toBeVisible()
     })
 

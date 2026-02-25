@@ -1,6 +1,5 @@
-'use server'
-
 // Re-export all settings actions from their respective modules
+// NOTE: no 'use server' here — each sub-module has its own directive.
 export type { SettingsActionState } from './actions/profile'
 
 export {
