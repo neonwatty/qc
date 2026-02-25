@@ -115,7 +115,10 @@ export function RemindersContent({ initialReminders, userId, coupleId, partnerId
     table: 'reminders',
     coupleId,
     onInsert: (newReminder) => {
-      setReminders((prev) => [...prev, newReminder])
+      setReminders((prev) => {
+        if (prev.some((r) => r.id === newReminder.id)) return prev
+        return [...prev, newReminder]
+      })
     },
     onUpdate: (updatedReminder) => {
       setReminders((prev) => prev.map((r) => (r.id === updatedReminder.id ? updatedReminder : r)))

@@ -57,16 +57,10 @@ export function DashboardContent({
       }
     }
 
-    function handleFocus(): void {
-      router.refresh()
-    }
-
     document.addEventListener('visibilitychange', handleVisibilityChange)
-    window.addEventListener('focus', handleFocus)
 
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange)
-      window.removeEventListener('focus', handleFocus)
     }
   }, [router])
 
