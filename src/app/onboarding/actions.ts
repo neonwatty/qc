@@ -5,7 +5,7 @@ import { z } from 'zod'
 
 import { requireAuth } from '@/lib/auth'
 import { createCouple, createInvite } from '@/lib/couples'
-import { sendEmail } from '@/lib/email/send'
+import { sendEmail, shouldSendEmail } from '@/lib/email/send'
 import { InviteEmail } from '@/lib/email/templates/invite'
 import { WelcomeEmail } from '@/lib/email/templates/welcome'
 import { createClient } from '@/lib/supabase/server'
@@ -114,14 +114,19 @@ export async function completeOnboarding(_prev: OnboardingState, formData: FormD
   }
 
   // Send welcome email to the user
-  try {
-    await sendEmail({
-      to: user.email ?? '',
-      subject: 'Welcome to QC',
-      react: WelcomeEmail({ name: input.displayName, dashboardUrl: `${baseUrl}/dashboard` }),
-    })
-  } catch {
-    // Email send failed -- non-blocking, continue to redirect
+  if (user.email) {
+    try {
+      const canSend = await shouldSendEmail(user.email)
+      if (canSend) {
+        await sendEmail({
+          to: user.email,
+          subject: 'Welcome to QC',
+          react: WelcomeEmail({ name: input.displayName, dashboardUrl: `${baseUrl}/dashboard` }),
+        })
+      }
+    } catch {
+      // Email send failed -- non-blocking, continue to redirect
+    }
   }
 
   redirect('/dashboard')

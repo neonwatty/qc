@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
 import { requireAuth } from '@/lib/auth'
-import { sendEmail } from '@/lib/email/send'
+import { sendEmail, shouldSendEmail } from '@/lib/email/send'
 import { RequestNotificationEmail } from '@/lib/email/templates/request-notification'
 import { validate } from '@/lib/validation'
 
@@ -68,18 +68,21 @@ export async function createRequest(_prev: RequestActionState, formData: FormDat
     const { data: requesterProfile } = await supabase.from('profiles').select('display_name').eq('id', user.id).single()
 
     if (partnerProfile?.email) {
-      const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
-      await sendEmail({
-        to: partnerProfile.email,
-        subject: `New request from ${requesterProfile?.display_name ?? 'your partner'}`,
-        react: RequestNotificationEmail({
-          partnerName: requesterProfile?.display_name ?? 'Your partner',
-          title: data.title,
-          category: data.category,
-          priority: data.priority,
-          requestsUrl: `${baseUrl}/requests`,
-        }),
-      })
+      const canSend = await shouldSendEmail(partnerProfile.email)
+      if (canSend) {
+        const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
+        await sendEmail({
+          to: partnerProfile.email,
+          subject: `New request from ${requesterProfile?.display_name ?? 'your partner'}`,
+          react: RequestNotificationEmail({
+            partnerName: requesterProfile?.display_name ?? 'Your partner',
+            title: data.title,
+            category: data.category,
+            priority: data.priority,
+            requestsUrl: `${baseUrl}/requests`,
+          }),
+        })
+      }
     }
   } catch {
     // Email send failed -- non-blocking, request was created successfully

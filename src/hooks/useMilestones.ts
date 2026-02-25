@@ -87,6 +87,15 @@ function buildDbUpdates(updates: Partial<Milestone>): Record<string, unknown> {
   return dbUpdates
 }
 
+async function sendMilestoneEmailAsync(milestoneId: string): Promise<void> {
+  try {
+    const mod = await import('@/app/(app)/growth/actions')
+    await mod.sendMilestoneEmail(milestoneId)
+  } catch {
+    // Email send failed -- non-blocking
+  }
+}
+
 export function useMilestones(coupleId: string | null): UseMilestonesReturn {
   const [milestones, setMilestones] = useState<Milestone[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -149,6 +158,10 @@ export function useMilestones(coupleId: string | null): UseMilestonesReturn {
         }
         const milestone = dbRowToMilestone({ ...data, photo_url: photoUrl ?? data.photo_url })
         setMilestones((prev) => [milestone, ...prev])
+
+        // Send milestone email to both partners (non-blocking)
+        void sendMilestoneEmailAsync(milestone.id)
+
         return milestone
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Failed to create milestone'
