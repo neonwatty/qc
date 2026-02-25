@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { Webhook } from 'svix'
 
 import { createAdminClient } from '@/lib/supabase/admin'
 
@@ -15,13 +16,37 @@ interface ResendWebhookPayload {
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const webhookSecret = process.env.RESEND_WEBHOOK_SECRET
-  const signature = request.headers.get('svix-signature')
 
-  if (webhookSecret && !signature) {
-    return NextResponse.json({ error: 'Missing signature' }, { status: 400 })
+  if (!webhookSecret) {
+    return NextResponse.json({ error: 'Webhook secret not configured' }, { status: 401 })
   }
 
-  const payload = (await request.json()) as ResendWebhookPayload
+  // Get Svix signature headers
+  const svixId = request.headers.get('svix-id')
+  const svixTimestamp = request.headers.get('svix-timestamp')
+  const svixSignature = request.headers.get('svix-signature')
+
+  if (!svixId || !svixTimestamp || !svixSignature) {
+    return NextResponse.json({ error: 'Missing signature headers' }, { status: 401 })
+  }
+
+  // Get raw request body for signature verification
+  const body = await request.text()
+
+  // Verify webhook signature
+  const wh = new Webhook(webhookSecret)
+  let payload: ResendWebhookPayload
+
+  try {
+    payload = wh.verify(body, {
+      'svix-id': svixId,
+      'svix-timestamp': svixTimestamp,
+      'svix-signature': svixSignature,
+    }) as ResendWebhookPayload
+  } catch {
+    return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
+  }
+
   const supabase = createAdminClient()
 
   switch (payload.type) {
