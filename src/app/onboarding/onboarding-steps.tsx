@@ -1,7 +1,5 @@
 'use client'
 
-import { Heart, MessageCircle, StickyNote, TrendingUp } from 'lucide-react'
-
 const LOVE_LANGUAGE_OPTIONS = [
   { category: 'words', emoji: '\u{1F4AC}', label: 'Words of Affirmation' },
   { category: 'acts', emoji: '\u{1F91D}', label: 'Acts of Service' },
@@ -9,13 +7,6 @@ const LOVE_LANGUAGE_OPTIONS = [
   { category: 'time', emoji: '\u{23F0}', label: 'Quality Time' },
   { category: 'touch', emoji: '\u{1F917}', label: 'Physical Touch' },
   { category: 'custom', emoji: '\u{2728}', label: 'Custom' },
-] as const
-
-const FEATURE_TOUR_ITEMS = [
-  { icon: MessageCircle, title: 'Check-ins', description: 'Guided conversations with your partner' },
-  { icon: StickyNote, title: 'Notes', description: 'Shared and private notes for your journey' },
-  { icon: Heart, title: 'Love Languages', description: 'Discover how you and your partner feel loved' },
-  { icon: TrendingUp, title: 'Growth', description: 'Track milestones and celebrate wins' },
 ] as const
 
 type StepDisplayNameProps = {
@@ -200,50 +191,6 @@ export function StepLoveLanguages({ selectedLanguages, setSelectedLanguages, set
           className="touch-target gradient-primary flex-1 rounded-xl px-4 py-3 font-semibold text-white transition-opacity hover:opacity-90"
         >
           {selectedLanguages.length > 0 ? 'Continue' : 'Skip'}
-        </button>
-      </div>
-    </div>
-  )
-}
-
-type StepFeatureTourProps = {
-  isPending: boolean
-  setStep: (step: number) => void
-}
-
-export function StepFeatureTour({ isPending, setStep }: StepFeatureTourProps) {
-  return (
-    <div className="space-y-4">
-      <div className="text-center">
-        <h2 className="text-lg font-semibold">Here&apos;s what awaits you</h2>
-      </div>
-      <div className="space-y-3">
-        {FEATURE_TOUR_ITEMS.map((item) => (
-          <div key={item.title} className="flex items-center gap-3 rounded-xl border border-border p-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-pink-100 dark:bg-pink-900/30">
-              <item.icon className="h-5 w-5 text-pink-600 dark:text-pink-400" />
-            </div>
-            <div>
-              <div className="text-sm font-semibold">{item.title}</div>
-              <div className="text-xs text-muted-foreground">{item.description}</div>
-            </div>
-          </div>
-        ))}
-      </div>
-      <div className="flex gap-3">
-        <button
-          type="button"
-          onClick={() => setStep(4)}
-          className="touch-target flex-1 rounded-xl border border-border px-4 py-3 font-semibold transition-colors hover:bg-muted"
-        >
-          Back
-        </button>
-        <button
-          type="submit"
-          disabled={isPending}
-          className="touch-target gradient-primary flex-1 rounded-xl px-4 py-3 font-semibold text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-        >
-          {isPending ? 'Setting up...' : 'Get Started'}
         </button>
       </div>
     </div>

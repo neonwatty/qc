@@ -1,17 +1,13 @@
 'use client'
 
 import { Heart } from 'lucide-react'
-import { useActionState, useState } from 'react'
+import { useActionState, useRef, useState } from 'react'
+
+import { TourStep } from '@/components/onboarding/TourStep'
 
 import { completeOnboarding } from './actions'
 import type { OnboardingState } from './actions'
-import {
-  StepDisplayName,
-  StepFeatureTour,
-  StepLoveLanguages,
-  StepPartnerEmail,
-  StepRelationshipDate,
-} from './onboarding-steps'
+import { StepDisplayName, StepLoveLanguages, StepPartnerEmail, StepRelationshipDate } from './onboarding-steps'
 
 const TOTAL_STEPS = 5
 
@@ -34,10 +30,15 @@ export default function OnboardingPage() {
   const [partnerEmail, setPartnerEmail] = useState('')
   const [relationshipStartDate, setRelationshipStartDate] = useState('')
   const [selectedLanguages, setSelectedLanguages] = useState<string[]>([])
+  const formRef = useRef<HTMLFormElement>(null)
 
   const [state, formAction, isPending] = useActionState<OnboardingState, FormData>(completeOnboarding, {
     error: null,
   })
+
+  function handleSubmit() {
+    formRef.current?.requestSubmit()
+  }
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-rose-50 to-orange-50 p-4 dark:from-gray-900 dark:to-gray-800">
@@ -57,7 +58,7 @@ export default function OnboardingPage() {
           </div>
         )}
 
-        <form action={formAction}>
+        <form ref={formRef} action={formAction}>
           <input type="hidden" name="displayName" value={displayName} />
           <input type="hidden" name="partnerEmail" value={partnerEmail} />
           <input type="hidden" name="relationshipStartDate" value={relationshipStartDate} />
@@ -83,7 +84,7 @@ export default function OnboardingPage() {
               setStep={setStep}
             />
           )}
-          {step === 5 && <StepFeatureTour isPending={isPending} setStep={setStep} />}
+          {step === 5 && <TourStep isPending={isPending} onBack={() => setStep(4)} onComplete={handleSubmit} />}
         </form>
       </div>
     </div>

@@ -6,6 +6,7 @@ import { z } from 'zod'
 
 import { requireAuth } from '@/lib/auth'
 import { leaveCouple, resendInvite } from '@/lib/couples'
+import { exportUserData as exportData, type UserData } from '@/lib/data-export'
 import { sendEmail, shouldSendEmail } from '@/lib/email/send'
 import { InviteEmail } from '@/lib/email/templates/invite'
 import { createAdminClient } from '@/lib/supabase/admin'
@@ -135,4 +136,9 @@ export async function resendInviteAction(inviteId: string): Promise<{ error?: st
 
   revalidatePath('/settings')
   return {}
+}
+
+export async function exportUserData(): Promise<{ data: UserData | null; error: string | null }> {
+  const { user, supabase } = await requireAuth()
+  return await exportData(supabase, user.id)
 }

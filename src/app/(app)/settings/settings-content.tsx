@@ -3,12 +3,13 @@
 import { useState } from 'react'
 
 import { PageContainer } from '@/components/layout/PageContainer'
+import { DataExportPanel } from '@/components/settings/DataExportPanel'
 import { ProfileSettings } from '@/components/settings/ProfileSettings'
 import { RelationshipSettings } from '@/components/settings/RelationshipSettings'
 import { SessionSettingsPanel } from '@/components/settings/SessionSettingsPanel'
 import type { DbCouple, DbProfile, DbSessionSettings } from '@/types/database'
 
-type SettingsTab = 'profile' | 'relationship' | 'session'
+type SettingsTab = 'profile' | 'relationship' | 'session' | 'data'
 
 interface Props {
   profile: DbProfile | null
@@ -23,6 +24,7 @@ const TABS: { id: SettingsTab; label: string }[] = [
   { id: 'profile', label: 'Profile' },
   { id: 'relationship', label: 'Relationship' },
   { id: 'session', label: 'Session Rules' },
+  { id: 'data', label: 'Data & Privacy' },
 ]
 
 export function SettingsContent({
@@ -60,6 +62,8 @@ export function SettingsContent({
       {activeTab === 'session' && (
         <SessionSettingsPanel sessionSettings={sessionSettings} coupleId={couple?.id ?? null} />
       )}
+
+      {activeTab === 'data' && <DataExportPanel />}
     </PageContainer>
   )
 }
