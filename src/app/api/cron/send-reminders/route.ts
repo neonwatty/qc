@@ -5,17 +5,18 @@ import { sendEmail } from '@/lib/email/send'
 import { ReminderEmail } from '@/lib/email/templates/reminder'
 import { createAdminClient } from '@/lib/supabase/admin'
 
+function timingSafeCompare(a: string, b: string): boolean {
+  const hashA = crypto.createHash('sha256').update(a).digest()
+  const hashB = crypto.createHash('sha256').update(b).digest()
+  return crypto.timingSafeEqual(hashA, hashB)
+}
+
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const authHeader = request.headers.get('authorization')
   const expectedHeader = `Bearer ${process.env.CRON_SECRET}`
 
   // Timing-safe comparison to prevent timing attacks
-  if (
-    !authHeader ||
-    !process.env.CRON_SECRET ||
-    authHeader.length !== expectedHeader.length ||
-    !crypto.timingSafeEqual(Buffer.from(authHeader), Buffer.from(expectedHeader))
-  ) {
+  if (!authHeader || !process.env.CRON_SECRET || !timingSafeCompare(authHeader, expectedHeader)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 

@@ -121,6 +121,6 @@ describe('POST /api/email/webhook - Event Handling', () => {
 })
 
 describe('POST /api/email/webhook - Bounce and Complaint Handling', () => {
-  // Note: These tests verify signature verification logic
-  // Complex database scenarios are covered by E2E tests
+  // Note: These tests verify webhook signature verification
+  // Complex database update scenarios for bounces and complaints are covered by E2E tests
 })

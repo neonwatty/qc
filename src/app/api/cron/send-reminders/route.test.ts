@@ -102,6 +102,6 @@ describe('GET /api/cron/send-reminders - Reminder Processing', () => {
 })
 
 describe('GET /api/cron/send-reminders - Email Sending', () => {
-  // Note: These tests verify security and auth logic
-  // Complex multi-table query scenarios are covered by E2E tests
+  // Note: These tests verify timing-safe auth comparison
+  // Complex multi-table email sending scenarios are covered by E2E tests
 })
