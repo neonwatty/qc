@@ -11,6 +11,7 @@ export type {
   DbRequest,
   DbLoveLanguage,
   DbLoveAction,
+  DbLoveLanguageDiscovery,
   DbSessionSettings,
   DbSessionSettingsProposal,
   DbCategory,
@@ -238,6 +239,17 @@ export interface Category {
   isActive: boolean
   isSystem: boolean
   sortOrder: number
+  createdAt: string
+}
+
+// WT-4 Cross-Feature Linking: Love language discovery
+export interface LoveLanguageDiscovery {
+  id: string
+  coupleId: string
+  userId: string
+  checkInId: string | null
+  discovery: string
+  convertedToLanguageId: string | null
   createdAt: string
 }
 

@@ -104,6 +104,7 @@ export interface DbReminder {
   assigned_to: string | null
   related_check_in_id: string | null
   related_action_item_id: string | null
+  converted_from_request_id: string | null
 }
 
 export interface DbRequest {
@@ -118,6 +119,7 @@ export interface DbRequest {
   status: 'pending' | 'accepted' | 'declined' | 'converted'
   suggested_date: string | null
   created_at: string
+  converted_to_reminder_id: string | null
 }
 
 export interface DbLoveLanguage {
@@ -187,5 +189,16 @@ export interface DbCategory {
   is_active: boolean
   is_system: boolean
   sort_order: number
+  created_at: string
+}
+
+// WT-4 Cross-Feature Linking: Love language discovery system
+export interface DbLoveLanguageDiscovery {
+  id: string
+  couple_id: string
+  user_id: string
+  check_in_id: string | null
+  discovery: string
+  converted_to_language_id: string | null
   created_at: string
 }

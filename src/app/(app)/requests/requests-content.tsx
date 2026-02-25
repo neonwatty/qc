@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button'
 import { useRealtimeCouple } from '@/hooks/useRealtimeCouple'
 import type { DbRequest } from '@/types/database'
 
-import { createRequest, deleteRequest, respondToRequest } from './actions'
+import { convertRequestToReminder, createRequest, deleteRequest, respondToRequest } from './actions'
 import type { RequestActionState } from './actions'
 
 interface Props {
@@ -31,6 +31,7 @@ export function RequestsContent({
   const [requests, setRequests] = useState(initialRequests)
   const [showForm, setShowForm] = useState(false)
   const [tab, setTab] = useState<'received' | 'sent'>('received')
+  const [convertingId, setConvertingId] = useState<string | null>(null)
 
   const [formState, formAction, isPending] = useActionState<RequestActionState, FormData>(async (prev, formData) => {
     const result = await createRequest(prev, formData)
@@ -78,6 +79,28 @@ export function RequestsContent({
       setRequests(prev)
     } else {
       toast.success('Request deleted')
+    }
+  }
+
+  async function handleConvertToReminder(id: string): Promise<void> {
+    setConvertingId(id)
+    try {
+      const result = await convertRequestToReminder(id)
+      if (result.error) {
+        toast.error(result.error)
+      } else {
+        toast.success('Request converted to reminder')
+        // Update the request status to converted
+        setRequests((prev) =>
+          prev.map((r) =>
+            r.id === id
+              ? { ...r, status: 'converted' as const, converted_to_reminder_id: result.reminderId ?? null }
+              : r,
+          ),
+        )
+      }
+    } finally {
+      setConvertingId(null)
     }
   }
 
@@ -137,6 +160,8 @@ export function RequestsContent({
               isReceiver={request.requested_for === userId}
               onRespond={handleRespond}
               onDelete={handleDelete}
+              onConvertToReminder={handleConvertToReminder}
+              isConverting={convertingId === request.id}
             />
           ))}
         </div>

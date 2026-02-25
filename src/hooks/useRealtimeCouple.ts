@@ -14,6 +14,7 @@ type RealtimeTable =
   | 'love_actions'
   | 'categories'
   | 'session_settings_proposals'
+  | 'love_language_discoveries'
   | 'reminders'
   | 'milestones'
 

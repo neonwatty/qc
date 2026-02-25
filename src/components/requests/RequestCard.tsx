@@ -10,6 +10,8 @@ interface Props {
   isReceiver: boolean
   onRespond: (id: string, status: 'accepted' | 'declined') => Promise<void>
   onDelete: (id: string) => Promise<void>
+  onConvertToReminder?: (id: string) => Promise<void>
+  isConverting?: boolean
 }
 
 const PRIORITY_COLORS: Record<DbRequest['priority'], string> = {
@@ -38,8 +40,18 @@ function formatDate(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString()
 }
 
-export function RequestCard({ request, isReceiver, onRespond, onDelete }: Props): React.ReactElement {
+export function RequestCard({
+  request,
+  isReceiver,
+  onRespond,
+  onDelete,
+  onConvertToReminder,
+  isConverting = false,
+}: Props): React.ReactElement {
   const isPending = request.status === 'pending'
+  const isAccepted = request.status === 'accepted'
+  const isConverted = request.status === 'converted'
+  const canConvert = isAccepted && !isConverted && onConvertToReminder
 
   return (
     <Card>
@@ -53,6 +65,11 @@ export function RequestCard({ request, isReceiver, onRespond, onDelete }: Props)
             <Badge variant="secondary" className={PRIORITY_COLORS[request.priority]}>
               {request.priority}
             </Badge>
+            {isConverted && request.converted_to_reminder_id && (
+              <Badge variant="outline" className="text-xs">
+                🔗 Linked to Reminder
+              </Badge>
+            )}
           </div>
 
           {request.description && <p className="text-sm text-muted-foreground">{request.description}</p>}
@@ -81,7 +98,12 @@ export function RequestCard({ request, isReceiver, onRespond, onDelete }: Props)
               </Button>
             </>
           )}
-          {!isReceiver && (
+          {canConvert && (
+            <Button variant="outline" size="sm" onClick={() => onConvertToReminder(request.id)} disabled={isConverting}>
+              {isConverting ? 'Converting...' : 'Convert to Reminder'}
+            </Button>
+          )}
+          {!isReceiver && !isConverted && (
             <Button variant="ghost" size="sm" className="text-destructive" onClick={() => onDelete(request.id)}>
               Delete
             </Button>
