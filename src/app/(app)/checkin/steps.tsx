@@ -9,6 +9,7 @@ import { useBookends } from '@/contexts/BookendsContext'
 import { ReflectionForm } from '@/components/bookends/ReflectionForm'
 import { useCheckInContext } from '@/contexts/CheckInContext'
 import { useSessionSettings } from '@/contexts/SessionSettingsContext'
+import { useCategories } from '@/hooks/useCategories'
 import { CategoryGrid } from '@/components/checkin/CategoryGrid'
 import { NavigationControls } from '@/components/checkin/NavigationControls'
 import { ActionItems } from '@/components/checkin/ActionItems'
@@ -20,39 +21,9 @@ import type { ActionItem } from '@/types'
 
 export { WarmUpStep } from '@/components/checkin/WarmUpStep'
 
-export const CHECK_IN_CATEGORIES = [
-  {
-    id: 'emotional',
-    name: 'Emotional Connection',
-    description: 'How connected and understood do you feel?',
-    icon: '💕',
-    order: 1,
-  },
-  {
-    id: 'communication',
-    name: 'Communication',
-    description: 'How well are you communicating with each other?',
-    icon: '💬',
-    order: 2,
-  },
-  {
-    id: 'intimacy',
-    name: 'Physical & Emotional Intimacy',
-    description: 'How satisfied are you with closeness and intimacy?',
-    icon: '🤗',
-    order: 3,
-  },
-  {
-    id: 'goals',
-    name: 'Shared Goals & Future',
-    description: 'Are you aligned on your future together?',
-    icon: '🎯',
-    order: 4,
-  },
-]
-
 export function CategorySelectionStep(): React.ReactNode {
-  const { session, completeStep, updateCategoryProgress, abandonCheckIn } = useCheckInContext()
+  const { session, completeStep, updateCategoryProgress, abandonCheckIn, coupleId } = useCheckInContext()
+  const { categories } = useCategories(coupleId)
   const [selectedCategories, setSelectedCategories] = useState<string[]>(session?.selectedCategories ?? [])
 
   const handleCategorySelect = useCallback((categoryId: string) => {
@@ -75,10 +46,18 @@ export function CategorySelectionStep(): React.ReactNode {
     abandonCheckIn()
   }, [abandonCheckIn])
 
+  const categoryGridData = categories.map((c) => ({
+    id: c.id,
+    name: c.name,
+    description: c.description || '',
+    icon: c.icon,
+    order: c.sortOrder,
+  }))
+
   return (
     <MotionBox variant="page" className="space-y-6">
       <CategoryGrid
-        categories={CHECK_IN_CATEGORIES}
+        categories={categoryGridData}
         categoryProgress={session?.categoryProgress}
         selectedCategories={selectedCategories}
         onCategorySelect={handleCategorySelect}
@@ -99,11 +78,12 @@ export function CategorySelectionStep(): React.ReactNode {
 }
 
 export function CategoryDiscussionStep(): React.ReactNode {
-  const { completeStep, goToStep, getCurrentCategoryProgress } = useCheckInContext()
+  const { completeStep, goToStep, getCurrentCategoryProgress, coupleId } = useCheckInContext()
   const { getActiveSettings } = useSessionSettings()
   const settings = getActiveSettings()
+  const { categories } = useCategories(coupleId)
   const currentCategory = getCurrentCategoryProgress()
-  const category = CHECK_IN_CATEGORIES.find((c) => c.id === currentCategory?.categoryId)
+  const category = categories.find((c) => c.id === currentCategory?.categoryId)
 
   return (
     <MotionBox variant="page" className="max-w-3xl mx-auto px-4 py-6 space-y-6">

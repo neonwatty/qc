@@ -27,6 +27,8 @@ const DEFAULTS: Omit<DbSessionSettings, 'id' | 'couple_id'> = {
   cool_down_time: 3,
   pause_notifications: false,
   auto_save_drafts: true,
+  version: 1,
+  agreed_by: [],
 }
 
 export function SessionSettingsPanel({ sessionSettings, coupleId }: Props): React.ReactElement {
