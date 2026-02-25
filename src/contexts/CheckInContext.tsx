@@ -280,6 +280,7 @@ export function CheckInProvider({ children, coupleId, userId }: CheckInProviderP
 
   const contextValue: CheckInContextValue = {
     ...state,
+    coupleId,
     dispatch,
     ...mutations,
     ...queries,

@@ -60,6 +60,7 @@ export interface CheckInContextState {
 }
 
 export interface CheckInContextValue extends CheckInContextState {
+  coupleId: string
   dispatch: (action: CheckInAction) => void
   startCheckIn: (categories: string[]) => void
   goToStep: (step: CheckInStep) => void

@@ -12,6 +12,8 @@ export type {
   DbLoveLanguage,
   DbLoveAction,
   DbSessionSettings,
+  DbSessionSettingsProposal,
+  DbCategory,
 } from './database'
 
 // --- Type unions matching CHECK constraints ---
@@ -49,6 +51,8 @@ export type LoveActionDifficulty = 'easy' | 'moderate' | 'challenging'
 export type InviteStatus = 'pending' | 'accepted' | 'expired'
 
 export type SessionTemplate = 'quick' | 'standard' | 'deep-dive' | 'custom'
+
+export type ProposalStatus = 'pending' | 'accepted' | 'rejected'
 
 // --- Domain interfaces (camelCase, adapted for Supabase UUIDs) ---
 
@@ -209,6 +213,32 @@ export interface SessionSettings {
   coolDownTime: number
   pauseNotifications: boolean
   autoSaveDrafts: boolean
+  version: number
+  agreedBy: string[]
+}
+
+export interface SessionSettingsProposal {
+  id: string
+  coupleId: string
+  proposedBy: string
+  proposedAt: string
+  settings: Record<string, unknown>
+  status: ProposalStatus
+  reviewedBy: string | null
+  reviewedAt: string | null
+  createdAt: string
+}
+
+export interface Category {
+  id: string
+  coupleId: string
+  name: string
+  description: string | null
+  icon: string
+  isActive: boolean
+  isSystem: boolean
+  sortOrder: number
+  createdAt: string
 }
 
 export interface AppState {

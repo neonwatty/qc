@@ -162,4 +162,30 @@ export interface DbSessionSettings {
   cool_down_time: number
   pause_notifications: boolean
   auto_save_drafts: boolean
+  version: number
+  agreed_by: string[]
+}
+
+export interface DbSessionSettingsProposal {
+  id: string
+  couple_id: string
+  proposed_by: string
+  proposed_at: string
+  settings: Record<string, unknown>
+  status: 'pending' | 'accepted' | 'rejected'
+  reviewed_by: string | null
+  reviewed_at: string | null
+  created_at: string
+}
+
+export interface DbCategory {
+  id: string
+  couple_id: string
+  name: string
+  description: string | null
+  icon: string
+  is_active: boolean
+  is_system: boolean
+  sort_order: number
+  created_at: string
 }

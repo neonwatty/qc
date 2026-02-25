@@ -5,9 +5,17 @@ import type { RealtimePostgresChangesPayload } from '@supabase/supabase-js'
 
 import { createClient } from '@/lib/supabase/client'
 
-type RealtimeTable = 'notes' | 'check_ins' | 'action_items' | 'requests' | 'love_languages' | 'love_actions'
+type RealtimeTable =
+  | 'notes'
+  | 'check_ins'
+  | 'action_items'
+  | 'requests'
+  | 'love_languages'
+  | 'love_actions'
+  | 'categories'
+  | 'session_settings_proposals'
 
-interface UseRealtimeCoupleOptions<T> {
+interface UseRealtimeCoupleOptions<T = Record<string, unknown>> {
   table: RealtimeTable
   coupleId: string | null
   onInsert?: (record: T) => void
