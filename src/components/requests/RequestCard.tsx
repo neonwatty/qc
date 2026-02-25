@@ -11,6 +11,7 @@ interface Props {
   onRespond: (id: string, status: 'accepted' | 'declined') => Promise<void>
   onDelete: (id: string) => Promise<void>
   onConvertToReminder?: (id: string) => Promise<void>
+  isConverting?: boolean
 }
 
 const PRIORITY_COLORS: Record<DbRequest['priority'], string> = {
@@ -45,6 +46,7 @@ export function RequestCard({
   onRespond,
   onDelete,
   onConvertToReminder,
+  isConverting = false,
 }: Props): React.ReactElement {
   const isPending = request.status === 'pending'
   const isAccepted = request.status === 'accepted'
@@ -97,8 +99,8 @@ export function RequestCard({
             </>
           )}
           {canConvert && (
-            <Button variant="outline" size="sm" onClick={() => onConvertToReminder(request.id)}>
-              Convert to Reminder
+            <Button variant="outline" size="sm" onClick={() => onConvertToReminder(request.id)} disabled={isConverting}>
+              {isConverting ? 'Converting...' : 'Convert to Reminder'}
             </Button>
           )}
           {!isReceiver && !isConverted && (

@@ -122,8 +122,17 @@ describe('respondToRequest', () => {
   it('accepts a request', async () => {
     const { respondToRequest } = await import('./actions')
 
+    // Mock profile lookup and request lookup
+    let callCount = 0
+    mockSupabase._queryBuilder.single = vi.fn().mockImplementation(() => {
+      callCount++
+      if (callCount <= 2) {
+        return Promise.resolve({ data: { couple_id: mockCoupleId }, error: null })
+      }
+      return Promise.resolve({ data: null, error: null })
+    })
+    mockSupabase._queryBuilder.eq = vi.fn().mockReturnValue(mockSupabase._queryBuilder)
     mockSupabase._queryBuilder.update = vi.fn().mockReturnValue(mockSupabase._queryBuilder)
-    mockSupabase._queryBuilder.eq = vi.fn().mockReturnValue({ data: null, error: null })
 
     const result = await respondToRequest(mockRequestId, 'accepted')
 
@@ -134,8 +143,16 @@ describe('respondToRequest', () => {
   it('declines a request', async () => {
     const { respondToRequest } = await import('./actions')
 
+    let callCount = 0
+    mockSupabase._queryBuilder.single = vi.fn().mockImplementation(() => {
+      callCount++
+      if (callCount <= 2) {
+        return Promise.resolve({ data: { couple_id: mockCoupleId }, error: null })
+      }
+      return Promise.resolve({ data: null, error: null })
+    })
+    mockSupabase._queryBuilder.eq = vi.fn().mockReturnValue(mockSupabase._queryBuilder)
     mockSupabase._queryBuilder.update = vi.fn().mockReturnValue(mockSupabase._queryBuilder)
-    mockSupabase._queryBuilder.eq = vi.fn().mockReturnValue({ data: null, error: null })
 
     const result = await respondToRequest(mockRequestId, 'declined')
 
@@ -145,10 +162,21 @@ describe('respondToRequest', () => {
   it('returns error on database failure', async () => {
     const { respondToRequest } = await import('./actions')
 
-    mockSupabase._queryBuilder.update = vi.fn().mockReturnValue(mockSupabase._queryBuilder)
-    mockSupabase._queryBuilder.eq = vi.fn().mockReturnValue({
-      data: null,
-      error: { message: 'Update failed' },
+    let callCount = 0
+    mockSupabase._queryBuilder.single = vi.fn().mockImplementation(() => {
+      callCount++
+      if (callCount <= 2) {
+        return Promise.resolve({ data: { couple_id: mockCoupleId }, error: null })
+      }
+      return Promise.resolve({ data: null, error: null })
+    })
+    mockSupabase._queryBuilder.eq = vi.fn().mockReturnValue(mockSupabase._queryBuilder)
+    mockSupabase._queryBuilder.update = vi.fn().mockImplementation(() => {
+      mockSupabase._queryBuilder.eq = vi.fn().mockReturnValue({
+        data: null,
+        error: { message: 'Update failed' },
+      })
+      return mockSupabase._queryBuilder
     })
 
     const result = await respondToRequest(mockRequestId, 'accepted')
@@ -161,8 +189,16 @@ describe('deleteRequest', () => {
   it('deletes a request', async () => {
     const { deleteRequest } = await import('./actions')
 
+    let callCount = 0
+    mockSupabase._queryBuilder.single = vi.fn().mockImplementation(() => {
+      callCount++
+      if (callCount <= 2) {
+        return Promise.resolve({ data: { couple_id: mockCoupleId }, error: null })
+      }
+      return Promise.resolve({ data: null, error: null })
+    })
+    mockSupabase._queryBuilder.eq = vi.fn().mockReturnValue(mockSupabase._queryBuilder)
     mockSupabase._queryBuilder.delete = vi.fn().mockReturnValue(mockSupabase._queryBuilder)
-    mockSupabase._queryBuilder.eq = vi.fn().mockReturnValue({ data: null, error: null })
 
     const result = await deleteRequest(mockRequestId)
 
@@ -173,10 +209,21 @@ describe('deleteRequest', () => {
   it('returns error on database failure', async () => {
     const { deleteRequest } = await import('./actions')
 
-    mockSupabase._queryBuilder.delete = vi.fn().mockReturnValue(mockSupabase._queryBuilder)
-    mockSupabase._queryBuilder.eq = vi.fn().mockReturnValue({
-      data: null,
-      error: { message: 'Delete failed' },
+    let callCount = 0
+    mockSupabase._queryBuilder.single = vi.fn().mockImplementation(() => {
+      callCount++
+      if (callCount <= 2) {
+        return Promise.resolve({ data: { couple_id: mockCoupleId }, error: null })
+      }
+      return Promise.resolve({ data: null, error: null })
+    })
+    mockSupabase._queryBuilder.eq = vi.fn().mockReturnValue(mockSupabase._queryBuilder)
+    mockSupabase._queryBuilder.delete = vi.fn().mockImplementation(() => {
+      mockSupabase._queryBuilder.eq = vi.fn().mockReturnValue({
+        data: null,
+        error: { message: 'Delete failed' },
+      })
+      return mockSupabase._queryBuilder
     })
 
     const result = await deleteRequest(mockRequestId)

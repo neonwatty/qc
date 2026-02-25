@@ -96,7 +96,21 @@ export async function respondToRequest(
   requestId: string,
   status: 'accepted' | 'declined',
 ): Promise<{ error?: string }> {
-  const { supabase } = await requireAuth()
+  const { user, supabase } = await requireAuth()
+
+  // Verify request belongs to user's couple
+  const { data: profile } = await supabase.from('profiles').select('couple_id').eq('id', user.id).single()
+
+  if (!profile?.couple_id) {
+    return { error: 'You must be in a couple to respond to requests' }
+  }
+
+  // Verify the request belongs to the user's couple
+  const { data: request } = await supabase.from('requests').select('couple_id').eq('id', requestId).single()
+
+  if (!request || request.couple_id !== profile.couple_id) {
+    return { error: 'Request does not belong to your couple' }
+  }
 
   const { error } = await supabase.from('requests').update({ status }).eq('id', requestId)
 
@@ -107,7 +121,21 @@ export async function respondToRequest(
 }
 
 export async function deleteRequest(requestId: string): Promise<{ error?: string }> {
-  const { supabase } = await requireAuth()
+  const { user, supabase } = await requireAuth()
+
+  // Verify request belongs to user's couple
+  const { data: profile } = await supabase.from('profiles').select('couple_id').eq('id', user.id).single()
+
+  if (!profile?.couple_id) {
+    return { error: 'You must be in a couple to delete requests' }
+  }
+
+  // Verify the request belongs to the user's couple
+  const { data: request } = await supabase.from('requests').select('couple_id').eq('id', requestId).single()
+
+  if (!request || request.couple_id !== profile.couple_id) {
+    return { error: 'Request does not belong to your couple' }
+  }
 
   const { error } = await supabase.from('requests').delete().eq('id', requestId)
 
@@ -118,23 +146,8 @@ export async function deleteRequest(requestId: string): Promise<{ error?: string
 }
 
 // WT-4 Cross-Feature Linking: Convert request to reminder
-const categoryMapping: Record<string, 'habit' | 'check-in' | 'action-item' | 'special-date' | 'custom'> = {
-  activity: 'custom',
-  task: 'action-item',
-  reminder: 'custom',
-  conversation: 'check-in',
-  'date-night': 'special-date',
-  custom: 'custom',
-}
-
 export async function convertRequestToReminder(requestId: string): Promise<{ error?: string; reminderId?: string }> {
   const { user, supabase } = await requireAuth()
-
-  // Fetch the request with couple_id check
-  const { data: request, error: fetchError } = await supabase.from('requests').select('*').eq('id', requestId).single()
-
-  if (fetchError) return { error: fetchError.message }
-  if (!request) return { error: 'Request not found' }
 
   // Verify request belongs to user's couple
   const { data: profile } = await supabase.from('profiles').select('couple_id').eq('id', user.id).single()
@@ -143,49 +156,29 @@ export async function convertRequestToReminder(requestId: string): Promise<{ err
     return { error: 'You must be in a couple to convert requests' }
   }
 
-  if (request.couple_id !== profile.couple_id) {
-    return { error: 'Request does not belong to your couple' }
+  // Call the atomic RPC function
+  const { data, error } = await supabase.rpc('convert_request_to_reminder', {
+    p_request_id: requestId,
+    p_couple_id: profile.couple_id,
+    p_user_id: user.id,
+  })
+
+  if (error) return { error: error.message }
+
+  // Check if RPC returned an error
+  if (data && typeof data === 'object' && 'error' in data) {
+    return { error: data.error as string }
   }
 
-  // Only allow conversion of accepted requests
-  if (request.status !== 'accepted') {
-    return { error: 'Only accepted requests can be converted to reminders' }
+  // Extract reminder_id from RPC result
+  const reminderId =
+    data && typeof data === 'object' && 'reminder_id' in data ? (data.reminder_id as string) : undefined
+
+  if (!reminderId) {
+    return { error: 'Failed to create reminder' }
   }
-
-  // Create the reminder from request data
-  const { data: reminder, error: insertError } = await supabase
-    .from('reminders')
-    .insert({
-      couple_id: request.couple_id,
-      created_by: user.id,
-      title: request.title,
-      message: request.description,
-      category: categoryMapping[request.category] || 'custom',
-      frequency: 'once',
-      scheduled_for: request.suggested_date || new Date().toISOString(),
-      is_active: true,
-      notification_channel: 'in-app',
-      assigned_to: request.requested_for,
-      converted_from_request_id: request.id,
-    })
-    .select('id')
-    .single()
-
-  if (insertError) return { error: insertError.message }
-  if (!reminder) return { error: 'Failed to create reminder' }
-
-  // Update the request to mark it as converted
-  const { error: updateError } = await supabase
-    .from('requests')
-    .update({
-      status: 'converted',
-      converted_to_reminder_id: reminder.id,
-    })
-    .eq('id', requestId)
-
-  if (updateError) return { error: updateError.message }
 
   revalidatePath('/requests')
   revalidatePath('/reminders')
-  return { reminderId: reminder.id }
+  return { reminderId }
 }

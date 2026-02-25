@@ -26,6 +26,7 @@ import {
   deleteDiscoveryDb,
   convertDiscoveryToLanguage,
 } from '@/lib/love-language-discovery-operations'
+import { createClient } from '@/lib/supabase/client'
 
 export interface NewLanguageInput {
   title: string
@@ -179,8 +180,16 @@ export function useLoveLanguageCrud({
     async (discoveryId: string, languageData: NewLanguageInput) => {
       const lang = await insertLanguage(coupleId, userId, languageData)
       setLanguages((prev) => [lang, ...prev])
-      const updated = await convertDiscoveryToLanguage(discoveryId, lang.id)
-      setDiscoveries((prev) => prev.map((d) => (d.id === discoveryId ? updated : d)))
+      try {
+        const updated = await convertDiscoveryToLanguage(discoveryId, lang.id)
+        setDiscoveries((prev) => prev.map((d) => (d.id === discoveryId ? updated : d)))
+      } catch (error) {
+        // Rollback: remove the created language
+        const supabase = createClient()
+        await supabase.from('love_languages').delete().eq('id', lang.id)
+        setLanguages((prev) => prev.filter((l) => l.id !== lang.id))
+        throw error
+      }
     },
     [coupleId, userId, setLanguages, setDiscoveries],
   )
