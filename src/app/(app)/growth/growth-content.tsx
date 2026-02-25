@@ -10,8 +10,10 @@ import { Timeline, PhotoGallery, MilestoneCreator } from '@/components/growth'
 import { GrowthProgressBars } from '@/components/growth/GrowthProgressBars'
 import { HealthChart } from '@/components/growth/HealthChart'
 import { useMilestones } from '@/hooks/useMilestones'
+import { useRealtimeCouple } from '@/hooks/useRealtimeCouple'
 import type { MilestoneInput } from '@/hooks/useMilestones'
 import type { Milestone } from '@/types'
+import type { DbMilestone } from '@/types/database'
 import type { GrowthAreaScore } from '@/lib/growth-scoring'
 import type { MoodDataPoint } from '@/lib/chart-data'
 
@@ -111,8 +113,23 @@ export function GrowthContent({ coupleId, growthScores, moodHistory }: GrowthCon
   const [activeView, setActiveView] = useState<ActiveView>('timeline')
   const [isCreatorOpen, setIsCreatorOpen] = useState(false)
 
-  const { milestones, isLoading, error, createMilestone, getAchievedMilestones, getUpcomingMilestones } =
+  const { milestones, isLoading, error, createMilestone, getAchievedMilestones, getUpcomingMilestones, refresh } =
     useMilestones(coupleId)
+
+  // Realtime subscription for partner's milestone changes
+  useRealtimeCouple<DbMilestone>({
+    table: 'milestones',
+    coupleId,
+    onInsert: () => {
+      void refresh()
+    },
+    onUpdate: () => {
+      void refresh()
+    },
+    onDelete: () => {
+      void refresh()
+    },
+  })
 
   const achieved = getAchievedMilestones()
   const upcoming = getUpcomingMilestones()

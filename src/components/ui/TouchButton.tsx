@@ -7,6 +7,7 @@ import { motion } from 'framer-motion'
 
 import { cn } from '@/lib/utils'
 import { optimizeForTouch, ensureTouchTarget } from '@/lib/touch-interactions'
+import { hapticFeedback } from '@/lib/haptics'
 
 const touchButtonVariants = cva(
   'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 touch-manipulation select-none',
@@ -113,10 +114,8 @@ const TouchButton = React.forwardRef<HTMLButtonElement, TouchButtonProps>(
     }, [pressStyle])
 
     const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-      if (hapticFeedbackProp && 'vibrate' in navigator) {
-        const patterns = { light: 10, medium: 50, heavy: 100 }
-        // eslint-disable-next-line security/detect-object-injection -- hapticFeedbackProp is typed as 'light' | 'medium' | 'heavy'
-        navigator.vibrate(patterns[hapticFeedbackProp])
+      if (hapticFeedbackProp) {
+        hapticFeedback.tap()
       }
       onClick?.(e)
     }

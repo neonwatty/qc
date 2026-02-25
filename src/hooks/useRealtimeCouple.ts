@@ -14,6 +14,8 @@ type RealtimeTable =
   | 'love_actions'
   | 'categories'
   | 'session_settings_proposals'
+  | 'reminders'
+  | 'milestones'
 
 interface UseRealtimeCoupleOptions<T = Record<string, unknown>> {
   table: RealtimeTable

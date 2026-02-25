@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { celebrationBurst } from '@/lib/confetti'
+import { hapticFeedback } from '@/lib/haptics'
 import { cn } from '@/lib/utils'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
@@ -163,6 +164,7 @@ function CelebrationContent(props: {
 
   useEffect(() => {
     celebrationBurst()
+    hapticFeedback.checkInComplete()
     const timer = setTimeout(() => setShowStats(true), 1500)
     return () => clearTimeout(timer)
   }, [])

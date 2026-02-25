@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 
 import { createClient } from '@/lib/supabase/client'
+import { hapticFeedback } from '@/lib/haptics'
 import type { Milestone, MilestoneCategory, MilestoneRarity } from '@/types'
 
 export interface MilestoneInput {
@@ -162,6 +163,7 @@ export function useMilestones(coupleId: string | null): UseMilestonesReturn {
         // Send milestone email to both partners (non-blocking)
         void sendMilestoneEmailAsync(milestone.id)
 
+        hapticFeedback.milestoneReached()
         return milestone
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Failed to create milestone'
