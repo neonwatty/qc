@@ -1,5 +1,7 @@
 'use client'
 
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { Heart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -45,6 +47,23 @@ export function DashboardContent({
   topLanguages,
   todayReminders,
 }: DashboardContentProps): React.ReactNode {
+  const router = useRouter()
+
+  // Revalidate dashboard data when user returns to the page
+  useEffect(() => {
+    function handleVisibilityChange(): void {
+      if (document.visibilityState === 'visible') {
+        router.refresh()
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [router])
+
   return (
     <PageContainer title="Dashboard" description="Your relationship command center" className="space-y-8">
       {/* Couple pairing prompt */}

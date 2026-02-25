@@ -9,6 +9,7 @@ import { ReminderForm } from '@/components/reminders/ReminderForm'
 import { PageContainer } from '@/components/layout/PageContainer'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { useRealtimeCouple } from '@/hooks/useRealtimeCouple'
 import type { DbReminder } from '@/types/database'
 
 import { createReminder, deleteReminder, snoozeReminder, toggleReminder, unsnoozeReminder } from './actions'
@@ -108,6 +109,24 @@ export function RemindersContent({ initialReminders, userId, coupleId, partnerId
   const [filter, setFilter] = useState<ReminderFilter>('all')
   const [search, setSearch] = useState('')
   const { handleToggle, handleDelete, handleSnooze, handleUnsnooze } = useReminderHandlers(reminders, setReminders)
+
+  // Realtime subscription for partner's reminder changes
+  useRealtimeCouple<DbReminder>({
+    table: 'reminders',
+    coupleId,
+    onInsert: (newReminder) => {
+      setReminders((prev) => {
+        if (prev.some((r) => r.id === newReminder.id)) return prev
+        return [...prev, newReminder]
+      })
+    },
+    onUpdate: (updatedReminder) => {
+      setReminders((prev) => prev.map((r) => (r.id === updatedReminder.id ? updatedReminder : r)))
+    },
+    onDelete: (deletedReminder) => {
+      setReminders((prev) => prev.filter((r) => r.id !== deletedReminder.id))
+    },
+  })
 
   const [formState, formAction, isPending] = useActionState<ReminderActionState, FormData>(async (prev, formData) => {
     const result = await createReminder(prev, formData)

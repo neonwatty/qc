@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { hapticFeedback } from '@/lib/haptics'
 import type { DbProfile } from '@/types/database'
 
 interface Props {
@@ -27,6 +28,7 @@ export function ProfileSettings({ profile, userEmail }: Props): React.ReactEleme
       toast.error(formState.error)
     } else if (formState.success) {
       toast.success('Profile updated')
+      hapticFeedback.success()
     }
   }, [formState])
 

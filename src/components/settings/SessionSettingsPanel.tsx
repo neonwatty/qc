@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { hapticFeedback } from '@/lib/haptics'
 import type { DbSessionSettings } from '@/types/database'
 
 interface Props {
@@ -75,6 +76,7 @@ function SessionSettingsForm({ settings }: FormProps): React.ReactElement {
       toast.error(formState.error)
     } else if (formState.success) {
       toast.success('Session settings saved')
+      hapticFeedback.success()
     }
   }, [formState])
 
