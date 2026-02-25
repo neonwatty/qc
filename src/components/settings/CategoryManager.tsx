@@ -2,14 +2,14 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { createCategory, updateCategory, toggleCategoryActive } from '@/app/(app)/settings/actions'
 import type { Category } from '@/types'
 import type { DbCategory } from '@/types/database'
 import { Button } from '@/components/ui/button'
-import { Card } from '@/components/ui/card'
-import { Switch } from '@/components/ui/switch'
-import { Plus, Pencil, GripVertical } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { useRealtimeCouple } from '@/hooks/useRealtimeCouple'
 import { CategoryFormDialog } from './CategoryFormDialog'
+import { CategoryCard } from './CategoryCard'
 
 interface CategoryManagerProps {
   coupleId: string
@@ -96,30 +96,32 @@ export function CategoryManager({ coupleId }: CategoryManagerProps) {
   }
 
   async function handleSubmit() {
+    const formDataObj = new FormData()
+    formDataObj.append('name', formData.name)
+    formDataObj.append('description', formData.description)
+    formDataObj.append('icon', formData.icon)
+
     if (editingCategory) {
-      await supabase
-        .from('categories')
-        .update({
-          name: formData.name,
-          description: formData.description,
-          icon: formData.icon,
-        })
-        .eq('id', editingCategory.id)
+      const result = await updateCategory(editingCategory.id, { success: false }, formDataObj)
+      if (result.error) {
+        console.error('Failed to update category:', result.error)
+        return
+      }
     } else {
-      const maxOrder = Math.max(...categories.map((c) => c.sortOrder), 0)
-      await supabase.from('categories').insert({
-        couple_id: coupleId,
-        name: formData.name,
-        description: formData.description,
-        icon: formData.icon,
-        sort_order: maxOrder + 1,
-      })
+      const result = await createCategory({ success: false }, formDataObj)
+      if (result.error) {
+        console.error('Failed to create category:', result.error)
+        return
+      }
     }
     setIsDialogOpen(false)
   }
 
   async function handleToggleActive(categoryId: string, isActive: boolean) {
-    await supabase.from('categories').update({ is_active: isActive }).eq('id', categoryId)
+    const result = await toggleCategoryActive(categoryId, isActive)
+    if (result.error) {
+      console.error('Failed to toggle category active status:', result.error)
+    }
   }
 
   return (
@@ -146,34 +148,12 @@ export function CategoryManager({ coupleId }: CategoryManagerProps) {
 
       <div className="space-y-2">
         {categories.map((category) => (
-          <Card key={category.id} className="p-4">
-            <div className="flex items-center gap-3">
-              <div className="cursor-grab text-gray-400">
-                <GripVertical className="h-5 w-5" />
-              </div>
-              <div className="text-2xl">{category.icon}</div>
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <h4 className="font-medium">{category.name}</h4>
-                  {category.isSystem && (
-                    <span className="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600">System</span>
-                  )}
-                </div>
-                {category.description && <p className="text-sm text-gray-600">{category.description}</p>}
-              </div>
-              <div className="flex items-center gap-2">
-                <Switch
-                  checked={category.isActive}
-                  onCheckedChange={(checked) => handleToggleActive(category.id, checked)}
-                />
-                {!category.isSystem && (
-                  <Button variant="ghost" size="icon" onClick={() => openEditDialog(category)}>
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                )}
-              </div>
-            </div>
-          </Card>
+          <CategoryCard
+            key={category.id}
+            category={category}
+            onEdit={openEditDialog}
+            onToggleActive={handleToggleActive}
+          />
         ))}
       </div>
     </div>

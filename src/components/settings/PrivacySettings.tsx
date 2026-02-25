@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { updateCoupleSettings } from '@/app/(app)/settings/actions'
 import { Card } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
@@ -32,23 +33,20 @@ export function PrivacySettings({ coupleId }: PrivacySettingsProps) {
     loadSettings()
   }, [coupleId, supabase])
 
-  async function updateSettings(key: string, value: boolean) {
-    const { data: currentData } = await supabase.from('couples').select('settings').eq('id', coupleId).single()
-
-    const currentSettings = (currentData?.settings as Record<string, unknown>) || {}
-    const updatedSettings = { ...currentSettings, [key]: value }
-
-    await supabase.from('couples').update({ settings: updatedSettings }).eq('id', coupleId)
-  }
-
   async function handlePrivateByDefaultChange(checked: boolean) {
     setPrivateByDefault(checked)
-    await updateSettings('privateByDefault', checked)
+    const result = await updateCoupleSettings('privateByDefault', checked)
+    if (result.error) {
+      console.error('Failed to update private by default:', result.error)
+    }
   }
 
   async function handleShareProgressChange(checked: boolean) {
     setShareProgress(checked)
-    await updateSettings('shareProgress', checked)
+    const result = await updateCoupleSettings('shareProgress', checked)
+    if (result.error) {
+      console.error('Failed to update share progress:', result.error)
+    }
   }
 
   return (

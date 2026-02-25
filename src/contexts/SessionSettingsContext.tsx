@@ -223,10 +223,20 @@ export function SessionSettingsProvider({ children, coupleId }: SessionSettingsP
       const { data: userData } = await supabase.auth.getUser()
       if (!userData.user) return
 
-      if (accept) {
-        const proposal = pendingProposal
-        if (!proposal) return
+      const proposal = pendingProposal
+      if (!proposal) return
 
+      if (proposal.proposedBy === userData.user.id) {
+        console.error('Cannot accept your own proposal')
+        return
+      }
+
+      if (proposal.status !== 'pending') {
+        console.error('Proposal has already been reviewed')
+        return
+      }
+
+      if (accept) {
         const updatedSettings = { ...currentSettings, ...proposal.settings } as SessionSettings
 
         const currentVersion = currentSettings?.version || 1

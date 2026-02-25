@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { updateCoupleSettings } from '@/app/(app)/settings/actions'
 import { Card } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Switch } from '@/components/ui/switch'
@@ -32,23 +33,20 @@ export function NotificationSettings({ coupleId }: NotificationSettingsProps) {
     loadSettings()
   }, [coupleId, supabase])
 
-  async function updateSettings(key: string, value: boolean) {
-    const { data: currentData } = await supabase.from('couples').select('settings').eq('id', coupleId).single()
-
-    const currentSettings = (currentData?.settings as Record<string, unknown>) || {}
-    const updatedSettings = { ...currentSettings, [key]: value }
-
-    await supabase.from('couples').update({ settings: updatedSettings }).eq('id', coupleId)
-  }
-
   async function handleEmailNotificationsChange(checked: boolean) {
     setEmailNotifications(checked)
-    await updateSettings('emailNotifications', checked)
+    const result = await updateCoupleSettings('emailNotifications', checked)
+    if (result.error) {
+      console.error('Failed to update email notifications:', result.error)
+    }
   }
 
   async function handleQuietHoursChange(checked: boolean) {
     setQuietHoursEnabled(checked)
-    await updateSettings('quietHoursEnabled', checked)
+    const result = await updateCoupleSettings('quietHoursEnabled', checked)
+    if (result.error) {
+      console.error('Failed to update quiet hours:', result.error)
+    }
   }
 
   return (
