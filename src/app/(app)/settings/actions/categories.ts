@@ -12,8 +12,6 @@ const categorySchema = z.object({
   icon: z.string().max(2),
 })
 
-const reorderSchema = z.array(z.string().uuid())
-
 export interface SettingsActionState {
   error?: string
   success?: boolean
@@ -90,26 +88,6 @@ export async function updateCategory(
   return { success: true }
 }
 
-export async function deleteCategory(categoryId: string): Promise<{ error?: string }> {
-  const { user, supabase } = await requireAuth()
-
-  const { data: profile } = await supabase.from('profiles').select('couple_id').eq('id', user.id).single()
-
-  if (!profile?.couple_id) return { error: 'You must be in a couple to delete categories' }
-
-  const { error } = await supabase
-    .from('categories')
-    .delete()
-    .eq('id', categoryId)
-    .eq('couple_id', profile.couple_id)
-    .eq('is_system', false)
-
-  if (error) return { error: error.message }
-
-  revalidatePath('/settings')
-  return {}
-}
-
 export async function toggleCategoryActive(categoryId: string, isActive: boolean): Promise<{ error?: string }> {
   const { user, supabase } = await requireAuth()
 
@@ -124,28 +102,6 @@ export async function toggleCategoryActive(categoryId: string, isActive: boolean
     .eq('couple_id', profile.couple_id)
 
   if (error) return { error: error.message }
-
-  revalidatePath('/settings')
-  return {}
-}
-
-export async function reorderCategories(categoryIds: string[]): Promise<{ error?: string }> {
-  const { user, supabase } = await requireAuth()
-
-  const { data: profile } = await supabase.from('profiles').select('couple_id').eq('id', user.id).single()
-
-  if (!profile?.couple_id) return { error: 'You must be in a couple to reorder categories' }
-
-  const { data: validated, error: validationError } = validate(reorderSchema, categoryIds)
-  if (validationError || !validated) return { error: validationError || 'Invalid category IDs' }
-
-  for (let i = 0; i < validated.length; i++) {
-    await supabase
-      .from('categories')
-      .update({ sort_order: i })
-      .eq('id', validated[i])
-      .eq('couple_id', profile.couple_id)
-  }
 
   revalidatePath('/settings')
   return {}

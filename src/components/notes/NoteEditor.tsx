@@ -121,31 +121,25 @@ function NoteEditorForm({ note, onClose }: { note?: DbNote | null; onClose: () =
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   const action = isEditing ? updateNote : createNote
-  const [state, formAction, isPending] = useActionState<NoteActionState, FormData>(action, { error: null })
-  const [hasSubmitted, setHasSubmitted] = useState(false)
+  const [state, formAction, isPending] = useActionState<NoteActionState, FormData>(
+    async (prev, formData) => {
+      const result = await action(prev, formData)
+      if (!result.error) {
+        toast.success('Note saved')
+        if (!isEditing) hapticFeedback.noteAdded()
+        onClose()
+      } else {
+        toast.error(result.error)
+      }
+      return result
+    },
+    { error: null },
+  )
 
   useEffect(() => {
     const timer = setTimeout(() => textareaRef.current?.focus(), 100)
     return () => clearTimeout(timer)
   }, [])
-
-  // Close dialog on successful save
-  useEffect(() => {
-    if (hasSubmitted && !isPending && !state.error) {
-      toast.success('Note saved')
-      if (!isEditing) {
-        hapticFeedback.noteAdded()
-      }
-      onClose()
-    }
-  }, [hasSubmitted, isPending, state.error, onClose, isEditing])
-
-  // Show error toast
-  useEffect(() => {
-    if (state.error) {
-      toast.error(state.error)
-    }
-  }, [state.error])
 
   const handleAddTag = useCallback(() => {
     const tag = tagInput.trim().toLowerCase()
@@ -188,13 +182,7 @@ function NoteEditorForm({ note, onClose }: { note?: DbNote | null; onClose: () =
           </button>
         </div>
 
-        <form
-          action={(formData) => {
-            setHasSubmitted(true)
-            formAction(formData)
-          }}
-          className="flex flex-1 flex-col overflow-hidden"
-        >
+        <form action={formAction} className="flex flex-1 flex-col overflow-hidden">
           {isEditing && <input type="hidden" name="id" value={note.id} />}
           <input type="hidden" name="privacy" value={privacy} />
           <input type="hidden" name="tags" value={JSON.stringify(tags)} />

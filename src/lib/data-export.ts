@@ -195,26 +195,3 @@ export async function exportUserData(
     return { data: null, error: error instanceof Error ? error.message : 'Failed to export data' }
   }
 }
-
-/**
- * Import user data into the database
- * Note: This is a placeholder for future implementation
- * Import requires careful validation and conflict resolution
- */
-export async function importUserData(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _supabase: SupabaseClient,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _userId: string,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _data: UserData,
-): Promise<{ error: string | null }> {
-  // TODO: Implement import logic with proper validation and conflict resolution
-  // This is complex and should handle:
-  // 1. Validate data structure and version
-  // 2. Check for conflicts with existing data
-  // 3. Handle couple_id reassignment if needed
-  // 4. Preserve RLS constraints
-  // 5. Handle foreign key relationships
-  return { error: 'Import functionality is not yet implemented' }
-}

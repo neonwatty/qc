@@ -10,12 +10,6 @@ export {
   exportUserData,
 } from './actions/profile'
 
-export { updateSessionSettings, proposeSessionSettings, respondToProposal } from './actions/proposals'
+export { updateSessionSettings } from './actions/proposals'
 
-export {
-  createCategory,
-  updateCategory,
-  deleteCategory,
-  toggleCategoryActive,
-  reorderCategories,
-} from './actions/categories'
+export { createCategory, updateCategory, toggleCategoryActive } from './actions/categories'
