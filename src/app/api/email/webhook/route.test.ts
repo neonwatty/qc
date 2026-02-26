@@ -121,6 +121,43 @@ describe('POST /api/email/webhook - Event Handling', () => {
 })
 
 describe('POST /api/email/webhook - Bounce and Complaint Handling', () => {
-  it.todo('marks profile email as bounced on bounce event')
+  it('marks profile email as bounced on bounce event', async () => {
+    const { POST } = await import('./route')
+
+    const payload = {
+      type: 'email.bounced',
+      data: {
+        email_id: 'email-456',
+        to: ['bounced@example.com'],
+        created_at: '2025-01-01T00:00:00Z',
+      },
+    }
+
+    mockVerify.mockReturnValueOnce(payload)
+
+    mockSupabase._queryBuilder.update = vi.fn().mockReturnValue(mockSupabase._queryBuilder)
+    mockSupabase._queryBuilder.eq = vi.fn().mockResolvedValue({ data: null, error: null })
+
+    const request = new NextRequest('http://localhost:3000/api/email/webhook', {
+      method: 'POST',
+      headers: {
+        'svix-id': 'msg_456',
+        'svix-timestamp': '1234567890',
+        'svix-signature': 'v1,valid',
+      },
+      body: JSON.stringify(payload),
+    })
+
+    const response = await POST(request)
+    const data = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(data).toEqual({ received: true })
+    expect(mockSupabase.from).toHaveBeenCalledWith('profiles')
+    expect(mockSupabase._queryBuilder.update).toHaveBeenCalledWith(
+      expect.objectContaining({ email_bounced_at: expect.any(String) }),
+    )
+    expect(mockSupabase._queryBuilder.eq).toHaveBeenCalledWith('email', 'bounced@example.com')
+  })
   it.todo('marks profile email as complained on complaint event')
 })
