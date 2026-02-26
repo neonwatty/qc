@@ -80,7 +80,7 @@ test.describe('Requests — Sent tab', () => {
 
     await page.getByRole('button', { name: /sent/i }).click()
 
-    await expect(page.getByText('accepted', { exact: true })).toBeVisible()
+    await expect(page.getByText('accepted', { exact: true }).first()).toBeVisible()
   })
 
   test('shows Delete button (sender can delete)', async ({ authedPage: page }) => {
