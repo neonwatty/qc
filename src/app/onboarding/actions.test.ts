@@ -160,7 +160,9 @@ describe('completeOnboarding', () => {
 
     expect(redirect).toHaveBeenCalledWith('/dashboard')
   })
+})
 
+describe('completeOnboarding - edge cases', () => {
   it('does not crash on malformed JSON in selectedLanguages', async () => {
     const { completeOnboarding } = await import('./actions')
     const { createCouple, createInvite } = await import('@/lib/couples')
