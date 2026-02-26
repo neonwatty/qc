@@ -31,6 +31,7 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  serverExternalPackages: ['@capacitor/core', '@capacitor/haptics'],
   ...(isStaticExport
     ? { output: 'export' }
     : {
