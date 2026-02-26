@@ -204,13 +204,13 @@ describe('useRealtimeCouple - edge cases', () => {
 
   it('resubscribes when table changes', () => {
     const { rerender } = renderHook(
-      ({ table }: { table: 'notes' | 'check_ins' }) => useRealtimeCouple({ table, coupleId: 'couple-abc' }),
-      { initialProps: { table: 'notes' as const } },
+      ({ table }: { table: string }) => useRealtimeCouple({ table: table as 'notes', coupleId: 'couple-abc' }),
+      { initialProps: { table: 'notes' } },
     )
     expect(mockSupabase.channel).toHaveBeenCalledWith('notes:couple:couple-abc')
     expect(mockSubscribe).toHaveBeenCalledTimes(1)
 
-    rerender({ table: 'check_ins' as const })
+    rerender({ table: 'check_ins' })
 
     expect(mockRemoveChannel).toHaveBeenCalledWith(mockChannel)
     expect(mockSupabase.channel).toHaveBeenCalledWith('check_ins:couple:couple-abc')
