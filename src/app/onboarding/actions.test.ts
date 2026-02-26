@@ -161,6 +161,62 @@ describe('completeOnboarding', () => {
     expect(redirect).toHaveBeenCalledWith('/dashboard')
   })
 
+  it('does not crash on malformed JSON in selectedLanguages', async () => {
+    const { completeOnboarding } = await import('./actions')
+    const { createCouple, createInvite } = await import('@/lib/couples')
+    const { sendEmail } = await import('@/lib/email/send')
+    const { redirect } = await import('next/navigation')
+
+    mockSupabase._queryBuilder.update = vi.fn().mockReturnValue(mockSupabase._queryBuilder)
+    mockSupabase._queryBuilder.eq = vi.fn().mockReturnValue({ data: null, error: null })
+    ;(createCouple as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: { id: mockCoupleId },
+      error: null,
+    })
+    ;(createInvite as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: { token: mockInviteToken },
+      error: null,
+    })
+    ;(sendEmail as ReturnType<typeof vi.fn>).mockResolvedValue({ data: { id: 'email-1' }, error: null })
+
+    const fd = makeFormData({
+      displayName: 'Jeremy',
+      partnerEmail: 'partner@example.com',
+      selectedLanguages: '{not valid json!!!',
+    })
+    await expect(completeOnboarding({ error: null }, fd)).rejects.toThrow('NEXT_REDIRECT:/dashboard')
+
+    expect(redirect).toHaveBeenCalledWith('/dashboard')
+  })
+
+  it('does not crash on non-array JSON in selectedLanguages', async () => {
+    const { completeOnboarding } = await import('./actions')
+    const { createCouple, createInvite } = await import('@/lib/couples')
+    const { sendEmail } = await import('@/lib/email/send')
+    const { redirect } = await import('next/navigation')
+
+    mockSupabase._queryBuilder.update = vi.fn().mockReturnValue(mockSupabase._queryBuilder)
+    mockSupabase._queryBuilder.eq = vi.fn().mockReturnValue({ data: null, error: null })
+    ;(createCouple as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: { id: mockCoupleId },
+      error: null,
+    })
+    ;(createInvite as ReturnType<typeof vi.fn>).mockResolvedValue({
+      data: { token: mockInviteToken },
+      error: null,
+    })
+    ;(sendEmail as ReturnType<typeof vi.fn>).mockResolvedValue({ data: { id: 'email-1' }, error: null })
+
+    const fd = makeFormData({
+      displayName: 'Jeremy',
+      partnerEmail: 'partner@example.com',
+      selectedLanguages: '"just a string"',
+    })
+    await expect(completeOnboarding({ error: null }, fd)).rejects.toThrow('NEXT_REDIRECT:/dashboard')
+
+    expect(redirect).toHaveBeenCalledWith('/dashboard')
+  })
+
   it('redirects even when email send fails (non-blocking)', async () => {
     const { completeOnboarding } = await import('./actions')
     const { createCouple, createInvite } = await import('@/lib/couples')
