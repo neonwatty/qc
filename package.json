@@ -74,7 +74,7 @@
     "eslint-config-next": "^16",
     "eslint-config-prettier": "^10",
     "eslint-plugin-react-hooks": "^7",
-    "eslint-plugin-security": "^3",
+    "eslint-plugin-security": "^4",
     "globals": "^17",
     "jsdom": "^27",
     "knip": "^5",
