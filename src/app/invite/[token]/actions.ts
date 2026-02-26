@@ -5,8 +5,11 @@ import { z } from 'zod'
 
 import { requireAuth } from '@/lib/auth'
 import { acceptInvite, getInviteByToken } from '@/lib/couples'
+import { createRateLimiter } from '@/lib/rate-limit'
 import { createClient } from '@/lib/supabase/server'
 import { validate } from '@/lib/validation'
+
+const inviteLimiter = createRateLimiter({ maxRequests: 10, windowMs: 60_000 })
 
 const tokenSchema = z.object({
   token: z.string().uuid('Invalid invite token'),
@@ -21,6 +24,10 @@ export async function validateInvite(token: string): Promise<{
   inviterEmail: string | null
   error: string | null
 }> {
+  if (!inviteLimiter.check(token)) {
+    return { valid: false, inviterEmail: null, error: 'Too many requests. Please try again later.' }
+  }
+
   const { error: validationError } = validate(tokenSchema, { token })
 
   if (validationError) {
