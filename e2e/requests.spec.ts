@@ -1,5 +1,23 @@
 import { test, expect } from './auth'
 
+// Serial: CRUD tests mutate shared seed data (accept request), which races with parallel Received tab tests
+test.describe.configure({ mode: 'serial' })
+
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL ?? 'http://127.0.0.1:54321'
+const SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY ?? ''
+
+// Reset seed data before tests so the suite is idempotent across runs
+test.beforeAll(async () => {
+  if (!SERVICE_KEY) return
+  const headers = { 'Content-Type': 'application/json', apikey: SERVICE_KEY, Authorization: `Bearer ${SERVICE_KEY}` }
+  await fetch(`${SUPABASE_URL}/rest/v1/requests?title=eq.Plan a Surprise Date Night`, {
+    method: 'PATCH',
+    headers,
+    body: JSON.stringify({ status: 'pending' }),
+  })
+  await fetch(`${SUPABASE_URL}/rest/v1/requests?title=like.E2E Test Request*`, { method: 'DELETE', headers })
+})
+
 test.describe('Requests — Page structure', () => {
   test('renders heading', async ({ authedPage: page }) => {
     await page.goto('/requests')
@@ -70,7 +88,7 @@ test.describe('Requests — Sent tab', () => {
 
     await page.getByRole('button', { name: /sent/i }).click()
 
-    await expect(page.getByRole('button', { name: /delete/i })).toBeVisible()
+    await expect(page.getByRole('button', { name: /delete/i }).first()).toBeVisible()
   })
 })
 
@@ -123,7 +141,7 @@ test.describe('Requests — New Request form', () => {
 })
 
 test.describe.serial('Requests — CRUD', () => {
-  const testTitle = 'E2E Test Request Playwright'
+  const testTitle = `E2E Test Request ${Date.now()}`
 
   test('creates a new request via the form', async ({ authedPage: page }) => {
     await page.goto('/requests')
@@ -154,10 +172,14 @@ test.describe.serial('Requests — CRUD', () => {
     await page.getByRole('button', { name: /sent/i }).click()
     await expect(page.getByText(testTitle).first()).toBeVisible({ timeout: 15000 })
 
-    const card = page.locator('.rounded-lg', { has: page.getByText(testTitle) }).first()
+    const card = page
+      .locator('.rounded-lg.border')
+      .filter({ has: page.getByRole('heading', { name: testTitle }) })
+      .first()
     await card.getByRole('button', { name: /delete/i }).click()
 
-    // Wait for the optimistic delete to remove the card from the UI before reloading
+    // Wait for the server action to complete (toast confirms DB delete finished)
+    await expect(page.getByText('Request deleted')).toBeVisible({ timeout: 10000 })
     await expect(page.getByText(testTitle)).not.toBeVisible({ timeout: 10000 })
 
     // Verify persistence after reload
