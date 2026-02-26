@@ -1,5 +1,7 @@
 import type { ReactElement } from 'react'
 
+import { createAdminClient } from '@/lib/supabase/admin'
+
 import { getResend, EMAIL_FROM, BATCH_SIZE } from './resend'
 
 interface SendEmailParams {
@@ -60,4 +62,23 @@ export async function sendBatchEmails({ recipients, subject, react }: BatchEmail
   }
 
   return result
+}
+
+/**
+ * Check if we should send email to this address.
+ * Returns false if the profile has bounced, complained, or opted out.
+ */
+export async function shouldSendEmail(email: string): Promise<boolean> {
+  const supabase = createAdminClient()
+  const { data } = await supabase
+    .from('profiles')
+    .select('email_bounced_at, email_complained_at, email_opted_out_at')
+    .eq('email', email)
+    .maybeSingle()
+
+  if (!data) return true // Unknown email — allow sending (e.g., invite to non-user)
+  if (data.email_bounced_at) return false
+  if (data.email_complained_at) return false
+  if (data.email_opted_out_at) return false
+  return true
 }

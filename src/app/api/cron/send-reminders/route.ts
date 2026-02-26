@@ -1,13 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server'
+import crypto from 'crypto'
 
 import { sendEmail } from '@/lib/email/send'
 import { ReminderEmail } from '@/lib/email/templates/reminder'
 import { createAdminClient } from '@/lib/supabase/admin'
 
+function timingSafeCompare(a: string, b: string): boolean {
+  const hashA = crypto.createHash('sha256').update(a).digest()
+  const hashB = crypto.createHash('sha256').update(b).digest()
+  return crypto.timingSafeEqual(hashA, hashB)
+}
+
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const authHeader = request.headers.get('authorization')
+  const expectedHeader = `Bearer ${process.env.CRON_SECRET}`
 
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  // Timing-safe comparison to prevent timing attacks
+  if (!authHeader || !process.env.CRON_SECRET || !timingSafeCompare(authHeader, expectedHeader)) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -37,27 +46,39 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   // Get unique user IDs that need emails
   const userIds = [...new Set(reminders.map((r) => r.created_by))]
 
-  const { data: profiles } = await supabase.from('profiles').select('id, email').in('id', userIds)
+  const { data: profiles } = await supabase
+    .from('profiles')
+    .select('id, email, email_unsubscribe_token, email_bounced_at, email_complained_at, email_opted_out_at')
+    .in('id', userIds)
 
-  const emailMap = new Map(profiles?.map((p) => [p.id, p.email]) ?? [])
+  const profileMap = new Map(profiles?.map((p) => [p.id, p]) ?? [])
 
   let sent = 0
   let failed = 0
   const errors: string[] = []
+  const sentReminderIds: string[] = []
 
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://example.com'
 
   for (const reminder of reminders) {
-    const email = emailMap.get(reminder.created_by)
-    if (!email) continue
+    const profile = profileMap.get(reminder.created_by)
+    if (!profile?.email) continue
+
+    // Skip bounced, complained, or opted-out emails (inline check avoids redundant DB query)
+    if (profile.email_bounced_at || profile.email_complained_at || profile.email_opted_out_at) continue
+
+    const unsubscribeUrl = profile.email_unsubscribe_token
+      ? `${baseUrl}/api/email/unsubscribe/${profile.email_unsubscribe_token}`
+      : undefined
 
     const { error: sendError } = await sendEmail({
-      to: email,
+      to: profile.email,
       subject: `Reminder: ${reminder.title}`,
       react: ReminderEmail({
         title: reminder.title,
         message: reminder.message ?? `Your reminder "${reminder.title}" is due.`,
         dashboardUrl: `${baseUrl}/reminders`,
+        unsubscribeUrl,
       }),
     })
 
@@ -66,11 +87,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       errors.push(`${reminder.id}: ${sendError.message}`)
     } else {
       sent++
+      sentReminderIds.push(reminder.id)
     }
   }
 
-  // Deactivate one-time reminders that were sent
-  const sentReminderIds = reminders.map((r) => r.id)
+  // Deactivate one-time reminders that were actually sent
   if (sentReminderIds.length > 0) {
     await supabase.from('reminders').update({ is_active: false }).in('id', sentReminderIds).eq('frequency', 'once')
   }

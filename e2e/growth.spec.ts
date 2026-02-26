@@ -26,13 +26,13 @@ test.describe('Growth Gallery — Stats grid', () => {
   test('displays Milestones Reached count', async ({ authedPage: page }) => {
     await page.goto('/growth')
 
-    await expect(page.getByText('Milestones Reached')).toBeVisible()
+    await expect(page.getByText('Milestones Reached').first()).toBeVisible()
   })
 
   test('displays Total Points count', async ({ authedPage: page }) => {
     await page.goto('/growth')
 
-    await expect(page.getByText('Total Points')).toBeVisible()
+    await expect(page.getByText('Total Points').first()).toBeVisible()
   })
 })
 

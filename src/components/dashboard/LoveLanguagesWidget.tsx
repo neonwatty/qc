@@ -6,16 +6,23 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 
+interface TopLanguage {
+  title: string
+  category: string
+}
+
 interface LoveLanguagesWidgetProps {
   totalLanguages?: number
   sharedLanguages?: number
   completedThisWeek?: number
+  topLanguages?: TopLanguage[]
 }
 
 export function LoveLanguagesWidget({
   totalLanguages = 0,
   sharedLanguages = 0,
   completedThisWeek = 0,
+  topLanguages = [],
 }: LoveLanguagesWidgetProps): React.ReactNode {
   const sharingPercent = totalLanguages > 0 ? Math.round((sharedLanguages / totalLanguages) * 100) : 0
 
@@ -64,6 +71,23 @@ export function LoveLanguagesWidget({
               <span className="font-medium text-gray-900 dark:text-white">{sharingPercent}%</span>
             </div>
             <Progress value={sharingPercent} className="h-2" />
+          </div>
+        )}
+
+        {/* Top Languages */}
+        {topLanguages.length > 0 && (
+          <div className="space-y-2">
+            <p className="text-xs font-medium text-gray-600 dark:text-gray-400">Top Shared</p>
+            <div className="flex flex-wrap gap-1.5">
+              {topLanguages.map((lang) => (
+                <span
+                  key={lang.title}
+                  className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300"
+                >
+                  {lang.title}
+                </span>
+              ))}
+            </div>
           </div>
         )}
 

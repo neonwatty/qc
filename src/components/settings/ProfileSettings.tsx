@@ -1,6 +1,7 @@
 'use client'
 
-import { useActionState } from 'react'
+import { useActionState, useEffect, useRef } from 'react'
+import { toast } from 'sonner'
 
 import { updateProfile } from '@/app/(app)/settings/actions'
 import type { SettingsActionState } from '@/app/(app)/settings/actions'
@@ -8,6 +9,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { hapticFeedback } from '@/lib/haptics'
 import type { DbProfile } from '@/types/database'
 
 interface Props {
@@ -17,6 +19,18 @@ interface Props {
 
 export function ProfileSettings({ profile, userEmail }: Props): React.ReactElement {
   const [formState, formAction, isPending] = useActionState<SettingsActionState, FormData>(updateProfile, {})
+  const prevFormState = useRef(formState)
+
+  useEffect(() => {
+    if (formState === prevFormState.current) return
+    prevFormState.current = formState
+    if (formState.error) {
+      toast.error(formState.error)
+    } else if (formState.success) {
+      toast.success('Profile updated')
+      hapticFeedback.success()
+    }
+  }, [formState])
 
   return (
     <Card>

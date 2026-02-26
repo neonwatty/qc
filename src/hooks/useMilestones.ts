@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react'
 
 import { createClient } from '@/lib/supabase/client'
+import { hapticFeedback } from '@/lib/haptics'
 import type { Milestone, MilestoneCategory, MilestoneRarity } from '@/types'
 
 export interface MilestoneInput {
@@ -87,6 +88,15 @@ function buildDbUpdates(updates: Partial<Milestone>): Record<string, unknown> {
   return dbUpdates
 }
 
+async function sendMilestoneEmailAsync(milestoneId: string): Promise<void> {
+  try {
+    const mod = await import('@/app/(app)/growth/actions')
+    await mod.sendMilestoneEmail(milestoneId)
+  } catch {
+    // Email send failed -- non-blocking
+  }
+}
+
 export function useMilestones(coupleId: string | null): UseMilestonesReturn {
   const [milestones, setMilestones] = useState<Milestone[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -149,6 +159,11 @@ export function useMilestones(coupleId: string | null): UseMilestonesReturn {
         }
         const milestone = dbRowToMilestone({ ...data, photo_url: photoUrl ?? data.photo_url })
         setMilestones((prev) => [milestone, ...prev])
+
+        // Send milestone email to both partners (non-blocking)
+        void sendMilestoneEmailAsync(milestone.id)
+
+        hapticFeedback.milestoneReached()
         return milestone
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Failed to create milestone'
@@ -204,19 +219,11 @@ export function useMilestones(coupleId: string | null): UseMilestonesReturn {
   )
 
   const getMilestonesByCategory = useCallback(
-    (category: MilestoneCategory): Milestone[] => milestones.filter((m) => m.category === category),
+    (category: MilestoneCategory) => milestones.filter((m) => m.category === category),
     [milestones],
   )
-
-  const getAchievedMilestones = useCallback(
-    (): Milestone[] => milestones.filter((m) => m.achievedAt !== null),
-    [milestones],
-  )
-
-  const getUpcomingMilestones = useCallback(
-    (): Milestone[] => milestones.filter((m) => m.achievedAt === null),
-    [milestones],
-  )
+  const getAchievedMilestones = useCallback(() => milestones.filter((m) => m.achievedAt !== null), [milestones])
+  const getUpcomingMilestones = useCallback(() => milestones.filter((m) => m.achievedAt === null), [milestones])
 
   return {
     milestones,

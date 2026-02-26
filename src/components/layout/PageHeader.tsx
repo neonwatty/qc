@@ -23,8 +23,8 @@ export function PageHeader({ title, description, showBack = true }: PageHeaderPr
             </Button>
           )}
           <div className="flex-1">
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{title}</h1>
-            {description && <p className="text-sm text-gray-700 dark:text-gray-300 font-medium mt-1">{description}</p>}
+            <h1 className="text-2xl font-bold text-foreground">{title}</h1>
+            {description && <p className="text-sm text-muted-foreground font-medium mt-1">{description}</p>}
           </div>
         </div>
       </div>

@@ -1,20 +1,29 @@
 'use client'
 
 import { useState } from 'react'
-import { TrendingUp, Award, Target, Camera, Plus } from 'lucide-react'
+import { TrendingUp, Award, Target, Camera, Plus, BarChart3 } from 'lucide-react'
 
 import { MotionBox, StaggerContainer, StaggerItem } from '@/components/ui/motion'
+import { PageContainer } from '@/components/layout/PageContainer'
 import { Button } from '@/components/ui/button'
 import { Timeline, PhotoGallery, MilestoneCreator } from '@/components/growth'
+import { GrowthProgressBars } from '@/components/growth/GrowthProgressBars'
+import { HealthChart } from '@/components/growth/HealthChart'
 import { useMilestones } from '@/hooks/useMilestones'
+import { useRealtimeCouple } from '@/hooks/useRealtimeCouple'
 import type { MilestoneInput } from '@/hooks/useMilestones'
 import type { Milestone } from '@/types'
+import type { DbMilestone } from '@/types/database'
+import type { GrowthAreaScore } from '@/lib/growth-scoring'
+import type { MoodDataPoint } from '@/lib/chart-data'
 
 interface GrowthContentProps {
   coupleId: string | null
+  growthScores: GrowthAreaScore[]
+  moodHistory: MoodDataPoint[]
 }
 
-type ActiveView = 'timeline' | 'progress' | 'memories'
+type ActiveView = 'timeline' | 'progress' | 'memories' | 'analytics'
 
 interface StatsGridProps {
   achievedCount: number
@@ -100,12 +109,27 @@ function ProgressView({ upcoming, achieved }: ProgressViewProps): React.ReactEle
   )
 }
 
-export function GrowthContent({ coupleId }: GrowthContentProps): React.ReactElement {
+export function GrowthContent({ coupleId, growthScores, moodHistory }: GrowthContentProps): React.ReactElement {
   const [activeView, setActiveView] = useState<ActiveView>('timeline')
   const [isCreatorOpen, setIsCreatorOpen] = useState(false)
 
-  const { milestones, isLoading, error, createMilestone, getAchievedMilestones, getUpcomingMilestones } =
+  const { milestones, isLoading, error, createMilestone, getAchievedMilestones, getUpcomingMilestones, refresh } =
     useMilestones(coupleId)
+
+  // Realtime subscription for partner's milestone changes
+  useRealtimeCouple<DbMilestone>({
+    table: 'milestones',
+    coupleId,
+    onInsert: () => {
+      void refresh()
+    },
+    onUpdate: () => {
+      void refresh()
+    },
+    onDelete: () => {
+      void refresh()
+    },
+  })
 
   const achieved = getAchievedMilestones()
   const upcoming = getUpcomingMilestones()
@@ -129,30 +153,32 @@ export function GrowthContent({ coupleId }: GrowthContentProps): React.ReactElem
     )
   }
 
+  const newMilestoneButton = (
+    <Button
+      onClick={() => setIsCreatorOpen(true)}
+      className="bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700"
+    >
+      <Plus className="mr-1 h-4 w-4" />
+      New Milestone
+    </Button>
+  )
+
   return (
-    <MotionBox variant="page" className="space-y-8">
-      {/* Header */}
-      <div className="text-center">
-        <div className="mb-4 flex justify-center">
-          <div className="rounded-full bg-green-100 p-3 dark:bg-green-900/30">
-            <TrendingUp className="h-8 w-8 text-green-600" />
-          </div>
-        </div>
-        <h1 className="text-3xl font-bold text-foreground sm:text-4xl">Growth Gallery</h1>
-        <p className="mx-auto mt-4 max-w-2xl text-lg text-muted-foreground">
-          Track your relationship journey and celebrate your achievements together.
-        </p>
-      </div>
+    <MotionBox variant="page">
+      <PageContainer
+        title="Growth Gallery"
+        description="Track your relationship journey and celebrate your achievements together."
+        action={newMilestoneButton}
+        className="space-y-8"
+      >
+        <StatsGrid
+          achievedCount={achieved.length}
+          upcomingCount={upcoming.length}
+          totalPoints={totalPoints}
+          photoCount={milestones.filter((m) => m.photoUrl).length}
+        />
 
-      <StatsGrid
-        achievedCount={achieved.length}
-        upcomingCount={upcoming.length}
-        totalPoints={totalPoints}
-        photoCount={milestones.filter((m) => m.photoUrl).length}
-      />
-
-      {/* View Toggle + Create */}
-      <div className="flex items-center justify-between">
+        {/* View Toggle */}
         <div className="flex overflow-x-auto px-1">
           <div className="flex min-w-max flex-shrink-0 gap-1 rounded-lg bg-gray-100 p-1 dark:bg-gray-800">
             <Button
@@ -182,47 +208,74 @@ export function GrowthContent({ coupleId }: GrowthContentProps): React.ReactElem
               <Camera className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
               Memories
             </Button>
+            <Button
+              variant={activeView === 'analytics' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setActiveView('analytics')}
+              className="rounded-md text-xs sm:text-sm"
+            >
+              <BarChart3 className="mr-1 h-3 w-3 sm:h-4 sm:w-4" />
+              Analytics
+            </Button>
           </div>
         </div>
 
-        <Button
-          onClick={() => setIsCreatorOpen(true)}
-          className="bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700"
-        >
-          <Plus className="mr-1 h-4 w-4" />
-          New Milestone
-        </Button>
-      </div>
+        {/* Loading state */}
+        {isLoading && (
+          <div className="flex items-center justify-center py-12">
+            <div className="h-8 w-8 animate-spin rounded-full border-4 border-pink-200 border-t-pink-600" />
+          </div>
+        )}
 
-      {/* Loading state */}
-      {isLoading && (
-        <div className="flex items-center justify-center py-12">
-          <div className="h-8 w-8 animate-spin rounded-full border-4 border-pink-200 border-t-pink-600" />
+        {/* Error state */}
+        {error && (
+          <div className="rounded-lg bg-red-50 p-4 text-center text-sm text-red-600 dark:bg-red-900/20">{error}</div>
+        )}
+
+        {/* Content views */}
+        {!isLoading && !error && (
+          <>
+            {activeView === 'timeline' && <Timeline milestones={milestones} />}
+            {activeView === 'progress' && <ProgressView upcoming={upcoming} achieved={achieved} />}
+            {activeView === 'memories' && (
+              <PhotoGallery milestones={milestones} onAddMemory={() => setIsCreatorOpen(true)} />
+            )}
+            {activeView === 'analytics' && <AnalyticsView scores={growthScores} moodHistory={moodHistory} />}
+          </>
+        )}
+
+        {/* Milestone creator modal */}
+        <MilestoneCreator
+          isOpen={isCreatorOpen}
+          onClose={() => setIsCreatorOpen(false)}
+          onSubmit={handleCreateMilestone}
+        />
+      </PageContainer>
+    </MotionBox>
+  )
+}
+
+function AnalyticsView({
+  scores,
+  moodHistory,
+}: {
+  scores: GrowthAreaScore[]
+  moodHistory: MoodDataPoint[]
+}): React.ReactElement {
+  return (
+    <div className="space-y-6">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
+        <GrowthProgressBars scores={scores} />
+        <HealthChart data={moodHistory} />
+      </div>
+      {scores.length > 0 && (
+        <div className="rounded-lg border bg-card p-6 text-center">
+          <p className="text-sm text-muted-foreground">Overall Growth Score</p>
+          <p className="mt-1 text-4xl font-bold text-foreground">
+            {Math.round(scores.reduce((sum, s) => sum + s.score, 0) / scores.length)}%
+          </p>
         </div>
       )}
-
-      {/* Error state */}
-      {error && (
-        <div className="rounded-lg bg-red-50 p-4 text-center text-sm text-red-600 dark:bg-red-900/20">{error}</div>
-      )}
-
-      {/* Content views */}
-      {!isLoading && !error && (
-        <>
-          {activeView === 'timeline' && <Timeline milestones={milestones} />}
-          {activeView === 'progress' && <ProgressView upcoming={upcoming} achieved={achieved} />}
-          {activeView === 'memories' && (
-            <PhotoGallery milestones={milestones} onAddMemory={() => setIsCreatorOpen(true)} />
-          )}
-        </>
-      )}
-
-      {/* Milestone creator modal */}
-      <MilestoneCreator
-        isOpen={isCreatorOpen}
-        onClose={() => setIsCreatorOpen(false)}
-        onSubmit={handleCreateMilestone}
-      />
-    </MotionBox>
+    </div>
   )
 }

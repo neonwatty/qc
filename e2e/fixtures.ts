@@ -35,4 +35,19 @@ export const TEST_USER_NO_COUPLE = {
   displayName: 'Charlie',
 } as const
 
+/**
+ * User without a couple_id -- used for invite acceptance E2E tests.
+ * Diana is seeded with no couple association plus a pending invite from Alice.
+ */
+export const TEST_USER_INVITE = {
+  id: '11111111-1111-4111-8111-111111111111',
+  email: 'diana@test.com',
+  password: 'password123',
+  displayName: 'Diana',
+} as const
+
+export const TEST_PENDING_INVITE = {
+  token: 'aabbccdd-1234-4567-8901-aabbccddeeff',
+} as const
+
 export const BASE_URL = 'http://localhost:3000'

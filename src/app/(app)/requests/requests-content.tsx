@@ -1,14 +1,16 @@
 'use client'
 
 import { useActionState, useCallback, useState } from 'react'
+import { toast } from 'sonner'
 
 import { RequestCard } from '@/components/requests/RequestCard'
 import { RequestForm } from '@/components/requests/RequestForm'
+import { PageContainer } from '@/components/layout/PageContainer'
 import { Button } from '@/components/ui/button'
 import { useRealtimeCouple } from '@/hooks/useRealtimeCouple'
 import type { DbRequest } from '@/types/database'
 
-import { createRequest, deleteRequest, respondToRequest } from './actions'
+import { convertRequestToReminder, createRequest, deleteRequest, respondToRequest } from './actions'
 import type { RequestActionState } from './actions'
 
 interface Props {
@@ -29,11 +31,16 @@ export function RequestsContent({
   const [requests, setRequests] = useState(initialRequests)
   const [showForm, setShowForm] = useState(false)
   const [tab, setTab] = useState<'received' | 'sent'>('received')
+  const [convertingId, setConvertingId] = useState<string | null>(null)
 
   const [formState, formAction, isPending] = useActionState<RequestActionState, FormData>(async (prev, formData) => {
     const result = await createRequest(prev, formData)
     if (result.success) {
       setShowForm(false)
+      toast.success('Request sent')
+    }
+    if (result.error) {
+      toast.error(result.error)
     }
     return result
   }, {})
@@ -56,7 +63,10 @@ export function RequestsContent({
     setRequests((prev) => prev.map((r) => (r.id === id ? { ...r, status } : r)))
     const result = await respondToRequest(id, status)
     if (result.error) {
+      toast.error(result.error)
       setRequests((prev) => prev.map((r) => (r.id === id ? { ...r, status: 'pending' as const } : r)))
+    } else {
+      toast.success('Response sent')
     }
   }
 
@@ -65,7 +75,32 @@ export function RequestsContent({
     setRequests((r) => r.filter((req) => req.id !== id))
     const result = await deleteRequest(id)
     if (result.error) {
+      toast.error(result.error)
       setRequests(prev)
+    } else {
+      toast.success('Request deleted')
+    }
+  }
+
+  async function handleConvertToReminder(id: string): Promise<void> {
+    setConvertingId(id)
+    try {
+      const result = await convertRequestToReminder(id)
+      if (result.error) {
+        toast.error(result.error)
+      } else {
+        toast.success('Request converted to reminder')
+        // Update the request status to converted
+        setRequests((prev) =>
+          prev.map((r) =>
+            r.id === id
+              ? { ...r, status: 'converted' as const, converted_to_reminder_id: result.reminderId ?? null }
+              : r,
+          ),
+        )
+      }
+    } finally {
+      setConvertingId(null)
     }
   }
 
@@ -73,22 +108,21 @@ export function RequestsContent({
   const sent = requests.filter((r) => r.requested_by === userId)
   const displayed = tab === 'received' ? received : sent
 
-  return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Requests</h1>
-        <div className="flex flex-col items-end gap-1">
-          <Button
-            onClick={() => setShowForm(!showForm)}
-            disabled={!partnerId}
-            title={!partnerId ? 'Connect with a partner to send requests' : undefined}
-          >
-            {showForm ? 'Cancel' : 'New Request'}
-          </Button>
-          {!partnerId && <p className="text-xs text-muted-foreground">Connect with a partner to send requests</p>}
-        </div>
-      </div>
+  const requestButton = (
+    <div className="flex flex-col items-end gap-1">
+      <Button
+        onClick={() => setShowForm(!showForm)}
+        disabled={!partnerId}
+        title={!partnerId ? 'Connect with a partner to send requests' : undefined}
+      >
+        {showForm ? 'Cancel' : 'New Request'}
+      </Button>
+      {!partnerId && <p className="text-xs text-muted-foreground">Connect with a partner to send requests</p>}
+    </div>
+  )
 
+  return (
+    <PageContainer title="Requests" action={requestButton}>
       {showForm && partnerId && (
         <RequestForm
           formAction={formAction}
@@ -126,10 +160,12 @@ export function RequestsContent({
               isReceiver={request.requested_for === userId}
               onRespond={handleRespond}
               onDelete={handleDelete}
+              onConvertToReminder={handleConvertToReminder}
+              isConverting={convertingId === request.id}
             />
           ))}
         </div>
       )}
-    </div>
+    </PageContainer>
   )
 }

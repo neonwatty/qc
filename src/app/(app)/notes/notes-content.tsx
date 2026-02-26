@@ -1,9 +1,11 @@
 'use client'
 
 import { useCallback, useState } from 'react'
+import { toast } from 'sonner'
 
 import { NoteEditor } from '@/components/notes/NoteEditor'
 import { NoteList } from '@/components/notes/NoteList'
+import { PageContainer } from '@/components/layout/PageContainer'
 import { useRealtimeCouple } from '@/hooks/useRealtimeCouple'
 import type { DbNote } from '@/types'
 
@@ -49,8 +51,11 @@ export function NotesPageContent({ notes: initialNotes, currentUserId, coupleId 
 
     deleteNoteById(note.id).then(({ error }) => {
       if (error) {
+        toast.error('Failed to delete note')
         // Re-add the note on failure
         setNotes((prev) => [...prev, note].sort((a, b) => b.created_at.localeCompare(a.created_at)))
+      } else {
+        toast.success('Note deleted')
       }
     })
   }, [])
@@ -65,30 +70,29 @@ export function NotesPageContent({ notes: initialNotes, currentUserId, coupleId 
     setEditingNote(null)
   }, [])
 
-  return (
-    <div className="space-y-6 p-4 sm:p-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold sm:text-3xl">Notes</h1>
-          <p className="mt-1 text-sm text-muted-foreground">Keep track of your thoughts, insights, and reflections</p>
-        </div>
-        <button
-          onClick={handleNewNote}
-          className="touch-target gradient-primary flex items-center gap-2 rounded-xl px-4 py-2.5 font-semibold text-white transition-opacity hover:opacity-90"
-        >
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          New Note
-        </button>
-      </div>
+  const newNoteButton = (
+    <button
+      onClick={handleNewNote}
+      className="touch-target gradient-primary flex items-center gap-2 rounded-xl px-4 py-2.5 font-semibold text-white transition-opacity hover:opacity-90"
+    >
+      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+      </svg>
+      New Note
+    </button>
+  )
 
+  return (
+    <PageContainer
+      title="Notes"
+      description="Keep track of your thoughts, insights, and reflections"
+      action={newNoteButton}
+    >
       {/* Notes list */}
       <NoteList notes={notes} currentUserId={currentUserId} onSelect={handleSelect} onDelete={handleDelete} />
 
       {/* Editor modal */}
       <NoteEditor note={editingNote} isOpen={editorOpen} onClose={handleClose} />
-    </div>
+    </PageContainer>
   )
 }

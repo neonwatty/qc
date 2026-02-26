@@ -12,13 +12,14 @@ import { useBookends } from '@/contexts/BookendsContext'
 import { PreparationModal } from '@/components/bookends/PreparationModal'
 import { useCheckInContext } from '@/contexts/CheckInContext'
 import { ProgressBar } from '@/components/checkin/ProgressBar'
+import { useCategories } from '@/hooks/useCategories'
 import {
-  CHECK_IN_CATEGORIES,
   CategorySelectionStep,
   CategoryDiscussionStep,
   ReflectionStep,
   ActionItemsStep,
   CompletionStep,
+  WarmUpStep,
 } from './steps'
 
 import type { SessionSettings } from '@/types'
@@ -93,14 +94,14 @@ function CheckInLanding(): React.ReactNode {
   const { getActiveSettings } = useSessionSettings()
   const sessionSettings = getActiveSettings()
   const { preparation, openPreparationModal } = useBookends()
-  const { startCheckIn } = useCheckInContext()
+  const { startCheckIn, coupleId } = useCheckInContext()
+  const { categories, isLoading } = useCategories(coupleId)
 
   const topicCount = preparation?.myTopics?.length ?? 0
 
   const handleStartQuickCheckIn = (): void => {
-    const categories =
-      topicCount > 0 ? preparation!.myTopics.map((t) => t.content) : CHECK_IN_CATEGORIES.map((c) => c.id)
-    startCheckIn(categories)
+    const categoryList = topicCount > 0 ? preparation!.myTopics.map((t) => t.content) : categories.map((c) => c.id)
+    startCheckIn(categoryList)
   }
 
   const handleStartCategoryCheckIn = (): void => {
@@ -129,33 +130,37 @@ function CheckInLanding(): React.ReactNode {
 
       <div>
         <h2 className="text-xl font-semibold text-gray-900 mb-4">Or choose a specific topic to explore:</h2>
-        <StaggerContainer className="grid gap-4 sm:grid-cols-2">
-          {CHECK_IN_CATEGORIES.map((category) => (
-            <StaggerItem key={category.id}>
-              <div
-                className={`bg-white rounded-lg border-2 p-6 cursor-pointer transition-all ${
-                  selectedCategory === category.id
-                    ? 'border-pink-500 bg-pink-50'
-                    : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
-                }`}
-                onClick={() => setSelectedCategory(selectedCategory === category.id ? null : category.id)}
-              >
-                <div className="flex items-start space-x-3">
-                  <div className="text-2xl">{category.icon}</div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-semibold text-gray-900">{category.name}</h3>
-                    <p className="text-sm text-gray-600 mt-1">{category.description}</p>
+        {isLoading ? (
+          <div className="text-center text-gray-500 py-8">Loading categories...</div>
+        ) : (
+          <StaggerContainer className="grid gap-4 sm:grid-cols-2">
+            {categories.map((category) => (
+              <StaggerItem key={category.id}>
+                <div
+                  className={`bg-white rounded-lg border-2 p-6 cursor-pointer transition-all ${
+                    selectedCategory === category.id
+                      ? 'border-pink-500 bg-pink-50'
+                      : 'border-gray-200 hover:border-gray-300 hover:shadow-sm'
+                  }`}
+                  onClick={() => setSelectedCategory(selectedCategory === category.id ? null : category.id)}
+                >
+                  <div className="flex items-start space-x-3">
+                    <div className="text-2xl">{category.icon}</div>
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-lg font-semibold text-gray-900">{category.name}</h3>
+                      <p className="text-sm text-gray-600 mt-1">{category.description}</p>
+                    </div>
+                    <ArrowRight
+                      className={`h-5 w-5 transition-colors ${
+                        selectedCategory === category.id ? 'text-pink-500' : 'text-gray-400'
+                      }`}
+                    />
                   </div>
-                  <ArrowRight
-                    className={`h-5 w-5 transition-colors ${
-                      selectedCategory === category.id ? 'text-pink-500' : 'text-gray-400'
-                    }`}
-                  />
                 </div>
-              </div>
-            </StaggerItem>
-          ))}
-        </StaggerContainer>
+              </StaggerItem>
+            ))}
+          </StaggerContainer>
+        )}
 
         {selectedCategory && (
           <MotionBox variant="fade" className="mt-6">
@@ -163,7 +168,7 @@ function CheckInLanding(): React.ReactNode {
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-lg font-semibold text-gray-900">
-                    Ready to explore {CHECK_IN_CATEGORIES.find((c) => c.id === selectedCategory)?.name}?
+                    Ready to explore {categories.find((c) => c.id === selectedCategory)?.name}?
                   </h3>
                   <p className="text-gray-600 mt-1">
                     We&apos;ll guide you through thoughtful questions and provide space for both of you to share.
@@ -186,6 +191,8 @@ function CheckInLanding(): React.ReactNode {
 
 function CheckInWizard(): React.ReactNode {
   const { session } = useCheckInContext()
+  const { getActiveSettings } = useSessionSettings()
+  const sessionSettings = getActiveSettings()
 
   if (!session) return null
 
@@ -196,6 +203,12 @@ function CheckInWizard(): React.ReactNode {
       case 'welcome':
       case 'category-selection':
         return <CategorySelectionStep />
+      case 'warm-up': {
+        if (!sessionSettings?.warmUpQuestions) {
+          return <CategoryDiscussionStep />
+        }
+        return <WarmUpStep />
+      }
       case 'category-discussion':
         return <CategoryDiscussionStep />
       case 'reflection':

@@ -157,6 +157,15 @@ function useCheckInMutations({ state, dispatch, coupleId, userId, actionItems }:
     if (!state.session) return
     await updateCheckInStatus(state.session.id, 'completed')
     dispatch({ type: 'COMPLETE_CHECKIN' })
+
+    // Send summary email to both partners (non-blocking)
+    if (typeof window !== 'undefined') {
+      import('@/app/(app)/checkin/actions')
+        .then((mod) => mod.sendCheckInSummaryEmail(state.session!.id))
+        .catch(() => {
+          // Email send failed -- non-blocking
+        })
+    }
   }, [state.session, dispatch])
 
   const abandonCheckIn = useCallback(async () => {
@@ -271,6 +280,7 @@ export function CheckInProvider({ children, coupleId, userId }: CheckInProviderP
 
   const contextValue: CheckInContextValue = {
     ...state,
+    coupleId,
     dispatch,
     ...mutations,
     ...queries,

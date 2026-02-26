@@ -5,8 +5,9 @@ import { z } from 'zod'
 
 import { requireAuth } from '@/lib/auth'
 import { createCouple, createInvite } from '@/lib/couples'
-import { sendEmail } from '@/lib/email/send'
+import { sendEmail, shouldSendEmail } from '@/lib/email/send'
 import { InviteEmail } from '@/lib/email/templates/invite'
+import { WelcomeEmail } from '@/lib/email/templates/welcome'
 import { createClient } from '@/lib/supabase/server'
 import { validate, emailSchema, nameSchema } from '@/lib/validation'
 
@@ -14,7 +15,17 @@ const onboardingSchema = z.object({
   displayName: nameSchema,
   partnerEmail: emailSchema,
   relationshipStartDate: z.string().optional(),
+  selectedLanguages: z.string().optional(),
 })
+
+const LANGUAGE_TITLES: Record<string, string> = {
+  words: 'Words of Affirmation',
+  acts: 'Acts of Service',
+  gifts: 'Receiving Gifts',
+  time: 'Quality Time',
+  touch: 'Physical Touch',
+  custom: 'Custom',
+}
 
 export type OnboardingState = {
   error: string | null
@@ -27,6 +38,7 @@ export async function completeOnboarding(_prev: OnboardingState, formData: FormD
     displayName: formData.get('displayName'),
     partnerEmail: formData.get('partnerEmail'),
     relationshipStartDate: formData.get('relationshipStartDate') || undefined,
+    selectedLanguages: formData.get('selectedLanguages') || undefined,
   }
 
   const { data: input, error: validationError } = validate(onboardingSchema, raw)
@@ -58,6 +70,28 @@ export async function completeOnboarding(_prev: OnboardingState, formData: FormD
     await supabase.from('couples').update({ relationship_start_date: input.relationshipStartDate }).eq('id', couple.id)
   }
 
+  // Save love languages if selected
+  const rawLanguages = input.selectedLanguages
+  if (rawLanguages) {
+    try {
+      const categories = JSON.parse(rawLanguages) as string[]
+      if (Array.isArray(categories) && categories.length > 0) {
+        const languageRows = categories.map((category) => ({
+          couple_id: couple.id,
+          user_id: user.id,
+          // eslint-disable-next-line security/detect-object-injection -- category is from user-selected values validated by JSON.parse
+          title: LANGUAGE_TITLES[category] ?? category,
+          category,
+          privacy: 'shared' as const,
+          importance: 'high' as const,
+        }))
+        await supabase.from('love_languages').insert(languageRows)
+      }
+    } catch {
+      // Love language insertion failed -- non-blocking, continue to redirect
+    }
+  }
+
   // Create invite and send email (pass existing client to share auth context)
   const { data: invite, error: inviteError } = await createInvite(input.partnerEmail, supabase)
 
@@ -77,6 +111,22 @@ export async function completeOnboarding(_prev: OnboardingState, formData: FormD
     })
   } catch {
     // Email send failed (e.g. RESEND_API_KEY not configured) -- still redirect, they can resend later
+  }
+
+  // Send welcome email to the user
+  if (user.email) {
+    try {
+      const canSend = await shouldSendEmail(user.email)
+      if (canSend) {
+        await sendEmail({
+          to: user.email,
+          subject: 'Welcome to QC',
+          react: WelcomeEmail({ name: input.displayName, dashboardUrl: `${baseUrl}/dashboard` }),
+        })
+      }
+    } catch {
+      // Email send failed -- non-blocking, continue to redirect
+    }
   }
 
   redirect('/dashboard')

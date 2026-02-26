@@ -1,9 +1,13 @@
 'use client'
 
+/* eslint-disable max-lines */
+/* eslint-disable max-lines-per-function */
+
 import { createContext, useContext, useState, useCallback, useEffect } from 'react'
-import type { SessionSettings, SessionTemplate } from '@/types'
-import type { DbSessionSettings } from '@/types/database'
+import type { SessionSettings, SessionTemplate, SessionSettingsProposal } from '@/types'
+import type { DbSessionSettings, DbSessionSettingsProposal } from '@/types/database'
 import { createClient } from '@/lib/supabase/client'
+import { useRealtimeCouple } from '@/hooks/useRealtimeCouple'
 
 interface SessionSettingsTemplate {
   name: string
@@ -15,7 +19,9 @@ interface SessionSettingsTemplate {
 interface SessionSettingsContextType {
   currentSettings: SessionSettings | null
   templates: SessionSettingsTemplate[]
-  updateCurrentSettings: (settings: Partial<SessionSettings>) => void
+  pendingProposal: SessionSettingsProposal | null
+  proposeSettings: (settings: Partial<SessionSettings>) => Promise<void>
+  respondToProposal: (proposalId: string, accept: boolean) => Promise<void>
   applyTemplate: (templateType: SessionTemplate) => void
   getActiveSettings: () => SessionSettings
 }
@@ -78,6 +84,10 @@ const DEFAULT_SETTINGS: SessionSettings = {
   allowExtensions: true,
   warmUpQuestions: false,
   coolDownTime: 2,
+  pauseNotifications: false,
+  autoSaveDrafts: true,
+  version: 1,
+  agreedBy: [],
 }
 
 function mapDbToSettings(row: DbSessionSettings): SessionSettings {
@@ -92,6 +102,24 @@ function mapDbToSettings(row: DbSessionSettings): SessionSettings {
     allowExtensions: row.allow_extensions,
     warmUpQuestions: row.warm_up_questions,
     coolDownTime: row.cool_down_time,
+    pauseNotifications: row.pause_notifications,
+    autoSaveDrafts: row.auto_save_drafts,
+    version: row.version,
+    agreedBy: row.agreed_by,
+  }
+}
+
+function mapDbToProposal(row: DbSessionSettingsProposal): SessionSettingsProposal {
+  return {
+    id: row.id,
+    coupleId: row.couple_id,
+    proposedBy: row.proposed_by,
+    proposedAt: row.proposed_at,
+    settings: row.settings,
+    status: row.status,
+    reviewedBy: row.reviewed_by,
+    reviewedAt: row.reviewed_at,
+    createdAt: row.created_at,
   }
 }
 
@@ -104,10 +132,11 @@ interface SessionSettingsProviderProps {
 
 export function SessionSettingsProvider({ children, coupleId }: SessionSettingsProviderProps): React.ReactNode {
   const [currentSettings, setCurrentSettings] = useState<SessionSettings | null>(null)
+  const [pendingProposal, setPendingProposal] = useState<SessionSettingsProposal | null>(null)
+  const supabase = createClient()
 
   useEffect(() => {
     async function loadSettings() {
-      const supabase = createClient()
       const { data, error } = await supabase
         .from('session_settings')
         .select('*')
@@ -126,38 +155,134 @@ export function SessionSettingsProvider({ children, coupleId }: SessionSettingsP
         setCurrentSettings({ ...DEFAULT_SETTINGS, coupleId })
       }
     }
+
+    async function loadPendingProposal() {
+      const { data, error } = await supabase
+        .from('session_settings_proposals')
+        .select('*')
+        .eq('couple_id', coupleId)
+        .eq('status', 'pending')
+        .maybeSingle()
+
+      if (error) {
+        console.error('Failed to load pending proposal:', error)
+        return
+      }
+
+      if (data) {
+        setPendingProposal(mapDbToProposal(data))
+      }
+    }
+
     loadSettings()
-  }, [coupleId])
+    loadPendingProposal()
+  }, [coupleId, supabase])
 
-  const updateCurrentSettings = useCallback(
-    async (settings: Partial<SessionSettings>) => {
-      const updated = { ...currentSettings, ...settings } as SessionSettings
-      setCurrentSettings(updated)
-
-      const supabase = createClient()
-      await supabase.from('session_settings').upsert({
-        id: updated.id === 'default' ? undefined : updated.id,
-        couple_id: coupleId,
-        session_duration: updated.sessionDuration,
-        timeouts_per_partner: updated.timeoutsPerPartner,
-        timeout_duration: updated.timeoutDuration,
-        turn_based_mode: updated.turnBasedMode,
-        turn_duration: updated.turnDuration,
-        allow_extensions: updated.allowExtensions,
-        warm_up_questions: updated.warmUpQuestions,
-        cool_down_time: updated.coolDownTime,
-      })
+  // Realtime subscription for proposals
+  useRealtimeCouple<DbSessionSettingsProposal>({
+    table: 'session_settings_proposals',
+    coupleId,
+    onInsert: (record) => {
+      const proposal = mapDbToProposal(record)
+      if (proposal.status === 'pending') {
+        setPendingProposal(proposal)
+      }
     },
-    [currentSettings, coupleId],
+    onUpdate: (record) => {
+      const proposal = mapDbToProposal(record)
+      if (proposal.status !== 'pending') {
+        setPendingProposal(null)
+      }
+    },
+    onDelete: () => {
+      setPendingProposal(null)
+    },
+  })
+
+  const proposeSettings = useCallback(
+    async (settings: Partial<SessionSettings>) => {
+      const { data: userData } = await supabase.auth.getUser()
+      if (!userData.user) return
+
+      const { error } = await supabase.from('session_settings_proposals').insert({
+        couple_id: coupleId,
+        proposed_by: userData.user.id,
+        settings: settings as Record<string, unknown>,
+        status: 'pending',
+      })
+
+      if (error) {
+        console.error('Failed to create proposal:', error)
+      }
+    },
+    [coupleId, supabase],
+  )
+
+  const respondToProposal = useCallback(
+    async (proposalId: string, accept: boolean) => {
+      const { data: userData } = await supabase.auth.getUser()
+      if (!userData.user) return
+
+      const proposal = pendingProposal
+      if (!proposal) return
+
+      if (proposal.proposedBy === userData.user.id) {
+        console.error('Cannot accept your own proposal')
+        return
+      }
+
+      if (proposal.status !== 'pending') {
+        console.error('Proposal has already been reviewed')
+        return
+      }
+
+      if (accept) {
+        const updatedSettings = { ...currentSettings, ...proposal.settings } as SessionSettings
+
+        const currentVersion = currentSettings?.version || 1
+        const agreedBy = currentSettings?.agreedBy || []
+
+        await supabase.from('session_settings').upsert({
+          id: currentSettings?.id === 'default' ? undefined : currentSettings?.id,
+          couple_id: coupleId,
+          session_duration: updatedSettings.sessionDuration,
+          timeouts_per_partner: updatedSettings.timeoutsPerPartner,
+          timeout_duration: updatedSettings.timeoutDuration,
+          turn_based_mode: updatedSettings.turnBasedMode,
+          turn_duration: updatedSettings.turnDuration,
+          allow_extensions: updatedSettings.allowExtensions,
+          warm_up_questions: updatedSettings.warmUpQuestions,
+          cool_down_time: updatedSettings.coolDownTime,
+          pause_notifications: updatedSettings.pauseNotifications,
+          auto_save_drafts: updatedSettings.autoSaveDrafts,
+          version: currentVersion + 1,
+          agreed_by: [...agreedBy, proposal.proposedBy, userData.user.id],
+        })
+
+        setCurrentSettings(updatedSettings)
+      }
+
+      await supabase
+        .from('session_settings_proposals')
+        .update({
+          status: accept ? 'accepted' : 'rejected',
+          reviewed_by: userData.user.id,
+          reviewed_at: new Date().toISOString(),
+        })
+        .eq('id', proposalId)
+
+      setPendingProposal(null)
+    },
+    [pendingProposal, currentSettings, coupleId, supabase],
   )
 
   const applyTemplate = useCallback(
     (templateType: SessionTemplate) => {
       const template = DEFAULT_TEMPLATES.find((t) => t.type === templateType)
       if (!template) return
-      updateCurrentSettings(template.settings)
+      proposeSettings(template.settings)
     },
-    [updateCurrentSettings],
+    [proposeSettings],
   )
 
   const getActiveSettings = useCallback((): SessionSettings => {
@@ -169,7 +294,9 @@ export function SessionSettingsProvider({ children, coupleId }: SessionSettingsP
       value={{
         currentSettings,
         templates: DEFAULT_TEMPLATES,
-        updateCurrentSettings,
+        pendingProposal,
+        proposeSettings,
+        respondToProposal,
         applyTemplate,
         getActiveSettings,
       }}

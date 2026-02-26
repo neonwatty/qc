@@ -4,14 +4,15 @@ import { useState } from 'react'
 import { useLoveLanguages } from '@/contexts/LoveLanguagesContext'
 import { LoveLanguageCard } from '@/components/love-languages/LoveLanguageCard'
 import { AddLanguageDialog } from '@/components/love-languages/AddLanguageDialog'
-import { PageHeader } from '@/components/layout/PageHeader'
+import { PageContainer } from '@/components/layout/PageContainer'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
-import { Plus, Heart, Sparkles, Info } from 'lucide-react'
-import type { LoveLanguage } from '@/types'
+import { DiscoveryCard } from '@/components/love-languages/DiscoveryCard'
+import { Plus, Heart, Sparkles, Info, Lightbulb } from 'lucide-react'
+import type { LoveLanguage, LoveLanguageDiscovery } from '@/types'
 
 interface LanguageGroupProps {
   title: string
@@ -55,6 +56,35 @@ function LanguageGroup({
   )
 }
 
+interface DiscoveriesTabProps {
+  discoveries: LoveLanguageDiscovery[]
+  onDelete: (id: string) => Promise<void>
+}
+
+function DiscoveriesTab({ discoveries, onDelete }: DiscoveriesTabProps): React.ReactNode {
+  if (discoveries.length === 0) {
+    return (
+      <Card className="bg-white">
+        <CardHeader>
+          <CardTitle className="text-gray-900">No Discoveries Yet</CardTitle>
+          <CardDescription className="text-gray-700">
+            Discoveries are insights about love languages that emerge during check-in sessions. They can be converted
+            into full love language entries.
+          </CardDescription>
+        </CardHeader>
+      </Card>
+    )
+  }
+
+  return (
+    <div className="grid gap-4">
+      {discoveries.map((discovery) => (
+        <DiscoveryCard key={discovery.id} discovery={discovery} onDelete={onDelete} />
+      ))}
+    </div>
+  )
+}
+
 interface PartnerLanguagesTabProps {
   partnerLanguages: LoveLanguage[]
 }
@@ -90,8 +120,16 @@ function PartnerLanguagesTab({ partnerLanguages }: PartnerLanguagesTabProps): Re
 }
 
 export default function LoveLanguagesPage(): React.ReactNode {
-  const { languages, partnerLanguages, addLanguage, updateLanguage, deleteLanguage, toggleLanguagePrivacy } =
-    useLoveLanguages()
+  const {
+    languages,
+    partnerLanguages,
+    discoveries,
+    addLanguage,
+    updateLanguage,
+    deleteLanguage,
+    deleteDiscovery,
+    toggleLanguagePrivacy,
+  } = useLoveLanguages()
 
   const [showAddDialog, setShowAddDialog] = useState(false)
   const [editingLanguage, setEditingLanguage] = useState<LoveLanguage | null>(null)
@@ -136,82 +174,89 @@ export default function LoveLanguagesPage(): React.ReactNode {
   const sharedLanguages = languages.filter((l) => l.privacy === 'shared')
   const privateLanguages = languages.filter((l) => l.privacy === 'private')
 
+  const addLanguageButton = (
+    <Button onClick={() => setShowAddDialog(true)}>
+      <Plus className="h-4 w-4 mr-2" />
+      Add Language
+    </Button>
+  )
+
   return (
-    <div className="min-h-screen bg-background">
-      <PageHeader title="Love Languages" description="Discover and share the unique ways you feel loved" />
+    <PageContainer
+      title="Love Languages"
+      description="Discover and share the unique ways you feel loved"
+      action={addLanguageButton}
+    >
+      <Alert className="border-rose-200 bg-rose-50/50">
+        <Info className="h-4 w-4 text-rose-600" />
+        <AlertDescription className="text-gray-700 font-medium">
+          Love Languages help your partner understand what makes you feel most loved and appreciated. Start with a few
+          and refine them over time.
+        </AlertDescription>
+      </Alert>
 
-      <main className="container mx-auto px-4 py-6 max-w-4xl">
-        <div className="mb-6">
-          <Alert className="border-rose-200 bg-rose-50/50">
-            <Info className="h-4 w-4 text-rose-600" />
-            <AlertDescription className="text-gray-700 font-medium">
-              Love Languages help your partner understand what makes you feel most loved and appreciated. Start with a
-              few and refine them over time.
-            </AlertDescription>
-          </Alert>
-        </div>
+      <Tabs defaultValue="mine" className="space-y-4">
+        <TabsList className="bg-white">
+          <TabsTrigger value="mine" className="text-gray-700 data-[state=active]:text-gray-900">
+            <Heart className="h-4 w-4 mr-2" />
+            My Languages ({languages.length})
+          </TabsTrigger>
+          <TabsTrigger value="partner" className="text-gray-700 data-[state=active]:text-gray-900">
+            <Sparkles className="h-4 w-4 mr-2" />
+            Partner&apos;s ({partnerLanguages.length})
+          </TabsTrigger>
+          <TabsTrigger value="discoveries" className="text-gray-700 data-[state=active]:text-gray-900">
+            <Lightbulb className="h-4 w-4 mr-2" />
+            Discoveries ({discoveries.length})
+          </TabsTrigger>
+        </TabsList>
 
-        <Tabs defaultValue="mine" className="space-y-4">
-          <div className="flex items-center justify-between">
-            <TabsList className="bg-white">
-              <TabsTrigger value="mine" className="text-gray-700 data-[state=active]:text-gray-900">
-                <Heart className="h-4 w-4 mr-2" />
-                My Languages ({languages.length})
-              </TabsTrigger>
-              <TabsTrigger value="partner" className="text-gray-700 data-[state=active]:text-gray-900">
-                <Sparkles className="h-4 w-4 mr-2" />
-                Partner&apos;s ({partnerLanguages.length})
-              </TabsTrigger>
-            </TabsList>
-            <Button onClick={() => setShowAddDialog(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Language
-            </Button>
-          </div>
+        <TabsContent value="mine" className="space-y-6">
+          {languages.length === 0 ? (
+            <Card className="bg-white">
+              <CardHeader>
+                <CardTitle className="text-gray-900">No Love Languages Yet</CardTitle>
+                <CardDescription className="text-gray-700">
+                  Start by adding your first love language. Think about specific moments when you felt most loved.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <Button onClick={() => setShowAddDialog(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Your First Love Language
+                </Button>
+              </CardContent>
+            </Card>
+          ) : (
+            <>
+              <LanguageGroup
+                title="Shared with Partner"
+                languages={sharedLanguages}
+                badgeVariant="secondary"
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onTogglePrivacy={handleTogglePrivacy}
+              />
+              <LanguageGroup
+                title="Private"
+                languages={privateLanguages}
+                badgeVariant="outline"
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+                onTogglePrivacy={handleTogglePrivacy}
+              />
+            </>
+          )}
+        </TabsContent>
 
-          <TabsContent value="mine" className="space-y-6">
-            {languages.length === 0 ? (
-              <Card className="bg-white">
-                <CardHeader>
-                  <CardTitle className="text-gray-900">No Love Languages Yet</CardTitle>
-                  <CardDescription className="text-gray-700">
-                    Start by adding your first love language. Think about specific moments when you felt most loved.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <Button onClick={() => setShowAddDialog(true)}>
-                    <Plus className="h-4 w-4 mr-2" />
-                    Add Your First Love Language
-                  </Button>
-                </CardContent>
-              </Card>
-            ) : (
-              <>
-                <LanguageGroup
-                  title="Shared with Partner"
-                  languages={sharedLanguages}
-                  badgeVariant="secondary"
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                  onTogglePrivacy={handleTogglePrivacy}
-                />
-                <LanguageGroup
-                  title="Private"
-                  languages={privateLanguages}
-                  badgeVariant="outline"
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                  onTogglePrivacy={handleTogglePrivacy}
-                />
-              </>
-            )}
-          </TabsContent>
+        <TabsContent value="partner" className="space-y-4">
+          <PartnerLanguagesTab partnerLanguages={partnerLanguages} />
+        </TabsContent>
 
-          <TabsContent value="partner" className="space-y-4">
-            <PartnerLanguagesTab partnerLanguages={partnerLanguages} />
-          </TabsContent>
-        </Tabs>
-      </main>
+        <TabsContent value="discoveries" className="space-y-4">
+          <DiscoveriesTab discoveries={discoveries} onDelete={deleteDiscovery} />
+        </TabsContent>
+      </Tabs>
 
       <AddLanguageDialog
         open={showAddDialog}
@@ -219,6 +264,6 @@ export default function LoveLanguagesPage(): React.ReactNode {
         onSubmit={handleSubmit}
         initialLanguage={editingLanguage ?? undefined}
       />
-    </div>
+    </PageContainer>
   )
 }

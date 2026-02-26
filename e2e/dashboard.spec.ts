@@ -5,13 +5,14 @@ test.describe('Dashboard', () => {
     test('renders main heading', async ({ authedPage: page }) => {
       await page.goto('/dashboard')
 
-      await expect(page.getByRole('heading', { name: /welcome to your dashboard/i })).toBeVisible()
+      await expect(page.getByRole('heading', { name: /^dashboard$/i })).toBeVisible()
     })
 
     test('renders subtitle', async ({ authedPage: page }) => {
       await page.goto('/dashboard')
 
-      await expect(page.getByText(/your relationship command center/i)).toBeVisible()
+      const main = page.getByRole('main')
+      await expect(main.getByText(/your relationship command center/i)).toBeVisible()
     })
 
     test('does not show the no-couple pairing prompt', async ({ authedPage: page }) => {
@@ -37,7 +38,7 @@ test.describe('Dashboard', () => {
     test('Start Check-in links to /checkin', async ({ authedPage: page }) => {
       await page.goto('/dashboard')
 
-      const link = page.getByRole('link', { name: /start check-in/i })
+      const link = page.getByRole('link', { name: /start check-in/i }).first()
       await expect(link).toBeVisible()
       await expect(link).toHaveAttribute('href', '/checkin')
     })
@@ -80,13 +81,14 @@ test.describe('Dashboard', () => {
       await expect(page.getByRole('heading', { name: /recent activity/i })).toBeVisible()
     })
 
-    test('shows activity lines', async ({ authedPage: page }) => {
+    test('shows stat cards', async ({ authedPage: page }) => {
       await page.goto('/dashboard')
 
-      await expect(page.getByText(/check-ins completed/i)).toBeVisible()
-      await expect(page.getByText(/notes created/i)).toBeVisible()
-      await expect(page.getByText(/milestones achieved/i)).toBeVisible()
-      await expect(page.getByText(/open action items/i)).toBeVisible()
+      const main = page.getByRole('main')
+      await expect(main.getByText('Check-ins', { exact: true })).toBeVisible()
+      await expect(main.getByText('Notes', { exact: true })).toBeVisible()
+      await expect(main.getByText('Milestones', { exact: true })).toBeVisible()
+      await expect(main.getByText('Action Items', { exact: true })).toBeVisible()
     })
   })
 })

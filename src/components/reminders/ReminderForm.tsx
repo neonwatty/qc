@@ -11,9 +11,18 @@ interface Props {
   formState: ReminderActionState
   isPending: boolean
   coupleId: string | null
+  userId?: string
+  partnerId?: string
 }
 
-export function ReminderForm({ formAction, formState, isPending, coupleId }: Props): React.ReactElement {
+export function ReminderForm({
+  formAction,
+  formState,
+  isPending,
+  coupleId,
+  userId,
+  partnerId,
+}: Props): React.ReactElement {
   if (!coupleId) {
     return <p className="text-sm text-muted-foreground">Join a couple first to create reminders.</p>
   }
@@ -89,6 +98,22 @@ export function ReminderForm({ formAction, formState, isPending, coupleId }: Pro
               </select>
             </div>
           </div>
+
+          {userId && partnerId && (
+            <div className="space-y-2">
+              <Label htmlFor="assigned_to">Assign to</Label>
+              <select
+                id="assigned_to"
+                name="assigned_to"
+                defaultValue=""
+                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+              >
+                <option value="">Both</option>
+                <option value={userId}>Me</option>
+                <option value={partnerId}>Partner</option>
+              </select>
+            </div>
+          )}
 
           {formState.error && <p className="text-sm text-destructive">{formState.error}</p>}
 

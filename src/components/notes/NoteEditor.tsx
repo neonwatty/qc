@@ -1,8 +1,10 @@
 'use client'
 
 import { useActionState, useCallback, useEffect, useRef, useState } from 'react'
+import { toast } from 'sonner'
 
 import { cn } from '@/lib/utils'
+import { hapticFeedback } from '@/lib/haptics'
 import type { DbNote } from '@/types'
 
 import { createNote, updateNote } from '@/app/(app)/notes/actions'
@@ -46,6 +48,26 @@ function PrivacySelector({
           </button>
         ))}
       </div>
+    </div>
+  )
+}
+
+function TagList({ tags, onRemove }: { tags: string[]; onRemove: (tag: string) => void }): React.ReactNode {
+  return (
+    <div className="mb-2 flex flex-wrap gap-1">
+      {tags.map((tag) => (
+        <span
+          key={tag}
+          className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary"
+        >
+          #{tag}
+          <button type="button" onClick={() => onRemove(tag)} className="rounded-full hover:bg-primary/20">
+            <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </span>
+      ))}
     </div>
   )
 }
@@ -110,9 +132,20 @@ function NoteEditorForm({ note, onClose }: { note?: DbNote | null; onClose: () =
   // Close dialog on successful save
   useEffect(() => {
     if (hasSubmitted && !isPending && !state.error) {
+      toast.success('Note saved')
+      if (!isEditing) {
+        hapticFeedback.noteAdded()
+      }
       onClose()
     }
-  }, [hasSubmitted, isPending, state.error, onClose])
+  }, [hasSubmitted, isPending, state.error, onClose, isEditing])
+
+  // Show error toast
+  useEffect(() => {
+    if (state.error) {
+      toast.error(state.error)
+    }
+  }, [state.error])
 
   const handleAddTag = useCallback(() => {
     const tag = tagInput.trim().toLowerCase()
@@ -188,25 +221,7 @@ function NoteEditorForm({ note, onClose }: { note?: DbNote | null; onClose: () =
           </div>
 
           <div className="border-t border-border px-4 py-3">
-            <div className="mb-2 flex flex-wrap gap-1">
-              {tags.map((tag) => (
-                <span
-                  key={tag}
-                  className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary"
-                >
-                  #{tag}
-                  <button
-                    type="button"
-                    onClick={() => handleRemoveTag(tag)}
-                    className="rounded-full hover:bg-primary/20"
-                  >
-                    <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </span>
-              ))}
-            </div>
+            <TagList tags={tags} onRemove={handleRemoveTag} />
             <input
               type="text"
               value={tagInput}

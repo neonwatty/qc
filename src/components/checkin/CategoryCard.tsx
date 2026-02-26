@@ -81,7 +81,7 @@ export function CategoryCard({
     >
       <div
         className={cn(
-          'relative bg-white rounded-xl border-2 p-6 cursor-pointer transition-all duration-200 shadow-sm hover:shadow-md',
+          'relative bg-white rounded-lg border-2 p-6 cursor-pointer transition-all duration-200 shadow-sm hover:shadow-md',
           isSelected
             ? `${colors.border} ${colors.bg} ring-4 ${colors.ring} shadow-lg`
             : 'border-gray-200 hover:border-gray-300',

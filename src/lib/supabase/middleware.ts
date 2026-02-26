@@ -7,6 +7,7 @@ const PUBLIC_ROUTES = [
   '/auth/callback',
   '/api/health',
   '/api/email/webhook',
+  '/api/email/unsubscribe',
   '/api/cron',
   '/onboarding',
   '/invite',

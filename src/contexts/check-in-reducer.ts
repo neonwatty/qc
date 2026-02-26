@@ -6,6 +6,7 @@ import type { CheckInContextState, CheckInAction, CheckInSession, CheckInStep, C
 export const STEPS: CheckInStep[] = [
   'welcome',
   'category-selection',
+  'warm-up',
   'category-discussion',
   'reflection',
   'action-items',

@@ -10,6 +10,10 @@ export interface DbProfile {
   couple_id: string | null
   created_at: string
   updated_at: string
+  email_bounced_at: string | null
+  email_complained_at: string | null
+  email_unsubscribe_token: string | null
+  email_opted_out_at: string | null
 }
 
 export interface DbCouple {
@@ -94,6 +98,13 @@ export interface DbReminder {
   is_active: boolean
   notification_channel: 'in-app' | 'email' | 'both' | 'none'
   custom_schedule: Record<string, unknown> | null
+  is_snoozed: boolean
+  snooze_until: string | null
+  last_notified_at: string | null
+  assigned_to: string | null
+  related_check_in_id: string | null
+  related_action_item_id: string | null
+  converted_from_request_id: string | null
 }
 
 export interface DbRequest {
@@ -108,6 +119,7 @@ export interface DbRequest {
   status: 'pending' | 'accepted' | 'declined' | 'converted'
   suggested_date: string | null
   created_at: string
+  converted_to_reminder_id: string | null
 }
 
 export interface DbLoveLanguage {
@@ -150,4 +162,43 @@ export interface DbSessionSettings {
   allow_extensions: boolean
   warm_up_questions: boolean
   cool_down_time: number
+  pause_notifications: boolean
+  auto_save_drafts: boolean
+  version: number
+  agreed_by: string[]
+}
+
+export interface DbSessionSettingsProposal {
+  id: string
+  couple_id: string
+  proposed_by: string
+  proposed_at: string
+  settings: Record<string, unknown>
+  status: 'pending' | 'accepted' | 'rejected'
+  reviewed_by: string | null
+  reviewed_at: string | null
+  created_at: string
+}
+
+export interface DbCategory {
+  id: string
+  couple_id: string
+  name: string
+  description: string | null
+  icon: string
+  is_active: boolean
+  is_system: boolean
+  sort_order: number
+  created_at: string
+}
+
+// WT-4 Cross-Feature Linking: Love language discovery system
+export interface DbLoveLanguageDiscovery {
+  id: string
+  couple_id: string
+  user_id: string
+  check_in_id: string | null
+  discovery: string
+  converted_to_language_id: string | null
+  created_at: string
 }

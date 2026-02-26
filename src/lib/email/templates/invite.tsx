@@ -3,11 +3,13 @@ import { Html, Head, Body, Container, Text, Button, Link } from '@react-email/co
 interface InviteEmailProps {
   inviterName?: string
   inviteUrl?: string
+  unsubscribeUrl?: string
 }
 
 export function InviteEmail({
   inviterName = 'Your partner',
-  inviteUrl = 'https://example.com/invite/token',
+  inviteUrl = 'https://tryqc.co/invite/token',
+  unsubscribeUrl,
 }: InviteEmailProps) {
   return (
     <Html>
@@ -28,11 +30,27 @@ export function InviteEmail({
           <Text style={footer}>
             This invite will expire in 7 days. If you did not expect this invitation, you can safely ignore this email.
             Questions? Visit our{' '}
-            <Link href="https://example.com/docs" style={link}>
-              documentation
+            <Link href="https://tryqc.co/terms" style={link}>
+              terms of service
             </Link>
             .
           </Text>
+          <Text style={footerLinks}>
+            <Link href="https://tryqc.co/privacy" style={link}>
+              Privacy Policy
+            </Link>
+            {' · '}
+            <Link href="https://tryqc.co/terms" style={link}>
+              Terms of Service
+            </Link>
+          </Text>
+          {unsubscribeUrl && (
+            <Text style={footer}>
+              <Link href={unsubscribeUrl} style={link}>
+                Unsubscribe from QC emails
+              </Link>
+            </Text>
+          )}
         </Container>
       </Body>
     </Html>
@@ -87,4 +105,12 @@ const footer = {
 const link = {
   color: '#111827',
   textDecoration: 'underline',
+}
+
+const footerLinks = {
+  fontSize: '12px',
+  lineHeight: '16px',
+  color: '#9ca3af',
+  textAlign: 'center' as const,
+  marginTop: '16px',
 }

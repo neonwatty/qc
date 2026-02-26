@@ -4,6 +4,8 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
 import { requireAuth } from '@/lib/auth'
+import { sendEmail, shouldSendEmail } from '@/lib/email/send'
+import { RequestNotificationEmail } from '@/lib/email/templates/request-notification'
 import { validate } from '@/lib/validation'
 
 const requestSchema = z.object({
@@ -55,6 +57,37 @@ export async function createRequest(_prev: RequestActionState, formData: FormDat
 
   if (error) return { error: error.message }
 
+  // Send email notification to partner
+  try {
+    const { data: partnerProfile } = await supabase
+      .from('profiles')
+      .select('email, display_name')
+      .eq('id', data.requested_for)
+      .single()
+
+    const { data: requesterProfile } = await supabase.from('profiles').select('display_name').eq('id', user.id).single()
+
+    if (partnerProfile?.email) {
+      const canSend = await shouldSendEmail(partnerProfile.email)
+      if (canSend) {
+        const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
+        await sendEmail({
+          to: partnerProfile.email,
+          subject: `New request from ${requesterProfile?.display_name ?? 'your partner'}`,
+          react: RequestNotificationEmail({
+            partnerName: requesterProfile?.display_name ?? 'Your partner',
+            title: data.title,
+            category: data.category,
+            priority: data.priority,
+            requestsUrl: `${baseUrl}/requests`,
+          }),
+        })
+      }
+    }
+  } catch {
+    // Email send failed -- non-blocking, request was created successfully
+  }
+
   revalidatePath('/requests')
   return { success: true }
 }
@@ -63,7 +96,21 @@ export async function respondToRequest(
   requestId: string,
   status: 'accepted' | 'declined',
 ): Promise<{ error?: string }> {
-  const { supabase } = await requireAuth()
+  const { user, supabase } = await requireAuth()
+
+  // Verify request belongs to user's couple
+  const { data: profile } = await supabase.from('profiles').select('couple_id').eq('id', user.id).single()
+
+  if (!profile?.couple_id) {
+    return { error: 'You must be in a couple to respond to requests' }
+  }
+
+  // Verify the request belongs to the user's couple
+  const { data: request } = await supabase.from('requests').select('couple_id').eq('id', requestId).single()
+
+  if (!request || request.couple_id !== profile.couple_id) {
+    return { error: 'Request does not belong to your couple' }
+  }
 
   const { error } = await supabase.from('requests').update({ status }).eq('id', requestId)
 
@@ -74,7 +121,21 @@ export async function respondToRequest(
 }
 
 export async function deleteRequest(requestId: string): Promise<{ error?: string }> {
-  const { supabase } = await requireAuth()
+  const { user, supabase } = await requireAuth()
+
+  // Verify request belongs to user's couple
+  const { data: profile } = await supabase.from('profiles').select('couple_id').eq('id', user.id).single()
+
+  if (!profile?.couple_id) {
+    return { error: 'You must be in a couple to delete requests' }
+  }
+
+  // Verify the request belongs to the user's couple
+  const { data: request } = await supabase.from('requests').select('couple_id').eq('id', requestId).single()
+
+  if (!request || request.couple_id !== profile.couple_id) {
+    return { error: 'Request does not belong to your couple' }
+  }
 
   const { error } = await supabase.from('requests').delete().eq('id', requestId)
 
@@ -82,4 +143,42 @@ export async function deleteRequest(requestId: string): Promise<{ error?: string
 
   revalidatePath('/requests')
   return {}
+}
+
+// WT-4 Cross-Feature Linking: Convert request to reminder
+export async function convertRequestToReminder(requestId: string): Promise<{ error?: string; reminderId?: string }> {
+  const { user, supabase } = await requireAuth()
+
+  // Verify request belongs to user's couple
+  const { data: profile } = await supabase.from('profiles').select('couple_id').eq('id', user.id).single()
+
+  if (!profile?.couple_id) {
+    return { error: 'You must be in a couple to convert requests' }
+  }
+
+  // Call the atomic RPC function
+  const { data, error } = await supabase.rpc('convert_request_to_reminder', {
+    p_request_id: requestId,
+    p_couple_id: profile.couple_id,
+    p_user_id: user.id,
+  })
+
+  if (error) return { error: error.message }
+
+  // Check if RPC returned an error
+  if (data && typeof data === 'object' && 'error' in data) {
+    return { error: data.error as string }
+  }
+
+  // Extract reminder_id from RPC result
+  const reminderId =
+    data && typeof data === 'object' && 'reminder_id' in data ? (data.reminder_id as string) : undefined
+
+  if (!reminderId) {
+    return { error: 'Failed to create reminder' }
+  }
+
+  revalidatePath('/requests')
+  revalidatePath('/reminders')
+  return { reminderId }
 }

@@ -1,11 +1,20 @@
 'use client'
 
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
-import { Heart, StickyNote, TrendingUp, Bell } from 'lucide-react'
+import { Heart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { PageContainer } from '@/components/layout/PageContainer'
 import { QuickActions } from '@/components/dashboard/QuickActions'
+import { StreakDisplay } from '@/components/dashboard/StreakDisplay'
 import { StatsGrid } from '@/components/dashboard/StatsGrid'
 import { LoveLanguagesWidget } from '@/components/dashboard/LoveLanguagesWidget'
+import { PrepBanner } from '@/components/dashboard/PrepBanner'
+import { TodayReminders } from '@/components/dashboard/TodayReminders'
+import { RecentActivity } from '@/components/dashboard/RecentActivity'
+import type { StreakData } from '@/lib/streaks'
+import type { ActivityItem } from '@/lib/activity'
 
 interface DashboardContentProps {
   checkInCount: number
@@ -15,6 +24,12 @@ interface DashboardContentProps {
   totalLanguages: number
   sharedLanguages: number
   hasCoupleId: boolean
+  streakData: StreakData
+  activities: ActivityItem[]
+  relationshipStartDate: string | null
+  lastCheckInDate: string | null
+  topLanguages: Array<{ title: string; category: string }>
+  todayReminders: Array<{ id: string; title: string; scheduledFor: string; category: string; isOverdue: boolean }>
 }
 
 export function DashboardContent({
@@ -25,15 +40,32 @@ export function DashboardContent({
   totalLanguages,
   sharedLanguages,
   hasCoupleId,
+  streakData,
+  activities,
+  relationshipStartDate,
+  lastCheckInDate,
+  topLanguages,
+  todayReminders,
 }: DashboardContentProps): React.ReactNode {
-  return (
-    <div className="space-y-8">
-      {/* Header */}
-      <div className="text-center">
-        <h1 className="text-3xl font-bold text-foreground sm:text-4xl">Welcome to Your Dashboard</h1>
-        <p className="mt-4 text-lg text-muted-foreground font-medium">Your relationship command center</p>
-      </div>
+  const router = useRouter()
 
+  // Revalidate dashboard data when user returns to the page
+  useEffect(() => {
+    function handleVisibilityChange(): void {
+      if (document.visibilityState === 'visible') {
+        router.refresh()
+      }
+    }
+
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
+    }
+  }, [router])
+
+  return (
+    <PageContainer title="Dashboard" description="Your relationship command center" className="space-y-8">
       {/* Couple pairing prompt */}
       {!hasCoupleId && (
         <div className="bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-lg p-6 text-center">
@@ -48,46 +80,41 @@ export function DashboardContent({
         </div>
       )}
 
+      {/* Prep Banner */}
+      <PrepBanner lastCheckInDate={lastCheckInDate} />
+
       {/* Quick Actions */}
       <QuickActions />
 
+      {/* Streak Display */}
+      <StreakDisplay streakData={streakData} />
+
+      {/* Today's Reminders + Recent Activity */}
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
+        <TodayReminders reminders={todayReminders} />
+        <RecentActivity activities={activities} />
+      </div>
+
       {/* Stats + Love Languages Widget */}
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <StatsGrid
             checkInCount={checkInCount}
             noteCount={noteCount}
             milestoneCount={milestoneCount}
             actionItemCount={actionItemCount}
+            relationshipStartDate={relationshipStartDate}
+            lastCheckInDate={lastCheckInDate}
           />
         </div>
         <div className="lg:col-span-1">
-          <LoveLanguagesWidget totalLanguages={totalLanguages} sharedLanguages={sharedLanguages} />
+          <LoveLanguagesWidget
+            totalLanguages={totalLanguages}
+            sharedLanguages={sharedLanguages}
+            topLanguages={topLanguages}
+          />
         </div>
       </div>
-
-      {/* Recent Activity placeholder */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-        <h2 className="text-xl font-semibold text-foreground mb-4">Recent Activity</h2>
-        <div className="space-y-3">
-          <div className="flex items-center text-sm text-muted-foreground font-medium">
-            <Heart className="h-4 w-4 text-pink-500 mr-2 flex-shrink-0" />
-            <span>{checkInCount} check-ins completed</span>
-          </div>
-          <div className="flex items-center text-sm text-muted-foreground font-medium">
-            <StickyNote className="h-4 w-4 text-blue-500 mr-2 flex-shrink-0" />
-            <span>{noteCount} notes created</span>
-          </div>
-          <div className="flex items-center text-sm text-muted-foreground font-medium">
-            <TrendingUp className="h-4 w-4 text-green-500 mr-2 flex-shrink-0" />
-            <span>{milestoneCount} milestones achieved</span>
-          </div>
-          <div className="flex items-center text-sm text-muted-foreground font-medium">
-            <Bell className="h-4 w-4 text-indigo-500 mr-2 flex-shrink-0" />
-            <span>{actionItemCount} open action items</span>
-          </div>
-        </div>
-      </div>
-    </div>
+    </PageContainer>
   )
 }

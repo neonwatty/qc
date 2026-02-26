@@ -108,7 +108,7 @@ function FeaturedVariant({
   return (
     <motion.div
       className={cn(
-        'cursor-pointer overflow-hidden rounded-xl border-2 bg-white shadow-lg transition-all dark:bg-gray-900',
+        'cursor-pointer overflow-hidden rounded-lg border-2 bg-white shadow-lg transition-all dark:bg-gray-900',
         rarityConf.borderColor,
         className,
       )}
