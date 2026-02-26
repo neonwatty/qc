@@ -2,10 +2,14 @@
  * Haptic feedback utilities with native Capacitor support and web fallback.
  * On iOS (Capacitor), uses the Haptics plugin for real Taptic Engine feedback.
  * On web, falls back to the Vibration API where available.
+ *
+ * IMPORTANT: @capacitor/haptics is loaded lazily via dynamic import to avoid
+ * hanging in non-native environments (e.g. Linux CI). The Capacitor core
+ * module calls registerPlugin() at import time, which can block on platforms
+ * where the native bridge doesn't exist.
  */
 
-import { Capacitor } from '@capacitor/core'
-import { Haptics, ImpactStyle, NotificationType } from '@capacitor/haptics'
+import { isNativePlatform } from '@/lib/capacitor'
 
 export type HapticIntensity = 'light' | 'medium' | 'heavy'
 
@@ -34,13 +38,25 @@ export const HAPTIC_PATTERNS = {
   dailyGratitude: [50, 50, 100] as number[],
 } as const
 
-const isNative = Capacitor.isNativePlatform()
+/** Lazily loaded Capacitor Haptics module — only loaded on native platforms */
+let hapticsModule: typeof import('@capacitor/haptics') | null = null
+
+async function getHaptics(): Promise<typeof import('@capacitor/haptics') | null> {
+  if (hapticsModule) return hapticsModule
+  if (!isNativePlatform()) return null
+  try {
+    hapticsModule = await import('@capacitor/haptics')
+    return hapticsModule
+  } catch {
+    return null
+  }
+}
 
 /**
  * Check if haptic feedback is supported (native or web vibration)
  */
 export function isHapticSupported(): boolean {
-  if (isNative) return true
+  if (isNativePlatform()) return true
   return typeof navigator !== 'undefined' && 'vibrate' in navigator && typeof navigator.vibrate === 'function'
 }
 
@@ -51,14 +67,17 @@ export function isHapticSupported(): boolean {
 export function triggerHaptic(intensity: HapticIntensity): void {
   if (!isHapticSupported()) return
 
-  if (isNative) {
-    const styleMap: Record<HapticIntensity, ImpactStyle> = {
-      light: ImpactStyle.Light,
-      medium: ImpactStyle.Medium,
-      heavy: ImpactStyle.Heavy,
-    }
-    // eslint-disable-next-line security/detect-object-injection -- intensity is typed as HapticIntensity
-    void Haptics.impact({ style: styleMap[intensity] })
+  if (isNativePlatform()) {
+    void getHaptics().then((mod) => {
+      if (!mod) return
+      const styleMap: Record<HapticIntensity, (typeof mod.ImpactStyle)[keyof typeof mod.ImpactStyle]> = {
+        light: mod.ImpactStyle.Light,
+        medium: mod.ImpactStyle.Medium,
+        heavy: mod.ImpactStyle.Heavy,
+      }
+      // eslint-disable-next-line security/detect-object-injection -- intensity is typed as HapticIntensity
+      void mod.Haptics.impact({ style: styleMap[intensity] })
+    })
     return
   }
 
@@ -74,8 +93,11 @@ export function triggerHaptic(intensity: HapticIntensity): void {
 export function triggerHapticPattern(pattern: number | number[]): void {
   if (!isHapticSupported()) return
 
-  if (isNative) {
-    void Haptics.impact({ style: ImpactStyle.Medium })
+  if (isNativePlatform()) {
+    void getHaptics().then((mod) => {
+      if (!mod) return
+      void mod.Haptics.impact({ style: mod.ImpactStyle.Medium })
+    })
     return
   }
 
@@ -89,14 +111,17 @@ export function triggerHapticPattern(pattern: number | number[]): void {
 function triggerNotification(type: 'success' | 'warning' | 'error'): void {
   if (!isHapticSupported()) return
 
-  if (isNative) {
-    const typeMap: Record<string, NotificationType> = {
-      success: NotificationType.Success,
-      warning: NotificationType.Warning,
-      error: NotificationType.Error,
-    }
-    // eslint-disable-next-line security/detect-object-injection -- type is constrained to 'success' | 'warning' | 'error'
-    void Haptics.notification({ type: typeMap[type] })
+  if (isNativePlatform()) {
+    void getHaptics().then((mod) => {
+      if (!mod) return
+      const typeMap: Record<string, (typeof mod.NotificationType)[keyof typeof mod.NotificationType]> = {
+        success: mod.NotificationType.Success,
+        warning: mod.NotificationType.Warning,
+        error: mod.NotificationType.Error,
+      }
+      // eslint-disable-next-line security/detect-object-injection -- type is constrained to 'success' | 'warning' | 'error'
+      void mod.Haptics.notification({ type: typeMap[type] })
+    })
     return
   }
 
