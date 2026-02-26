@@ -18,21 +18,6 @@ vi.mock('@/lib/email/templates/checkin-summary', () => ({
   CheckInSummaryEmail: vi.fn().mockReturnValue(null),
 }))
 
-function createTableQueryBuilder(resolveValue: { data: unknown; error: unknown }) {
-  const builder: Record<string, ReturnType<typeof vi.fn>> = {}
-  const methods = ['select', 'eq', 'single', 'insert', 'update', 'delete', 'order', 'limit']
-  for (const method of methods) {
-    builder[method] = vi.fn().mockReturnValue(builder)
-  }
-  builder['single'] = vi.fn().mockResolvedValue(resolveValue)
-  // For non-single terminal calls (profiles, action_items), resolve on eq
-  builder['eq'] = vi.fn().mockImplementation(() => {
-    // Return the builder so .single() can still be chained
-    return { ...builder, then: (resolve: (v: unknown) => void) => resolve(resolveValue) }
-  })
-  return builder
-}
-
 beforeEach(async () => {
   vi.clearAllMocks()
   mockSupabase = createMockSupabaseClient()
