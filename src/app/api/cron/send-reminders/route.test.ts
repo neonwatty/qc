@@ -102,6 +102,97 @@ describe('GET /api/cron/send-reminders - Reminder Processing', () => {
 })
 
 describe('GET /api/cron/send-reminders - Email Sending', () => {
-  it.todo('sends email for due reminders')
-  it.todo('skips reminders with bounced email addresses')
+  function createBuilder() {
+    const builder: Record<string, ReturnType<typeof vi.fn>> = {}
+    const methods = ['select', 'eq', 'in', 'lte', 'update']
+    for (const m of methods) builder[m] = vi.fn().mockReturnValue(builder)
+    return builder
+  }
+
+  const mockReminder = {
+    id: 'reminder-1',
+    couple_id: 'couple-1',
+    created_by: 'user-1',
+    title: 'Date Night',
+    message: 'Plan something fun!',
+    notification_channel: 'email',
+    frequency: 'once',
+  }
+
+  const mockProfile = {
+    id: 'user-1',
+    email: 'alice@example.com',
+    email_unsubscribe_token: 'unsub-token',
+    email_bounced_at: null,
+    email_complained_at: null,
+    email_opted_out_at: null,
+  }
+
+  function setupEmailMocks(reminders: unknown[] = [mockReminder], profiles: unknown[] = [mockProfile]) {
+    let reminderCallCount = 0
+    mockSupabase.from = vi.fn().mockImplementation((table: string) => {
+      const builder = createBuilder()
+      if (table === 'reminders') {
+        reminderCallCount++
+        if (reminderCallCount === 1) {
+          // First call: query for due reminders — chain ends at .lte()
+          builder['lte'] = vi.fn().mockResolvedValue({ data: reminders, error: null })
+        } else {
+          // Second call: deactivation update — chain ends at .eq()
+          builder['eq'] = vi.fn().mockResolvedValue({ data: null, error: null })
+        }
+      } else if (table === 'profiles') {
+        // Profile lookup — chain ends at .in()
+        builder['in'] = vi.fn().mockResolvedValue({ data: profiles, error: null })
+      }
+      return builder
+    })
+  }
+
+  it('sends email for due reminders', async () => {
+    const { GET } = await import('./route')
+
+    setupEmailMocks()
+    mockSend.mockResolvedValueOnce({ data: { id: 'email-1' }, error: null })
+
+    const request = new NextRequest('http://localhost:3000/api/cron/send-reminders', {
+      headers: { authorization: 'Bearer test-secret-key' },
+    })
+
+    const response = await GET(request)
+    const data = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(data.sent).toBe(1)
+    expect(data.failed).toBe(0)
+    expect(mockSend).toHaveBeenCalledTimes(1)
+    expect(mockSend).toHaveBeenCalledWith(
+      expect.objectContaining({
+        to: 'alice@example.com',
+        subject: 'Reminder: Date Night',
+      }),
+    )
+  })
+
+  it('skips reminders with bounced email addresses', async () => {
+    const { GET } = await import('./route')
+
+    const bouncedProfile = {
+      ...mockProfile,
+      email_bounced_at: '2025-01-01T00:00:00Z',
+    }
+
+    setupEmailMocks([mockReminder], [bouncedProfile])
+
+    const request = new NextRequest('http://localhost:3000/api/cron/send-reminders', {
+      headers: { authorization: 'Bearer test-secret-key' },
+    })
+
+    const response = await GET(request)
+    const data = await response.json()
+
+    expect(response.status).toBe(200)
+    expect(data.sent).toBe(0)
+    expect(mockSend).not.toHaveBeenCalled()
+  })
 })
