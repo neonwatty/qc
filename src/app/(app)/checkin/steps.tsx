@@ -17,8 +17,6 @@ import { CompletionCelebration } from '@/components/checkin/CompletionCelebratio
 import { SessionTimer } from '@/components/checkin/SessionTimer'
 import { TurnIndicator } from '@/components/checkin/TurnIndicator'
 
-import type { ActionItem } from '@/types'
-
 export { WarmUpStep } from '@/components/checkin/WarmUpStep'
 
 export function CategorySelectionStep(): React.ReactNode {
@@ -159,9 +157,8 @@ export function ReflectionStep(): React.ReactNode {
 }
 
 export function ActionItemsStep(): React.ReactNode {
-  const { session, completeStep, goToStep, addActionItem, removeActionItem, toggleActionItem } = useCheckInContext()
-
-  const actionItems = session?.draftNotes ? [] : ([] as ActionItem[])
+  const { session, completeStep, goToStep, addActionItem, removeActionItem, toggleActionItem, actionItems } =
+    useCheckInContext()
 
   return (
     <ActionItems
@@ -178,7 +175,7 @@ export function ActionItemsStep(): React.ReactNode {
 
 export function CompletionStep(): React.ReactNode {
   const router = useRouter()
-  const { session, completeCheckIn } = useCheckInContext()
+  const { session, completeCheckIn, actionItems } = useCheckInContext()
 
   const [timeSpent] = useState(() =>
     session ? Math.round((Date.now() - new Date(session.startedAt).getTime()) / 60000) : 0,
@@ -198,7 +195,7 @@ export function CompletionStep(): React.ReactNode {
       show
       categories={session?.selectedCategories}
       timeSpent={timeSpent}
-      actionItemsCount={0}
+      actionItemsCount={actionItems.length}
       notesCount={session?.draftNotes.length ?? 0}
       moodBefore={session?.baseCheckIn.moodBefore}
       moodAfter={session?.baseCheckIn.moodAfter}

@@ -73,22 +73,31 @@ export async function completeOnboarding(_prev: OnboardingState, formData: FormD
   // Save love languages if selected
   const rawLanguages = input.selectedLanguages
   if (rawLanguages) {
-    try {
-      const categories = JSON.parse(rawLanguages) as string[]
-      if (Array.isArray(categories) && categories.length > 0) {
-        const languageRows = categories.map((category) => ({
-          couple_id: couple.id,
-          user_id: user.id,
-          // eslint-disable-next-line security/detect-object-injection -- category is from user-selected values validated by JSON.parse
-          title: LANGUAGE_TITLES[category] ?? category,
-          category,
-          privacy: 'shared' as const,
-          importance: 'high' as const,
-        }))
+    const languageResult = z.array(z.string()).safeParse(
+      (() => {
+        try {
+          return JSON.parse(rawLanguages)
+        } catch {
+          return null
+        }
+      })(),
+    )
+
+    if (languageResult.success && languageResult.data.length > 0) {
+      const languageRows = languageResult.data.map((category) => ({
+        couple_id: couple.id,
+        user_id: user.id,
+        // eslint-disable-next-line security/detect-object-injection -- category is from user-selected values validated by Zod
+        title: LANGUAGE_TITLES[category] ?? category,
+        category,
+        privacy: 'shared' as const,
+        importance: 'high' as const,
+      }))
+      try {
         await supabase.from('love_languages').insert(languageRows)
+      } catch {
+        // Love language insertion failed -- non-blocking, continue to redirect
       }
-    } catch {
-      // Love language insertion failed -- non-blocking, continue to redirect
     }
   }
 
