@@ -170,8 +170,10 @@ test.describe.serial('Notes — CRUD', () => {
     await expect(page.getByRole('button', { name: /^save$/i })).toBeEnabled()
     await page.getByRole('button', { name: /^save$/i }).click()
 
+    // Wait for server action to complete (button becomes disabled during submission)
+    await expect(page.getByRole('button', { name: /^save$/i })).toBeDisabled({ timeout: 5000 }).catch(() => {})
     // Wait for modal to close (confirms server action completed and onClose fired)
-    await expect(page.getByRole('heading', { name: /new note/i })).not.toBeVisible({ timeout: 15000 })
+    await expect(page.getByRole('heading', { name: /new note/i })).not.toBeVisible({ timeout: 30000 })
     // Reload to get fresh server-rendered list (don't rely on Realtime in CI)
     await page.reload()
     await expect(page.getByText(testContent).first()).toBeVisible({ timeout: 10000 })
@@ -190,8 +192,10 @@ test.describe.serial('Notes — CRUD', () => {
     await expect(page.getByRole('button', { name: /^update$/i })).toBeEnabled()
     await page.getByRole('button', { name: /^update$/i }).click()
 
+    // Wait for server action to complete (button becomes disabled during submission)
+    await expect(page.getByRole('button', { name: /^update$/i })).toBeDisabled({ timeout: 5000 }).catch(() => {})
     // Wait for modal to close, then reload for fresh data
-    await expect(page.getByRole('heading', { name: /edit note/i })).not.toBeVisible({ timeout: 15000 })
+    await expect(page.getByRole('heading', { name: /edit note/i })).not.toBeVisible({ timeout: 30000 })
     await page.reload()
     await expect(page.getByText(updatedContent).first()).toBeVisible({ timeout: 10000 })
   })

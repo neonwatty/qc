@@ -34,7 +34,6 @@
     "src/lib/touch-interactions.ts",
     "src/lib/animations.ts",
     "src/lib/confetti.ts",
-    "src/components/ui/ErrorBoundary.tsx",
-    "src/components/ui/skeleton.tsx"
+    "src/components/ui/ErrorBoundary.tsx"
   ]
 }
