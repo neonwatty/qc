@@ -38,15 +38,15 @@ function isAllowedEmail(email: string): boolean {
   return list.includes(email.toLowerCase())
 }
 
-function addSecurityHeaders(response: NextResponse, isCapacitor = false): void {
+function addSecurityHeaders(response: NextResponse): void {
   response.headers.set('X-Frame-Options', 'DENY')
   response.headers.set('X-Content-Type-Options', 'nosniff')
   response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
   response.headers.set('Permissions-Policy', 'camera=(), microphone=(), geolocation=()')
 
-  // Capacitor WKWebView requires 'unsafe-inline' for script-src because
-  // the bridge injects inline scripts. See: mean-weasel/bullhorn PR #130
-  const scriptExtra = isCapacitor ? " 'unsafe-inline'" : ''
+  // Next.js uses inline scripts for hydration data (self.__next_f.push).
+  // Capacitor WKWebView also injects inline scripts for the native bridge.
+  // Without 'unsafe-inline', pages fail to hydrate in the browser.
   const isDev = process.env.NODE_ENV === 'development'
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || ''
@@ -54,7 +54,7 @@ function addSecurityHeaders(response: NextResponse, isCapacitor = false): void {
 
   const csp = [
     "default-src 'self'",
-    `script-src 'self'${isDev ? " 'unsafe-eval'" : ''}${scriptExtra}`,
+    `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ''}`,
     "style-src 'self' 'unsafe-inline'",
     `img-src 'self' data: https://*.supabase.co${extraConnectSrc}`,
     "font-src 'self'",
@@ -70,10 +70,6 @@ function addSecurityHeaders(response: NextResponse, isCapacitor = false): void {
 }
 
 export async function updateSession(request: NextRequest) {
-  // Detect Capacitor WKWebView via user agent marker
-  const ua = request.headers.get('user-agent') || ''
-  const isCapacitor = ua.includes('QCCapacitor')
-
   let response = NextResponse.next({
     request: { headers: request.headers },
   })
@@ -114,7 +110,7 @@ export async function updateSession(request: NextRequest) {
     redirectUrl.pathname = '/login'
     redirectUrl.searchParams.set('error', 'Access restricted')
     response = NextResponse.redirect(redirectUrl)
-    addSecurityHeaders(response, isCapacitor)
+    addSecurityHeaders(response)
     return response
   }
 
@@ -123,7 +119,7 @@ export async function updateSession(request: NextRequest) {
     redirectUrl.pathname = '/login'
     redirectUrl.searchParams.set('redirect', pathname)
     response = NextResponse.redirect(redirectUrl)
-    addSecurityHeaders(response, isCapacitor)
+    addSecurityHeaders(response)
     return response
   }
 
@@ -136,7 +132,7 @@ export async function updateSession(request: NextRequest) {
       const redirectUrl = request.nextUrl.clone()
       redirectUrl.pathname = '/onboarding'
       response = NextResponse.redirect(redirectUrl)
-      addSecurityHeaders(response, isCapacitor)
+      addSecurityHeaders(response)
       return response
     }
 
@@ -144,12 +140,12 @@ export async function updateSession(request: NextRequest) {
       const redirectUrl = request.nextUrl.clone()
       redirectUrl.pathname = '/dashboard'
       response = NextResponse.redirect(redirectUrl)
-      addSecurityHeaders(response, isCapacitor)
+      addSecurityHeaders(response)
       return response
     }
   }
 
-  addSecurityHeaders(response, isCapacitor)
+  addSecurityHeaders(response)
 
   return response
 }
