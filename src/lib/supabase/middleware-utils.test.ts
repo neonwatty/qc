@@ -22,12 +22,14 @@ describe('isPublicRoute', () => {
   })
 
   it('returns false for protected routes', () => {
+    expect(isPublicRoute('/checkin')).toBe(false)
     expect(isPublicRoute('/dashboard')).toBe(false)
-    expect(isPublicRoute('/settings')).toBe(false)
-    expect(isPublicRoute('/notes')).toBe(false)
-    expect(isPublicRoute('/check-in')).toBe(false)
-    expect(isPublicRoute('/milestones')).toBe(false)
+    expect(isPublicRoute('/growth')).toBe(false)
     expect(isPublicRoute('/love-languages')).toBe(false)
+    expect(isPublicRoute('/notes')).toBe(false)
+    expect(isPublicRoute('/reminders')).toBe(false)
+    expect(isPublicRoute('/requests')).toBe(false)
+    expect(isPublicRoute('/settings')).toBe(false)
   })
 
   it('returns false for the root path /', () => {
@@ -47,7 +49,7 @@ describe('isPublicRoute', () => {
 // ---------------------------------------------------------------------------
 
 describe('isAppRoute', () => {
-  it.each(['/dashboard', '/settings', '/check-in', '/notes', '/milestones', '/photos', '/love-languages'])(
+  it.each(['/checkin', '/dashboard', '/growth', '/love-languages', '/notes', '/reminders', '/requests', '/settings'])(
     'returns true for app route: %s',
     (route) => {
       expect(isAppRoute(route)).toBe(true)
@@ -55,12 +57,20 @@ describe('isAppRoute', () => {
   )
 
   it('returns true for sub-paths of app routes', () => {
+    expect(isAppRoute('/checkin/session-1')).toBe(true)
     expect(isAppRoute('/dashboard/stats')).toBe(true)
-    expect(isAppRoute('/settings/profile')).toBe(true)
-    expect(isAppRoute('/notes/123')).toBe(true)
+    expect(isAppRoute('/growth/milestones')).toBe(true)
     expect(isAppRoute('/love-languages/actions')).toBe(true)
-    expect(isAppRoute('/milestones/new')).toBe(true)
-    expect(isAppRoute('/photos/gallery')).toBe(true)
+    expect(isAppRoute('/notes/123')).toBe(true)
+    expect(isAppRoute('/reminders/weekly')).toBe(true)
+    expect(isAppRoute('/requests/pending')).toBe(true)
+    expect(isAppRoute('/settings/profile')).toBe(true)
+  })
+
+  it('returns false for removed routes that no longer exist', () => {
+    expect(isAppRoute('/check-in')).toBe(false)
+    expect(isAppRoute('/milestones')).toBe(false)
+    expect(isAppRoute('/photos')).toBe(false)
   })
 
   it('returns false for non-app routes', () => {

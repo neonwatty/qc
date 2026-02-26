@@ -20,13 +20,14 @@ export function isPublicRoute(pathname: string): boolean {
 
 export function isAppRoute(pathname: string): boolean {
   return (
+    pathname.startsWith('/checkin') ||
     pathname.startsWith('/dashboard') ||
-    pathname.startsWith('/settings') ||
-    pathname.startsWith('/check-in') ||
+    pathname.startsWith('/growth') ||
+    pathname.startsWith('/love-languages') ||
     pathname.startsWith('/notes') ||
-    pathname.startsWith('/milestones') ||
-    pathname.startsWith('/photos') ||
-    pathname.startsWith('/love-languages')
+    pathname.startsWith('/reminders') ||
+    pathname.startsWith('/requests') ||
+    pathname.startsWith('/settings')
   )
 }
 
