@@ -158,4 +158,53 @@ describe('useRealtimeCouple', () => {
       filter: 'couple_id=eq.couple-xyz-789',
     })
   })
+
+  it('resubscribes when coupleId changes', () => {
+    const onInsert = vi.fn()
+    const { rerender } = renderHook(
+      ({ coupleId }: { coupleId: string }) => useRealtimeCouple({ table: 'notes', coupleId, onInsert }),
+      { initialProps: { coupleId: 'couple-abc' } },
+    )
+    expect(mockSupabase.channel).toHaveBeenCalledWith('notes:couple:couple-abc')
+    expect(mockSubscribe).toHaveBeenCalledTimes(1)
+
+    rerender({ coupleId: 'couple-xyz' })
+
+    expect(mockRemoveChannel).toHaveBeenCalledWith(mockChannel)
+    expect(mockSupabase.channel).toHaveBeenCalledWith('notes:couple:couple-xyz')
+    expect(mockSubscribe).toHaveBeenCalledTimes(2)
+  })
+
+  it('ignores INSERT events when onInsert is not provided', () => {
+    const onUpdate = vi.fn()
+    renderHook(() => useRealtimeCouple({ table: 'notes', coupleId: 'couple-abc', onUpdate }))
+    expect(() => {
+      capturedCallback!({ eventType: 'INSERT', new: { id: 'note-1' }, old: {} })
+    }).not.toThrow()
+    expect(onUpdate).not.toHaveBeenCalled()
+  })
+
+  it('ignores DELETE events when onDelete is not provided', () => {
+    const onInsert = vi.fn()
+    renderHook(() => useRealtimeCouple({ table: 'notes', coupleId: 'couple-abc', onInsert }))
+    expect(() => {
+      capturedCallback!({ eventType: 'DELETE', new: {}, old: { id: 'note-1' } })
+    }).not.toThrow()
+    expect(onInsert).not.toHaveBeenCalled()
+  })
+
+  it('resubscribes when table changes', () => {
+    const { rerender } = renderHook(
+      ({ table }: { table: 'notes' | 'check_ins' }) => useRealtimeCouple({ table, coupleId: 'couple-abc' }),
+      { initialProps: { table: 'notes' as const } },
+    )
+    expect(mockSupabase.channel).toHaveBeenCalledWith('notes:couple:couple-abc')
+    expect(mockSubscribe).toHaveBeenCalledTimes(1)
+
+    rerender({ table: 'check_ins' as const })
+
+    expect(mockRemoveChannel).toHaveBeenCalledWith(mockChannel)
+    expect(mockSupabase.channel).toHaveBeenCalledWith('check_ins:couple:couple-abc')
+    expect(mockSubscribe).toHaveBeenCalledTimes(2)
+  })
 })
