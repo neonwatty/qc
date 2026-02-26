@@ -281,6 +281,7 @@ export function CheckInProvider({ children, coupleId, userId }: CheckInProviderP
   const contextValue: CheckInContextValue = {
     ...state,
     coupleId,
+    actionItems,
     dispatch,
     ...mutations,
     ...queries,
