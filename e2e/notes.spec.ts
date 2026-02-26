@@ -168,12 +168,16 @@ test.describe.serial('Notes — CRUD', () => {
     await page.getByPlaceholder(/what's on your mind/i).fill(testContent)
     // Wait for Save button to be enabled (React state updated from fill)
     await expect(page.getByRole('button', { name: /^save$/i })).toBeEnabled()
-    await page.getByRole('button', { name: /^save$/i }).click()
 
-    // Wait for modal to close (confirms server action completed and onClose fired)
-    await expect(page.getByRole('heading', { name: /new note/i })).not.toBeVisible({ timeout: 15000 })
-    // Reload to get fresh server-rendered list (don't rely on Realtime in CI)
-    await page.reload()
+    // Click save and wait for the server action POST response
+    const [response] = await Promise.all([
+      page.waitForResponse((resp) => resp.request().method() === 'POST' && resp.status() === 200, { timeout: 15000 }),
+      page.getByRole('button', { name: /^save$/i }).click(),
+    ])
+    expect(response.ok()).toBeTruthy()
+
+    // Navigate fresh to verify note persisted (don't rely on modal close or Realtime)
+    await page.goto('/notes')
     await expect(page.getByText(testContent).first()).toBeVisible({ timeout: 10000 })
   })
 
@@ -188,11 +192,16 @@ test.describe.serial('Notes — CRUD', () => {
     await textarea.clear()
     await textarea.fill(updatedContent)
     await expect(page.getByRole('button', { name: /^update$/i })).toBeEnabled()
-    await page.getByRole('button', { name: /^update$/i }).click()
 
-    // Wait for modal to close, then reload for fresh data
-    await expect(page.getByRole('heading', { name: /edit note/i })).not.toBeVisible({ timeout: 15000 })
-    await page.reload()
+    // Click update and wait for the server action POST response
+    const [response] = await Promise.all([
+      page.waitForResponse((resp) => resp.request().method() === 'POST' && resp.status() === 200, { timeout: 15000 }),
+      page.getByRole('button', { name: /^update$/i }).click(),
+    ])
+    expect(response.ok()).toBeTruthy()
+
+    // Navigate fresh to verify update persisted (don't rely on modal close or Realtime)
+    await page.goto('/notes')
     await expect(page.getByText(updatedContent).first()).toBeVisible({ timeout: 10000 })
   })
 

@@ -1,6 +1,6 @@
 {
   "name": "qc",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "doppler run -- next dev --turbopack",
@@ -22,7 +22,8 @@
     "ios": "npm run build:ios && npx cap open ios",
     "build:android": "npx cap sync android",
     "android": "npm run build:android && npx cap open android",
-    "check": "npm run lint && npm run typecheck && npm run format:check && npm run test"
+    "check": "npm run lint && npm run typecheck && npm run format:check && npm run test",
+    "prepare": "husky"
   },
   "dependencies": {
     "@capacitor/android": "^8.1.0",
@@ -62,7 +63,12 @@
   },
   "devDependencies": {
     "@capacitor/cli": "^8",
+    "@commitlint/cli": "^20.4.2",
+    "@commitlint/config-conventional": "^20.4.2",
     "@playwright/test": "^1",
+    "@semantic-release/commit-analyzer": "^13.0.1",
+    "@semantic-release/github": "^12.0.6",
+    "@semantic-release/release-notes-generator": "^14.1.0",
     "@tailwindcss/postcss": "^4",
     "@testing-library/jest-dom": "^6",
     "@testing-library/react": "^16",
@@ -76,9 +82,11 @@
     "eslint-plugin-react-hooks": "^7",
     "eslint-plugin-security": "^4",
     "globals": "^17",
+    "husky": "^9.1.7",
     "jsdom": "^28",
     "knip": "^5",
     "prettier": "^3",
+    "semantic-release": "^25.0.3",
     "tailwindcss": "^4",
     "typescript": "~5.9",
     "typescript-eslint": "^8",

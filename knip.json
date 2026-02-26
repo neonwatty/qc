@@ -11,7 +11,10 @@
     "tailwindcss-animate",
     "eslint-config-next",
     "@eslint/js",
-    "zustand"
+    "zustand",
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    "@semantic-release/github"
   ],
   "ignoreBinaries": ["doppler"],
   "exclude": ["types", "enumMembers"],
@@ -31,7 +34,6 @@
     "src/lib/touch-interactions.ts",
     "src/lib/animations.ts",
     "src/lib/confetti.ts",
-    "src/components/ui/ErrorBoundary.tsx",
-    "src/components/ui/skeleton.tsx"
+    "src/components/ui/ErrorBoundary.tsx"
   ]
 }
