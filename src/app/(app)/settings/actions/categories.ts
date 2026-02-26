@@ -106,4 +106,3 @@ export async function toggleCategoryActive(categoryId: string, isActive: boolean
   revalidatePath('/settings')
   return {}
 }
-

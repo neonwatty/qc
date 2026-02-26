@@ -57,4 +57,3 @@ export async function updateSessionSettings(
   revalidatePath('/settings')
   return { success: true }
 }
-
