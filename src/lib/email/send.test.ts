@@ -1,8 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { createElement } from 'react'
 
+import { createMockSupabaseClient } from '@/test/mocks/supabase'
+
 const mockSend = vi.fn()
 const mockBatchSend = vi.fn()
+const mockSupabase = createMockSupabaseClient()
 
 vi.mock('./resend', () => ({
   getResend: vi.fn().mockReturnValue({
@@ -11,6 +14,10 @@ vi.mock('./resend', () => ({
   }),
   EMAIL_FROM: 'onboarding@resend.dev',
   BATCH_SIZE: 2,
+}))
+
+vi.mock('@/lib/supabase/admin', () => ({
+  createAdminClient: vi.fn(() => mockSupabase),
 }))
 
 beforeEach(() => {
@@ -103,5 +110,73 @@ describe('sendBatchEmails', () => {
     expect(result.sent).toBe(0)
     expect(result.failed).toBe(2)
     expect(result.errors).toContain('All failed')
+  })
+})
+
+describe('shouldSendEmail', () => {
+  it('returns true for a clean profile with no flags set', async () => {
+    const { shouldSendEmail } = await import('./send')
+
+    mockSupabase._queryBuilder.maybeSingle.mockResolvedValueOnce({
+      data: { email_bounced_at: null, email_complained_at: null, email_opted_out_at: null },
+      error: null,
+    })
+
+    const result = await shouldSendEmail('clean@example.com')
+
+    expect(result).toBe(true)
+    expect(mockSupabase.from).toHaveBeenCalledWith('profiles')
+  })
+
+  it('returns false when profile has bounced', async () => {
+    const { shouldSendEmail } = await import('./send')
+
+    mockSupabase._queryBuilder.maybeSingle.mockResolvedValueOnce({
+      data: { email_bounced_at: '2025-01-15T00:00:00Z', email_complained_at: null, email_opted_out_at: null },
+      error: null,
+    })
+
+    const result = await shouldSendEmail('bounced@example.com')
+
+    expect(result).toBe(false)
+  })
+
+  it('returns false when profile has complained', async () => {
+    const { shouldSendEmail } = await import('./send')
+
+    mockSupabase._queryBuilder.maybeSingle.mockResolvedValueOnce({
+      data: { email_bounced_at: null, email_complained_at: '2025-02-01T00:00:00Z', email_opted_out_at: null },
+      error: null,
+    })
+
+    const result = await shouldSendEmail('complainer@example.com')
+
+    expect(result).toBe(false)
+  })
+
+  it('returns false when profile has opted out', async () => {
+    const { shouldSendEmail } = await import('./send')
+
+    mockSupabase._queryBuilder.maybeSingle.mockResolvedValueOnce({
+      data: { email_bounced_at: null, email_complained_at: null, email_opted_out_at: '2025-03-10T00:00:00Z' },
+      error: null,
+    })
+
+    const result = await shouldSendEmail('optout@example.com')
+
+    expect(result).toBe(false)
+  })
+
+  it('returns true when profile is not found (unknown email)', async () => {
+    const { shouldSendEmail } = await import('./send')
+
+    mockSupabase._queryBuilder.maybeSingle.mockResolvedValueOnce({
+      data: null,
+      error: null,
+    })
+
+    const result = await shouldSendEmail('unknown@example.com')
+
+    expect(result).toBe(true)
   })
 })
