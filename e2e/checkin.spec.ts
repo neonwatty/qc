@@ -36,7 +36,7 @@ async function goToCheckinLanding(page: Page): Promise<void> {
   }
 }
 
-test.describe('Check-In Flow', () => {
+test.describe('Check-In Flow - Landing Page', () => {
   test.describe('Check-in landing page (authenticated with couple)', () => {
     test('renders main heading', async ({ authedPage: page }) => {
       await goToCheckinLanding(page)
@@ -116,7 +116,9 @@ test.describe('Check-In Flow', () => {
       await expect(page.getByRole('button', { name: /topics/i })).toBeVisible()
     })
   })
+})
 
+test.describe('Check-In Flow - Wizard', () => {
   test.describe('Check-in wizard flow', () => {
     // Wizard tests create check-in sessions that must be cleaned up between tests.
     // Run serially so sessions don't interfere with each other.
@@ -226,7 +228,9 @@ test.describe('Check-In Flow', () => {
       await expect(page.getByRole('button', { name: /start another/i })).toBeVisible()
     })
   })
+})
 
+test.describe('Check-In Flow - Session Rules', () => {
   test.describe('Session rules section (authenticated with couple and settings)', () => {
     test('shows session rules when settings exist', async ({ authedPage: page }) => {
       await goToCheckinLanding(page)

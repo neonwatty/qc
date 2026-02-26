@@ -158,6 +158,15 @@ describe('useRealtimeCouple', () => {
       filter: 'couple_id=eq.couple-xyz-789',
     })
   })
+})
+
+describe('useRealtimeCouple - edge cases', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    capturedCallback = null
+    capturedFilter = null
+    cleanup()
+  })
 
   it('resubscribes when coupleId changes', () => {
     const onInsert = vi.fn()
