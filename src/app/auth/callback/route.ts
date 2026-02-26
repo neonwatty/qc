@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server'
 
+import { sanitizeRedirect } from '@/lib/redirect'
 import { createClient } from '@/lib/supabase/server'
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get('code')
-  const redirect = searchParams.get('redirect')
+  const redirect = sanitizeRedirect(searchParams.get('redirect'))
 
   if (!code) {
     return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent('Missing authorization code')}`)
@@ -27,5 +28,5 @@ export async function GET(request: Request) {
     }
   }
 
-  return NextResponse.redirect(`${origin}${redirect ?? '/dashboard'}`)
+  return NextResponse.redirect(`${origin}${redirect}`)
 }
