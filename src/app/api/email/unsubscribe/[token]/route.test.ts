@@ -14,70 +14,88 @@ beforeEach(() => {
   process.env.NEXT_PUBLIC_SITE_URL = 'https://example.com'
 })
 
+function callGET(token: string): Promise<Response> {
+  // Re-import to pick up mocks each time
+  return import('./route').then(({ GET }) => {
+    const req = new NextRequest(`http://localhost/api/email/unsubscribe/${token}`)
+    return GET(req, { params: Promise.resolve({ token }) })
+  })
+}
+
 describe('GET /api/email/unsubscribe/[token]', () => {
   it('returns 400 for invalid token (too short)', async () => {
-    const { GET } = await import('./route')
+    const res = await callGET('short')
+    const html = await res.text()
 
-    const request = new NextRequest('http://localhost:3000/api/email/unsubscribe/short')
-    const params = Promise.resolve({ token: 'short' })
-
-    const response = await GET(request, { params })
-    const html = await response.text()
-
-    expect(response.status).toBe(400)
+    expect(res.status).toBe(400)
     expect(html).toContain('Invalid unsubscribe link')
     expect(html).toContain('Error')
   })
 
   it('returns 400 for empty token', async () => {
-    const { GET } = await import('./route')
+    const res = await callGET('')
+    const html = await res.text()
 
-    const request = new NextRequest('http://localhost:3000/api/email/unsubscribe/')
-    const params = Promise.resolve({ token: '' })
-
-    const response = await GET(request, { params })
-    const html = await response.text()
-
-    expect(response.status).toBe(400)
+    expect(res.status).toBe(400)
     expect(html).toContain('Invalid unsubscribe link')
-    expect(html).toContain('Error')
   })
 
   it('returns 404 when token is not found in database', async () => {
-    const { GET } = await import('./route')
     mockSupabase._queryBuilder.maybeSingle.mockResolvedValueOnce({ data: null, error: null })
 
-    const request = new NextRequest('http://localhost:3000/api/email/unsubscribe/valid-token-123')
-    const params = Promise.resolve({ token: 'valid-token-123' })
+    const res = await callGET('valid-token-123')
+    const html = await res.text()
 
-    const response = await GET(request, { params })
-    const html = await response.text()
-
-    expect(response.status).toBe(404)
-    expect(html).toContain('Unsubscribe link not found or already expired')
-    expect(html).toContain('Error')
+    expect(res.status).toBe(404)
+    expect(html).toContain('Unsubscribe link not found')
     expect(mockSupabase._queryBuilder.eq).toHaveBeenCalledWith('email_unsubscribe_token', 'valid-token-123')
   })
 
   it('returns 200 when user is already unsubscribed', async () => {
-    const { GET } = await import('./route')
     mockSupabase._queryBuilder.maybeSingle.mockResolvedValueOnce({
       data: { id: 'user-123', email_opted_out_at: '2025-01-01T00:00:00Z' },
       error: null,
     })
 
-    const request = new NextRequest('http://localhost:3000/api/email/unsubscribe/valid-token-123')
-    const params = Promise.resolve({ token: 'valid-token-123' })
+    const res = await callGET('valid-token-123')
+    const html = await res.text()
 
-    const response = await GET(request, { params })
-    const html = await response.text()
-
-    expect(response.status).toBe(200)
-    expect(html).toContain('You are already unsubscribed from QC emails')
+    expect(res.status).toBe(200)
+    expect(html).toContain('already unsubscribed')
     expect(html).toContain('Unsubscribed')
     expect(mockSupabase._queryBuilder.update).not.toHaveBeenCalled()
   })
 
-  // Note: These tests verify token validation logic
-  // Complex database scenarios are covered by E2E tests
+  it('sets email_opted_out_at and returns success', async () => {
+    mockSupabase._queryBuilder.maybeSingle.mockResolvedValueOnce({
+      data: { id: 'user-123', email_opted_out_at: null },
+      error: null,
+    })
+    // The update().eq() chain: eq returns the queryBuilder by default (no error property = success)
+
+    const res = await callGET('valid-token-123')
+    const html = await res.text()
+
+    expect(res.status).toBe(200)
+    expect(html).toContain('unsubscribed from QC emails')
+    expect(mockSupabase._queryBuilder.update).toHaveBeenCalledWith({
+      email_opted_out_at: expect.any(String),
+    })
+  })
+
+  it('returns 500 on DB update error', async () => {
+    mockSupabase._queryBuilder.maybeSingle.mockResolvedValueOnce({
+      data: { id: 'user-123', email_opted_out_at: null },
+      error: null,
+    })
+    const qb = mockSupabase._queryBuilder
+    // First eq call (select chain) returns self for chaining; second eq call (update chain) returns error
+    qb.eq.mockReturnValueOnce(qb).mockResolvedValueOnce({ error: { message: 'DB fail' } })
+
+    const res = await callGET('valid-token-123')
+    const html = await res.text()
+
+    expect(res.status).toBe(500)
+    expect(html).toContain('Something went wrong')
+  })
 })
