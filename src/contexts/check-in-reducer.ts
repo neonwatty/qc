@@ -165,8 +165,12 @@ export function checkInReducer(state: CheckInContextState, action: CheckInAction
     case 'UPDATE_ACTION_ITEM':
     case 'REMOVE_ACTION_ITEM':
     case 'TOGGLE_ACTION_ITEM':
-    case 'SAVE_SESSION':
       return withTimestamp(state)
+
+    case 'SAVE_SESSION': {
+      const timestamped = withTimestamp(state)
+      return timestamped.isLoading ? { ...timestamped, isLoading: false } : timestamped
+    }
 
     case 'COMPLETE_CHECKIN':
     case 'ABANDON_CHECKIN':
