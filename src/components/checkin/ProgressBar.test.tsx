@@ -102,7 +102,7 @@ describe('ProgressBar', () => {
 
   it('renders all 6 steps', async () => {
     const ProgressBar = await loadComponent()
-    const { container } = render(<ProgressBar progress={makeProgress({ percentage: 0 })} currentStep="welcome" />)
+    render(<ProgressBar progress={makeProgress({ percentage: 0 })} currentStep="welcome" />)
     // 1 current (pulsing dot) + 5 pending (circle icons) = 6 step indicators
     const checkIcons = screen.queryAllByTestId('check-icon')
     const circleIcons = screen.queryAllByTestId('circle-icon')
