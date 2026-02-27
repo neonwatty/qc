@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { render, screen, waitFor } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
+import { render, screen, waitFor, fireEvent } from '@testing-library/react'
 
 const mockSingle = vi.fn().mockResolvedValue({
   data: { settings: { emailNotifications: true, quietHoursEnabled: false } },
@@ -58,14 +57,15 @@ describe('NotificationSettings', () => {
   })
 
   it('calls updateCoupleSettings when email toggle is clicked', async () => {
-    const user = userEvent.setup()
     render(<NotificationSettings coupleId="c1" />)
     await waitFor(() => expect(mockSingle).toHaveBeenCalled())
 
     const emailSwitch = screen.getByRole('switch', { name: /email notifications/i })
-    await user.click(emailSwitch)
+    fireEvent.click(emailSwitch)
 
-    expect(mockUpdateCoupleSettings).toHaveBeenCalledWith('emailNotifications', false)
+    await waitFor(() => {
+      expect(mockUpdateCoupleSettings).toHaveBeenCalledWith('emailNotifications', false)
+    })
   })
 
   it('handles load error gracefully', async () => {
