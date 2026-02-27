@@ -57,7 +57,7 @@ vi.mock('lucide-react', () => ({
 vi.mock('./CategoryFormDialog', () => ({
   CategoryFormDialog: (props: Record<string, unknown>) => (
     <div data-testid="category-form-dialog" data-is-open={String(props.isOpen)}>
-      {props.isOpen && (
+      {Boolean(props.isOpen) && (
         <button data-testid="dialog-submit" onClick={props.onSubmit as () => void}>
           Submit
         </button>
