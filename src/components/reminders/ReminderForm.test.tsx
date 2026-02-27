@@ -40,7 +40,7 @@ beforeEach(() => {
   vi.clearAllMocks()
 })
 
-function renderForm(overrides: Partial<typeof defaultProps> = {}) {
+function renderForm(overrides: Partial<Parameters<typeof ReminderForm>[0]> = {}) {
   return render(<ReminderForm {...defaultProps} {...overrides} />)
 }
 

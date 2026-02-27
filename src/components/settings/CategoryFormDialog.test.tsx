@@ -18,15 +18,16 @@ const mockCategory: Category = {
   createdAt: '2025-01-01',
 }
 
-let onOpenChange: ReturnType<typeof vi.fn>
-let onFormDataChange: ReturnType<typeof vi.fn>
-let onSubmit: ReturnType<typeof vi.fn>
+type DialogProps = Parameters<typeof CategoryFormDialog>[0]
+let onOpenChange: DialogProps['onOpenChange'] & ReturnType<typeof vi.fn>
+let onFormDataChange: DialogProps['onFormDataChange'] & ReturnType<typeof vi.fn>
+let onSubmit: DialogProps['onSubmit'] & ReturnType<typeof vi.fn>
 
 beforeEach(() => {
   vi.clearAllMocks()
-  onOpenChange = vi.fn()
-  onFormDataChange = vi.fn()
-  onSubmit = vi.fn()
+  onOpenChange = vi.fn() as typeof onOpenChange
+  onFormDataChange = vi.fn() as typeof onFormDataChange
+  onSubmit = vi.fn() as typeof onSubmit
 })
 
 function renderDialog(overrides: Partial<Parameters<typeof CategoryFormDialog>[0]> = {}) {
