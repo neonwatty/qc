@@ -23,8 +23,8 @@ const mockNotes: DbNote[] = [
     privacy: 'shared',
     tags: ['greeting'],
     category_id: null,
-    created_at: '',
-    updated_at: '',
+    created_at: '2026-01-01T00:00:00Z',
+    updated_at: '2026-01-01T00:00:00Z',
   },
   {
     id: 'n2',
@@ -35,8 +35,8 @@ const mockNotes: DbNote[] = [
     privacy: 'private',
     tags: ['secret'],
     category_id: null,
-    created_at: '',
-    updated_at: '',
+    created_at: '2026-02-01T00:00:00Z',
+    updated_at: '2026-02-01T00:00:00Z',
   },
   {
     id: 'n3',
@@ -47,8 +47,8 @@ const mockNotes: DbNote[] = [
     privacy: 'draft',
     tags: [],
     category_id: null,
-    created_at: '',
-    updated_at: '',
+    created_at: '2026-01-15T00:00:00Z',
+    updated_at: '2026-01-15T00:00:00Z',
   },
 ]
 
@@ -92,5 +92,22 @@ describe('NoteList', () => {
     render(<NoteList notes={mockNotes} currentUserId="u1" onSelect={vi.fn()} onDelete={vi.fn()} />)
     expect(screen.getByTestId('note-n1').getAttribute('data-deletable')).toBe('true')
     expect(screen.getByTestId('note-n2').getAttribute('data-deletable')).toBe('false')
+  })
+
+  it('displays result count', () => {
+    render(<NoteList notes={mockNotes} currentUserId="u1" onSelect={vi.fn()} onDelete={vi.fn()} />)
+    expect(screen.getByText('3 notes')).toBeDefined()
+  })
+
+  it('renders sort dropdown with options', () => {
+    render(<NoteList notes={mockNotes} currentUserId="u1" onSelect={vi.fn()} onDelete={vi.fn()} />)
+    const select = screen.getByDisplayValue('Newest first')
+    expect(select).toBeDefined()
+  })
+
+  it('shows filtered count when search is active', () => {
+    render(<NoteList notes={mockNotes} currentUserId="u1" onSelect={vi.fn()} onDelete={vi.fn()} />)
+    fireEvent.change(screen.getByPlaceholderText('Search notes...'), { target: { value: 'partner' } })
+    expect(screen.getByText('1 note found')).toBeDefined()
   })
 })

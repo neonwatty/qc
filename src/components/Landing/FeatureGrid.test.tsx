@@ -94,7 +94,7 @@ describe('FeatureGrid', () => {
 
   it('renders bottom CTA heading', async () => {
     await renderGrid()
-    expect(screen.getByText('Ready to build a stronger relationship?')).toBeDefined()
+    expect(screen.getByText('Ready to engineer a better relationship?')).toBeDefined()
   })
 
   it('renders "Get started free" link pointing to /signup', async () => {

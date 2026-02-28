@@ -40,3 +40,37 @@ Each iteration is appended below by the `/gap-analysis` skill.
 - Jest test files — QC uses Vitest
 - Reference root layout includes Header/Navigation/Footer in layout.tsx — QC uses route group layouts with auth-aware rendering
 - Reference uses localStorage for onboarding state — QC uses server actions
+
+### Iteration 2 (2026-02-28)
+
+**Findings:** 10
+**Fixed:** 5
+**Deferred:** 5
+**Dimensions Covered:** Components, Content & Copy, UX Flows
+
+#### Fixed
+
+- [x] Growth Progress view showed milestone cards instead of growth area scores — now shows GrowthProgressBars + completion stats (dimension: Components/UX, severity: HIGH)
+- [x] Notes missing sort options — added sort dropdown (newest/oldest/title) and result count display (dimension: UX Flows, severity: MEDIUM)
+- [x] Requests tabs missing pending-specific badge count — added pink pending badge on received/sent tabs (dimension: UX Flows, severity: MEDIUM)
+- [x] Feature Grid CTA copy not matching reference tone — changed to "Ready to engineer a better relationship?" (dimension: Content & Copy, severity: MEDIUM)
+- [x] Updated tests for growth progress view, notes sort/count, and feature grid CTA (dimension: Tests, severity: MEDIUM)
+
+#### Deferred
+
+- [ ] Settings page missing 7-section sidebar navigation (architectural change, too large for single iteration)
+- [ ] Settings missing Check-in Schedule / ReminderScheduler section (new component needed)
+- [ ] Settings PersonalizationPanel missing font size + accessibility options (needs UI expansion)
+- [ ] Notes missing advanced filters: category, date range (needs UI + data changes)
+- [ ] Check-in landing missing "Previous Check-ins" history section (needs data hook + UI)
+
+#### Previously Deferred — Now Resolved
+
+- [x] Growth page 4-view toggle — was already implemented (Timeline/Progress/Analytics/Memories)
+- [x] Requests inbox with sent/received tabs — was already implemented with counts
+
+#### Intentionally Skipped
+
+- Onboarding step differences (Welcome/Quiz/Reminder) — architectural choice, QC uses server actions
+- Reminders chat-style interface — architectural change from card-based, needs planning
+- Missing public assets (favicon, manifest.json, service worker) — needs asset creation, not code gap

@@ -141,10 +141,12 @@ describe('GrowthContent', () => {
     expect(screen.getByTestId('timeline')).toBeDefined()
   })
 
-  it('clicking Progress shows ProgressView content', () => {
+  it('clicking Progress shows ProgressView with milestone stats', () => {
     render(<GrowthContent {...defaultProps} />)
     fireEvent.click(screen.getByText('Progress'))
-    expect(screen.getByText('Upcoming Milestones')).toBeDefined()
+    expect(screen.getByText('Milestones Complete')).toBeDefined()
+    expect(screen.getByText('Milestones Upcoming')).toBeDefined()
+    expect(screen.getByText('Completion Rate')).toBeDefined()
   })
 
   it('renders New Milestone button', () => {
