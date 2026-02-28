@@ -32,6 +32,7 @@ export default async function DashboardPage() {
   let topLanguages: Array<{ title: string; category: string }> = []
   let todayReminders: Array<{ id: string; title: string; scheduledFor: string; category: string; isOverdue: boolean }> =
     []
+  let pendingRequestCount = 0
 
   if (coupleId) {
     const today = new Date()
@@ -51,6 +52,7 @@ export default async function DashboardPage() {
       lastCheckIn,
       topLangs,
       reminders,
+      pendingReqs,
     ] = await Promise.all([
       supabase.from('check_ins').select('id', { count: 'exact', head: true }).eq('couple_id', coupleId),
       supabase.from('notes').select('id', { count: 'exact', head: true }).eq('couple_id', coupleId),
@@ -92,6 +94,12 @@ export default async function DashboardPage() {
         .lt('scheduled_for', todayEnd)
         .order('scheduled_for', { ascending: true })
         .limit(5),
+      supabase
+        .from('requests')
+        .select('id', { count: 'exact', head: true })
+        .eq('couple_id', coupleId)
+        .eq('recipient_id', user.id)
+        .eq('status', 'pending'),
     ])
 
     checkInCount = checkIns.count ?? 0
@@ -112,6 +120,7 @@ export default async function DashboardPage() {
       category: r.category,
       isOverdue: new Date(r.scheduled_for) < today,
     }))
+    pendingRequestCount = pendingReqs.count ?? 0
   }
 
   return (
@@ -129,6 +138,7 @@ export default async function DashboardPage() {
       lastCheckInDate={lastCheckInDate}
       topLanguages={topLanguages}
       todayReminders={todayReminders}
+      pendingRequestCount={pendingRequestCount}
     />
   )
 }

@@ -99,3 +99,30 @@ Each iteration is appended below by the `/gap-analysis` skill.
 - Reference's PersonalizationPanel (font size, color presets, HSL editing) — over-engineered for current product stage
 - Reference's count-up animation hook in StatsGrid — cosmetic enhancement, low priority
 - SessionSettingsPanel differences — reference uses Slider components (we don't have Slider primitive), production uses number inputs
+
+### Iteration 4 (2026-02-28)
+
+**Findings:** 7
+**Fixed:** 5
+**Deferred:** 2
+**Dimensions Covered:** Components, Content & Copy, Styling & Visual Design
+
+#### Fixed
+
+- [x] AddLanguageDialog importance labels missing descriptive help text ("Nice to have", "Important to me", "Very important", "Critical for feeling loved") — data-driven radio options (dimension: Content & Copy, severity: MEDIUM)
+- [x] AddLanguageDialog privacy labels missing clarification text ("Only visible to me", "Visible to your partner") (dimension: Content & Copy, severity: MEDIUM)
+- [x] Notes search placeholder too brief — changed to "Search notes, categories, or tags..." (dimension: Content & Copy, severity: LOW)
+- [x] Notes grid missing xl:grid-cols-4 breakpoint for large screens (dimension: Styling, severity: LOW)
+- [x] Dashboard QuickActions missing badge counts — added pending request count and today's reminder count badges with pink pill styling (dimension: Components, severity: HIGH)
+
+#### Deferred
+
+- [ ] MilestoneCreator missing confetti celebration animation (frontend-only but large scope, needs particle system)
+- [ ] Timeline missing multi-entry type support (milestones only vs milestones + check-ins + notes + goals in reference — architectural change)
+
+#### Intentionally Skipped
+
+- LoveActionCard missing notes/plannedFor/suggestedBy fields — these fields don't exist in production DB schema (reference uses mock data)
+- Landing page, layout, navigation, global styles — production is significantly AHEAD of reference (dark mode, HowItWorks, SocialProof, theme toggle, sign out, etc.)
+- Notes advanced features (tag manager, bulk actions, infinite scroll) — require DB schema changes or large architectural work
+- Dashboard ActivityFeed filter tabs — architectural change, current RecentActivity is simpler but functional

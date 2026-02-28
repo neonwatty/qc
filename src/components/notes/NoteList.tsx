@@ -73,7 +73,7 @@ export function NoteList({ notes, currentUserId, onSelect, onDelete }: Props) {
           </svg>
           <input
             type="search"
-            placeholder="Search notes..."
+            placeholder="Search notes, categories, or tags..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="mobile-input w-full rounded-xl border border-border bg-input py-2.5 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-ring"
@@ -115,7 +115,7 @@ export function NoteList({ notes, currentUserId, onSelect, onDelete }: Props) {
 
       {/* Notes grid */}
       {filtered.length > 0 ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filtered.map((note) => (
             <NoteCard
               key={note.id}

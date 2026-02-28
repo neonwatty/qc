@@ -67,6 +67,7 @@ function defaultProps() {
     lastCheckInDate: null,
     topLanguages: [],
     todayReminders: [],
+    pendingRequestCount: 0,
   }
 }
 

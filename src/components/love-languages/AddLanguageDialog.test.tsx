@@ -132,4 +132,18 @@ describe('AddLanguageDialog', () => {
     expect(screen.getByText('High')).toBeDefined()
     expect(screen.getByText('Essential')).toBeDefined()
   })
+
+  it('renders descriptive help text for importance levels', () => {
+    render(<AddLanguageDialog open={true} onOpenChange={vi.fn()} onSubmit={vi.fn()} />)
+    expect(screen.getByText('Nice to have')).toBeDefined()
+    expect(screen.getByText('Important to me')).toBeDefined()
+    expect(screen.getByText('Very important')).toBeDefined()
+    expect(screen.getByText('Critical for feeling loved')).toBeDefined()
+  })
+
+  it('renders descriptive help text for privacy options', () => {
+    render(<AddLanguageDialog open={true} onOpenChange={vi.fn()} onSubmit={vi.fn()} />)
+    expect(screen.getByText('Only visible to me')).toBeDefined()
+    expect(screen.getByText('Visible to your partner')).toBeDefined()
+  })
 })
