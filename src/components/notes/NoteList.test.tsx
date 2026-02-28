@@ -70,21 +70,27 @@ describe('NoteList', () => {
 
   it('filters by search term in content', () => {
     render(<NoteList notes={mockNotes} currentUserId="u1" onSelect={vi.fn()} onDelete={vi.fn()} />)
-    fireEvent.change(screen.getByPlaceholderText('Search notes...'), { target: { value: 'partner' } })
+    fireEvent.change(screen.getByPlaceholderText('Search notes, categories, or tags...'), {
+      target: { value: 'partner' },
+    })
     expect(screen.queryByTestId('note-n1')).toBeNull()
     expect(screen.getByTestId('note-n2')).toBeDefined()
   })
 
   it('filters by search term in tags', () => {
     render(<NoteList notes={mockNotes} currentUserId="u1" onSelect={vi.fn()} onDelete={vi.fn()} />)
-    fireEvent.change(screen.getByPlaceholderText('Search notes...'), { target: { value: 'greeting' } })
+    fireEvent.change(screen.getByPlaceholderText('Search notes, categories, or tags...'), {
+      target: { value: 'greeting' },
+    })
     expect(screen.getByTestId('note-n1')).toBeDefined()
     expect(screen.queryByTestId('note-n2')).toBeNull()
   })
 
   it('shows empty state when no notes match', () => {
     render(<NoteList notes={mockNotes} currentUserId="u1" onSelect={vi.fn()} onDelete={vi.fn()} />)
-    fireEvent.change(screen.getByPlaceholderText('Search notes...'), { target: { value: 'nonexistent' } })
+    fireEvent.change(screen.getByPlaceholderText('Search notes, categories, or tags...'), {
+      target: { value: 'nonexistent' },
+    })
     expect(screen.getByText('No notes found')).toBeDefined()
   })
 
@@ -107,7 +113,9 @@ describe('NoteList', () => {
 
   it('shows filtered count when search is active', () => {
     render(<NoteList notes={mockNotes} currentUserId="u1" onSelect={vi.fn()} onDelete={vi.fn()} />)
-    fireEvent.change(screen.getByPlaceholderText('Search notes...'), { target: { value: 'partner' } })
+    fireEvent.change(screen.getByPlaceholderText('Search notes, categories, or tags...'), {
+      target: { value: 'partner' },
+    })
     expect(screen.getByText('1 note found')).toBeDefined()
   })
 })

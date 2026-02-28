@@ -76,4 +76,20 @@ describe('QuickActions', () => {
     const outerDiv = container.firstElementChild as HTMLElement
     expect(outerDiv.className).toContain('test-class')
   })
+
+  it('shows pending requests badge when count > 0', () => {
+    render(<QuickActions pendingRequests={3} />)
+    expect(screen.getByText('3')).toBeDefined()
+  })
+
+  it('shows today reminders badge when count > 0', () => {
+    render(<QuickActions todayReminders={2} />)
+    expect(screen.getByText('2')).toBeDefined()
+  })
+
+  it('does not show badges when counts are 0', () => {
+    const { container } = render(<QuickActions pendingRequests={0} todayReminders={0} />)
+    const badges = container.querySelectorAll('.rounded-full.bg-pink-500')
+    expect(badges).toHaveLength(0)
+  })
 })

@@ -34,6 +34,18 @@ interface AddLanguageDialogProps {
   initialLanguage?: LoveLanguage
 }
 
+const IMPORTANCE_OPTIONS: { value: LoveLanguageImportance; label: string; hint: string; id: string }[] = [
+  { value: 'low', label: 'Low', hint: 'Nice to have', id: 'll-low' },
+  { value: 'medium', label: 'Medium', hint: 'Important to me', id: 'll-med' },
+  { value: 'high', label: 'High', hint: 'Very important', id: 'll-hi' },
+  { value: 'essential', label: 'Essential', hint: 'Critical for feeling loved', id: 'll-ess' },
+]
+
+const PRIVACY_OPTIONS: { value: LoveLanguagePrivacy; label: string; hint: string; id: string }[] = [
+  { value: 'private', label: 'Private', hint: 'Only visible to me', id: 'll-priv' },
+  { value: 'shared', label: 'Shared with partner', hint: 'Visible to your partner', id: 'll-shared' },
+]
+
 const CATEGORY_OPTIONS: { value: LoveLanguageCategory; label: string; emoji: string }[] = [
   { value: 'words', label: 'Words of Affirmation', emoji: '\uD83D\uDCAC' },
   { value: 'acts', label: 'Acts of Service', emoji: '\uD83E\uDD1D' },
@@ -217,36 +229,30 @@ function LanguageFormFields({ initialLanguage, onSubmit, onCancel }: LanguageFor
         <div className="grid gap-2">
           <Label>Importance</Label>
           <RadioGroup value={importance} onValueChange={(v) => setImportance(v as LoveLanguageImportance)}>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="low" id="ll-low" />
-              <Label htmlFor="ll-low">Low</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="medium" id="ll-med" />
-              <Label htmlFor="ll-med">Medium</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="high" id="ll-hi" />
-              <Label htmlFor="ll-hi">High</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="essential" id="ll-ess" />
-              <Label htmlFor="ll-ess">Essential</Label>
-            </div>
+            {IMPORTANCE_OPTIONS.map((opt) => (
+              <div key={opt.value} className="flex items-center space-x-2">
+                <RadioGroupItem value={opt.value} id={opt.id} />
+                <Label htmlFor={opt.id} className="flex flex-col">
+                  <span>{opt.label}</span>
+                  <span className="text-xs font-normal text-muted-foreground">{opt.hint}</span>
+                </Label>
+              </div>
+            ))}
           </RadioGroup>
         </div>
 
         <div className="grid gap-2">
           <Label>Privacy</Label>
           <RadioGroup value={privacy} onValueChange={(v) => setPrivacy(v as LoveLanguagePrivacy)}>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="private" id="ll-priv" />
-              <Label htmlFor="ll-priv">Private</Label>
-            </div>
-            <div className="flex items-center space-x-2">
-              <RadioGroupItem value="shared" id="ll-shared" />
-              <Label htmlFor="ll-shared">Shared with partner</Label>
-            </div>
+            {PRIVACY_OPTIONS.map((opt) => (
+              <div key={opt.value} className="flex items-center space-x-2">
+                <RadioGroupItem value={opt.value} id={opt.id} />
+                <Label htmlFor={opt.id} className="flex flex-col">
+                  <span>{opt.label}</span>
+                  <span className="text-xs font-normal text-muted-foreground">{opt.hint}</span>
+                </Label>
+              </div>
+            ))}
           </RadioGroup>
         </div>
 

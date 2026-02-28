@@ -30,6 +30,7 @@ interface DashboardContentProps {
   lastCheckInDate: string | null
   topLanguages: Array<{ title: string; category: string }>
   todayReminders: Array<{ id: string; title: string; scheduledFor: string; category: string; isOverdue: boolean }>
+  pendingRequestCount: number
 }
 
 export function DashboardContent({
@@ -46,6 +47,7 @@ export function DashboardContent({
   lastCheckInDate,
   topLanguages,
   todayReminders,
+  pendingRequestCount,
 }: DashboardContentProps): React.ReactNode {
   const router = useRouter()
 
@@ -84,7 +86,7 @@ export function DashboardContent({
       <PrepBanner lastCheckInDate={lastCheckInDate} />
 
       {/* Quick Actions */}
-      <QuickActions />
+      <QuickActions pendingRequests={pendingRequestCount} todayReminders={todayReminders.length} />
 
       {/* Streak Display */}
       <StreakDisplay streakData={streakData} />
