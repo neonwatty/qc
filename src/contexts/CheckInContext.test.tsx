@@ -1,4 +1,3 @@
-import React from 'react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
 import { renderHook } from '@testing-library/react'
@@ -25,13 +24,13 @@ vi.mock('./check-in-reducer', () => ({
   ],
 }))
 
-const mockFetchActiveCheckIn = vi.fn(() => Promise.resolve({ data: null, error: null }))
+const mockFetchActiveCheckIn = vi.fn((_coupleId: string) => Promise.resolve({ data: null, error: null }))
 const mockFetchCheckInActionItems = vi.fn()
 
 vi.mock('@/lib/checkin-operations', () => ({
   mapDbActionItem: vi.fn(),
-  fetchActiveCheckIn: (...args: unknown[]) => mockFetchActiveCheckIn(...args),
-  fetchCheckInActionItems: (...args: unknown[]) => mockFetchCheckInActionItems(...args),
+  fetchActiveCheckIn: (coupleId: string) => mockFetchActiveCheckIn(coupleId),
+  fetchCheckInActionItems: (checkInId: string, coupleId: string) => mockFetchCheckInActionItems(checkInId, coupleId),
   insertCheckIn: vi.fn(),
   updateCheckInStatus: vi.fn(),
   insertNote: vi.fn(),
