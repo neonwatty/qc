@@ -105,22 +105,14 @@ test.describe('Growth Gallery — Timeline view (default)', () => {
 })
 
 test.describe('Growth Gallery — Progress view', () => {
-  test('clicking Progress tab shows achieved milestones section', async ({ authedPage: page }) => {
+  test('clicking Progress tab shows milestone completion stats', async ({ authedPage: page }) => {
     await page.goto('/growth')
 
     await page.getByRole('button', { name: /progress/i }).click()
 
-    await expect(page.getByRole('heading', { name: /achieved/i })).toBeVisible({ timeout: 15000 })
-  })
-
-  test('displays all 3 seed milestones in achieved section', async ({ authedPage: page }) => {
-    await page.goto('/growth')
-
-    await page.getByRole('button', { name: /progress/i }).click()
-
-    await expect(page.getByText(/first check-in/i).first()).toBeVisible({ timeout: 15000 })
-    await expect(page.getByText(/6-month anniversary/i).first()).toBeVisible({ timeout: 10000 })
-    await expect(page.getByText(/three in a row/i).first()).toBeVisible({ timeout: 10000 })
+    await expect(page.getByText(/milestones complete/i).first()).toBeVisible({ timeout: 15000 })
+    await expect(page.getByText(/milestones upcoming/i).first()).toBeVisible({ timeout: 10000 })
+    await expect(page.getByText(/completion rate/i).first()).toBeVisible({ timeout: 10000 })
   })
 })
 

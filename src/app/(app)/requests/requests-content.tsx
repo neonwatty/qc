@@ -13,6 +13,55 @@ import type { DbRequest } from '@/types/database'
 import { convertRequestToReminder, createRequest, deleteRequest, respondToRequest } from './actions'
 import type { RequestActionState } from './actions'
 
+interface TabButtonProps {
+  tab: 'received' | 'sent'
+  active: boolean
+  count: number
+  pending: number
+  onClick: () => void
+}
+
+function TabButton({ tab, active, count, pending, onClick }: TabButtonProps): React.ReactElement {
+  return (
+    <button
+      onClick={onClick}
+      className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-sm capitalize ${
+        active ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
+      }`}
+    >
+      {tab} ({count})
+      {pending > 0 && (
+        <span className="flex h-5 min-w-5 items-center justify-center rounded-full bg-pink-500 px-1.5 text-xs font-bold text-white">
+          {pending}
+        </span>
+      )}
+    </button>
+  )
+}
+
+function NewRequestButton({
+  showForm,
+  partnerId,
+  onToggle,
+}: {
+  showForm: boolean
+  partnerId: string | null
+  onToggle: () => void
+}): React.ReactElement {
+  return (
+    <div className="flex flex-col items-end gap-1">
+      <Button
+        onClick={onToggle}
+        disabled={!partnerId}
+        title={!partnerId ? 'Connect with a partner to send requests' : undefined}
+      >
+        {showForm ? 'Cancel' : 'New Request'}
+      </Button>
+      {!partnerId && <p className="text-xs text-muted-foreground">Connect with a partner to send requests</p>}
+    </div>
+  )
+}
+
 interface Props {
   initialRequests: DbRequest[]
   userId: string
@@ -90,7 +139,6 @@ export function RequestsContent({
         toast.error(result.error)
       } else {
         toast.success('Request converted to reminder')
-        // Update the request status to converted
         setRequests((prev) =>
           prev.map((r) =>
             r.id === id
@@ -108,21 +156,11 @@ export function RequestsContent({
   const sent = requests.filter((r) => r.requested_by === userId)
   const displayed = tab === 'received' ? received : sent
 
-  const requestButton = (
-    <div className="flex flex-col items-end gap-1">
-      <Button
-        onClick={() => setShowForm(!showForm)}
-        disabled={!partnerId}
-        title={!partnerId ? 'Connect with a partner to send requests' : undefined}
-      >
-        {showForm ? 'Cancel' : 'New Request'}
-      </Button>
-      {!partnerId && <p className="text-xs text-muted-foreground">Connect with a partner to send requests</p>}
-    </div>
-  )
-
   return (
-    <PageContainer title="Requests" action={requestButton}>
+    <PageContainer
+      title="Requests"
+      action={<NewRequestButton showForm={showForm} partnerId={partnerId} onToggle={() => setShowForm(!showForm)} />}
+    >
       {showForm && partnerId && (
         <RequestForm
           formAction={formAction}
@@ -134,17 +172,20 @@ export function RequestsContent({
       )}
 
       <div className="flex gap-2">
-        {(['received', 'sent'] as const).map((t) => (
-          <button
-            key={t}
-            onClick={() => setTab(t)}
-            className={`rounded-full px-3 py-1 text-sm capitalize ${
-              tab === t ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-            }`}
-          >
-            {t} ({t === 'received' ? received.length : sent.length})
-          </button>
-        ))}
+        <TabButton
+          tab="received"
+          active={tab === 'received'}
+          count={received.length}
+          pending={received.filter((r) => r.status === 'pending').length}
+          onClick={() => setTab('received')}
+        />
+        <TabButton
+          tab="sent"
+          active={tab === 'sent'}
+          count={sent.length}
+          pending={sent.filter((r) => r.status === 'pending').length}
+          onClick={() => setTab('sent')}
+        />
       </div>
 
       {displayed.length === 0 ? (

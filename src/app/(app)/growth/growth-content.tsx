@@ -55,56 +55,41 @@ function StatsGrid({ achievedCount, upcomingCount, totalPoints, photoCount }: St
 }
 
 interface ProgressViewProps {
+  scores: GrowthAreaScore[]
   upcoming: Milestone[]
   achieved: Milestone[]
 }
 
-function ProgressView({ upcoming, achieved }: ProgressViewProps): React.ReactElement {
+function ProgressView({ scores, upcoming, achieved }: ProgressViewProps): React.ReactElement {
+  const totalMilestones = upcoming.length + achieved.length
+  const completionRate = totalMilestones > 0 ? Math.round((achieved.length / totalMilestones) * 100) : 0
+
   return (
     <div className="space-y-6">
-      <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Upcoming Milestones</h2>
-      {upcoming.length === 0 ? (
-        <p className="text-gray-600 dark:text-gray-400">All milestones achieved! Create a new one to keep growing.</p>
+      {/* Growth area progress bars */}
+      {scores.length > 0 ? (
+        <GrowthProgressBars scores={scores} />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {upcoming.map((m) => (
-            <div
-              key={m.id}
-              className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm dark:border-gray-800 dark:bg-gray-900"
-            >
-              <div className="mb-2 flex items-center gap-2">
-                <span className="text-xl">{m.icon ?? '🎯'}</span>
-                <h3 className="font-medium text-gray-900 dark:text-gray-100">{m.title}</h3>
-              </div>
-              <p className="mb-3 text-sm text-gray-600 dark:text-gray-400">{m.description}</p>
-              <div className="flex items-center justify-between text-xs text-gray-500">
-                <span className="capitalize">{m.category}</span>
-                <span>{m.points} pts</span>
-              </div>
-            </div>
-          ))}
+        <div className="rounded-lg border bg-card p-6 text-center">
+          <p className="text-sm text-muted-foreground">Complete check-ins to see your growth area progress.</p>
         </div>
       )}
 
-      <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">Achieved</h2>
-      {achieved.length === 0 ? (
-        <p className="text-gray-600 dark:text-gray-400">Complete milestones to see them here.</p>
-      ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {achieved.map((m) => (
-            <div
-              key={m.id}
-              className="rounded-lg border border-green-200 bg-green-50 p-4 shadow-sm dark:border-green-800 dark:bg-green-900/20"
-            >
-              <div className="mb-2 flex items-center gap-2">
-                <span className="text-xl">{m.icon ?? '🏆'}</span>
-                <h3 className="font-medium text-gray-900 dark:text-gray-100">{m.title}</h3>
-              </div>
-              <p className="text-sm text-gray-600 dark:text-gray-400">{m.description}</p>
-            </div>
-          ))}
+      {/* Milestone completion summary */}
+      <div className="grid gap-4 sm:grid-cols-3">
+        <div className="rounded-lg border bg-card p-4 text-center">
+          <p className="text-2xl font-bold text-green-600">{achieved.length}</p>
+          <p className="text-xs text-muted-foreground">Milestones Complete</p>
         </div>
-      )}
+        <div className="rounded-lg border bg-card p-4 text-center">
+          <p className="text-2xl font-bold text-blue-600">{upcoming.length}</p>
+          <p className="text-xs text-muted-foreground">Milestones Upcoming</p>
+        </div>
+        <div className="rounded-lg border bg-card p-4 text-center">
+          <p className="text-2xl font-bold text-purple-600">{completionRate}%</p>
+          <p className="text-xs text-muted-foreground">Completion Rate</p>
+        </div>
+      </div>
     </div>
   )
 }
@@ -236,7 +221,9 @@ export function GrowthContent({ coupleId, growthScores, moodHistory }: GrowthCon
         {!isLoading && !error && (
           <>
             {activeView === 'timeline' && <Timeline milestones={milestones} />}
-            {activeView === 'progress' && <ProgressView upcoming={upcoming} achieved={achieved} />}
+            {activeView === 'progress' && (
+              <ProgressView scores={growthScores} upcoming={upcoming} achieved={achieved} />
+            )}
             {activeView === 'memories' && (
               <PhotoGallery milestones={milestones} onAddMemory={() => setIsCreatorOpen(true)} />
             )}

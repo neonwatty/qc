@@ -7,6 +7,7 @@ import type { DbNote } from '@/types'
 import { NoteCard } from './NoteCard'
 
 type NoteFilter = 'all' | 'shared' | 'private' | 'draft'
+type NoteSort = 'newest' | 'oldest' | 'title'
 
 type Props = {
   notes: DbNote[]
@@ -18,9 +19,10 @@ type Props = {
 export function NoteList({ notes, currentUserId, onSelect, onDelete }: Props) {
   const [filter, setFilter] = useState<NoteFilter>('all')
   const [search, setSearch] = useState('')
+  const [sort, setSort] = useState<NoteSort>('newest')
 
   const filtered = useMemo(() => {
-    return notes.filter((note) => {
+    const result = notes.filter((note) => {
       if (filter !== 'all' && note.privacy !== filter) return false
       if (search) {
         const term = search.toLowerCase()
@@ -30,7 +32,19 @@ export function NoteList({ notes, currentUserId, onSelect, onDelete }: Props) {
       }
       return true
     })
-  }, [notes, filter, search])
+
+    return [...result].sort((a, b) => {
+      switch (sort) {
+        case 'oldest':
+          return a.created_at.localeCompare(b.created_at)
+        case 'title':
+          return a.content.localeCompare(b.content)
+        case 'newest':
+        default:
+          return b.created_at.localeCompare(a.created_at)
+      }
+    })
+  }, [notes, filter, search, sort])
 
   const FILTERS: { value: NoteFilter; label: string }[] = [
     { value: 'all', label: 'All' },
@@ -80,6 +94,23 @@ export function NoteList({ notes, currentUserId, onSelect, onDelete }: Props) {
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Sort and result count */}
+      <div className="flex items-center justify-between">
+        <p className="text-sm text-muted-foreground">
+          {filtered.length} {filtered.length === 1 ? 'note' : 'notes'}
+          {filter !== 'all' || search ? ' found' : ''}
+        </p>
+        <select
+          value={sort}
+          onChange={(e) => setSort(e.target.value as NoteSort)}
+          className="rounded-lg border border-border bg-input px-3 py-1.5 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+        >
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
+          <option value="title">By title</option>
+        </select>
       </div>
 
       {/* Notes grid */}
