@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
 vi.mock('framer-motion', () => {
   const handler: ProxyHandler<Record<string, unknown>> = {
     get(_, tag: string) {
@@ -71,9 +70,9 @@ describe('Hero', () => {
 
   it('renders all 3 feature pill texts', async () => {
     await renderHero()
-    expect(screen.getByText('Weekly Check-ins')).toBeDefined()
-    expect(screen.getByText('Never Forget What Matters')).toBeDefined()
-    expect(screen.getByText('See Your Growth')).toBeDefined()
+    expect(screen.getByText('Structured Sessions')).toBeDefined()
+    expect(screen.getByText('Relationship Reminders')).toBeDefined()
+    expect(screen.getByText('Progress Tracking')).toBeDefined()
   })
 
   it('renders "Start your journey" link pointing to /signup', async () => {

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
 vi.mock('framer-motion', () => {
   const handler: ProxyHandler<Record<string, unknown>> = {
     get(_, tag: string) {
@@ -23,6 +22,9 @@ vi.mock('lucide-react', () => ({
   Shield: () => <span data-testid="icon-shield" />,
   Sparkles: () => <span data-testid="icon-sparkles" />,
   Bell: () => <span data-testid="icon-bell" />,
+  Settings: () => <span data-testid="icon-settings" />,
+  Users: () => <span data-testid="icon-users" />,
+  Target: () => <span data-testid="icon-target" />,
 }))
 
 vi.mock('@/lib/animations', () => ({
@@ -67,14 +69,17 @@ describe('FeatureGrid', () => {
     expect(screen.getByText('For couples who like to solve problems together.')).toBeDefined()
   })
 
-  it('renders all 6 feature titles', async () => {
+  it('renders all 9 feature titles', async () => {
     await renderGrid()
     expect(screen.getByText('Guided Check-ins')).toBeDefined()
+    expect(screen.getByText('Session Rules')).toBeDefined()
     expect(screen.getByText('Relationship Reminders')).toBeDefined()
     expect(screen.getByText('Pattern Recognition')).toBeDefined()
     expect(screen.getByText('Progress Metrics')).toBeDefined()
     expect(screen.getByText('Privacy First')).toBeDefined()
+    expect(screen.getByText('Unified View')).toBeDefined()
     expect(screen.getByText('Action Items')).toBeDefined()
+    expect(screen.getByText('Relationship Goals')).toBeDefined()
   })
 
   it('renders feature descriptions', async () => {

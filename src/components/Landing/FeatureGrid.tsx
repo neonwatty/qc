@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { MessageSquare, Heart, TrendingUp, Shield, Sparkles, Bell } from 'lucide-react'
+import { MessageSquare, Heart, TrendingUp, Shield, Sparkles, Bell, Settings, Users, Target } from 'lucide-react'
 import { staggerContainer, staggerItem } from '@/lib/animations'
 import { Card } from '@/components/ui/card'
 
@@ -14,9 +14,18 @@ const FEATURES = [
     iconColor: 'text-blue-600',
   },
   {
+    icon: Settings,
+    title: 'Session Rules',
+    description:
+      'Partner-agreed ground rules with live timers, turn-based discussions, and structured templates for fair, productive conversations.',
+    gradient: 'from-indigo-500/10 to-purple-500/10',
+    iconColor: 'text-indigo-600',
+  },
+  {
     icon: Bell,
     title: 'Relationship Reminders',
-    description: 'Smart scheduling, progress tracking, and categories for habits, check-ins, and special moments.',
+    description:
+      'Chat-like reminder management with smart scheduling, progress tracking, and categories for habits, check-ins, and special moments.',
     gradient: 'from-pink-500/10 to-rose-500/10',
     iconColor: 'text-pink-600',
   },
@@ -42,11 +51,25 @@ const FEATURES = [
     iconColor: 'text-purple-600',
   },
   {
+    icon: Users,
+    title: 'Unified View',
+    description: 'See individual perspectives and shared insights in one clear interface.',
+    gradient: 'from-teal-500/10 to-cyan-500/10',
+    iconColor: 'text-teal-600',
+  },
+  {
     icon: Sparkles,
     title: 'Action Items',
     description: 'Turn insights into concrete next steps with built-in accountability.',
     gradient: 'from-yellow-500/10 to-orange-500/10',
     iconColor: 'text-yellow-600',
+  },
+  {
+    icon: Target,
+    title: 'Relationship Goals',
+    description: 'Set objectives together and track your progress systematically.',
+    gradient: 'from-amber-500/10 to-orange-500/10',
+    iconColor: 'text-amber-600',
   },
 ] as const
 
