@@ -40,6 +40,11 @@ next-env.d.ts
 
 # claude
 .claude/plans/
+.claude/gap-status
+.claude/ralph-loop.local.md
+
+# automation logs
+logs/
 
 # worktrees
 .worktrees/
