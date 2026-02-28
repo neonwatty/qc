@@ -7,9 +7,9 @@ import { staggerContainer, slideUp, staggerItem } from '@/lib/animations'
 import { Button } from '@/components/ui/button'
 
 const FEATURES = [
-  { icon: MessageCircle, text: 'Weekly Check-ins' },
-  { icon: Heart, text: 'Never Forget What Matters' },
-  { icon: TrendingUp, text: 'See Your Growth' },
+  { icon: MessageCircle, text: 'Structured Sessions' },
+  { icon: Heart, text: 'Relationship Reminders' },
+  { icon: TrendingUp, text: 'Progress Tracking' },
 ] as const
 
 export function Hero(): React.ReactNode {
