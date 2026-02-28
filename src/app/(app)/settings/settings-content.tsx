@@ -10,9 +10,10 @@ import { PrivacySettings } from '@/components/settings/PrivacySettings'
 import { ProfileSettings } from '@/components/settings/ProfileSettings'
 import { RelationshipSettings } from '@/components/settings/RelationshipSettings'
 import { SessionSettingsPanel } from '@/components/settings/SessionSettingsPanel'
+import { ThemeSelector } from '@/components/settings/ThemeSelector'
 import type { DbCouple, DbProfile, DbSessionSettings } from '@/types/database'
 
-type SettingsTab = 'profile' | 'relationship' | 'session' | 'categories' | 'notifications' | 'data'
+type SettingsTab = 'profile' | 'relationship' | 'session' | 'categories' | 'notifications' | 'appearance' | 'data'
 
 interface Props {
   profile: DbProfile | null
@@ -29,6 +30,7 @@ const TABS: { id: SettingsTab; label: string }[] = [
   { id: 'session', label: 'Session Rules' },
   { id: 'categories', label: 'Categories' },
   { id: 'notifications', label: 'Notifications' },
+  { id: 'appearance', label: 'Appearance' },
   { id: 'data', label: 'Data & Privacy' },
 ]
 
@@ -76,6 +78,8 @@ export function SettingsContent({
           <PrivacySettings coupleId={couple.id} />
         </div>
       )}
+
+      {activeTab === 'appearance' && <ThemeSelector />}
 
       {activeTab === 'data' && <DataExportPanel />}
     </PageContainer>

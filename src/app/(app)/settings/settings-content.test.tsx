@@ -30,6 +30,9 @@ vi.mock('@/components/settings/RelationshipSettings', () => ({
 vi.mock('@/components/settings/SessionSettingsPanel', () => ({
   SessionSettingsPanel: () => <div data-testid="session-settings" />,
 }))
+vi.mock('@/components/settings/ThemeSelector', () => ({
+  ThemeSelector: () => <div data-testid="theme-selector" />,
+}))
 
 const { SettingsContent } = await import('./settings-content')
 
@@ -54,13 +57,14 @@ describe('SettingsContent', () => {
     expect(screen.getByText('Settings')).toBeDefined()
   })
 
-  it('renders all 6 tab labels', () => {
+  it('renders all 7 tab labels', () => {
     render(<SettingsContent {...defaultProps()} />)
     expect(screen.getByText('Profile')).toBeDefined()
     expect(screen.getByText('Relationship')).toBeDefined()
     expect(screen.getByText('Session Rules')).toBeDefined()
     expect(screen.getByText('Categories')).toBeDefined()
     expect(screen.getByText('Notifications')).toBeDefined()
+    expect(screen.getByText('Appearance')).toBeDefined()
     expect(screen.getByText('Data & Privacy')).toBeDefined()
   })
 
@@ -91,6 +95,12 @@ describe('SettingsContent', () => {
     render(<SettingsContent {...defaultProps()} />)
     fireEvent.click(screen.getByText('Categories'))
     expect(screen.queryByTestId('category-manager')).toBeNull()
+  })
+
+  it('clicking Appearance tab shows ThemeSelector', () => {
+    render(<SettingsContent {...defaultProps()} />)
+    fireEvent.click(screen.getByText('Appearance'))
+    expect(screen.getByTestId('theme-selector')).toBeDefined()
   })
 
   it('clicking Categories when couple exists shows CategoryManager', () => {
