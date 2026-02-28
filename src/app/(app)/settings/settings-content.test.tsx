@@ -1,0 +1,111 @@
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { render, screen, fireEvent } from '@testing-library/react'
+
+vi.mock('@/components/layout/PageContainer', () => ({
+  PageContainer: ({ children, title }: { children: React.ReactNode; title: string }) => (
+    <div>
+      <h1>{title}</h1>
+      {children}
+    </div>
+  ),
+}))
+vi.mock('@/components/settings/CategoryManager', () => ({
+  CategoryManager: () => <div data-testid="category-manager" />,
+}))
+vi.mock('@/components/settings/DataExportPanel', () => ({
+  DataExportPanel: () => <div data-testid="data-export" />,
+}))
+vi.mock('@/components/settings/NotificationSettings', () => ({
+  NotificationSettings: () => <div data-testid="notifications" />,
+}))
+vi.mock('@/components/settings/PrivacySettings', () => ({
+  PrivacySettings: () => <div data-testid="privacy" />,
+}))
+vi.mock('@/components/settings/ProfileSettings', () => ({
+  ProfileSettings: () => <div data-testid="profile-settings" />,
+}))
+vi.mock('@/components/settings/RelationshipSettings', () => ({
+  RelationshipSettings: () => <div data-testid="relationship-settings" />,
+}))
+vi.mock('@/components/settings/SessionSettingsPanel', () => ({
+  SessionSettingsPanel: () => <div data-testid="session-settings" />,
+}))
+
+const { SettingsContent } = await import('./settings-content')
+
+function defaultProps() {
+  return {
+    profile: null,
+    couple: null,
+    sessionSettings: null,
+    partner: null,
+    pendingInvite: null,
+    userEmail: 'test@example.com',
+  }
+}
+
+beforeEach(() => {
+  vi.clearAllMocks()
+})
+
+describe('SettingsContent', () => {
+  it('renders Settings title', () => {
+    render(<SettingsContent {...defaultProps()} />)
+    expect(screen.getByText('Settings')).toBeDefined()
+  })
+
+  it('renders all 6 tab labels', () => {
+    render(<SettingsContent {...defaultProps()} />)
+    expect(screen.getByText('Profile')).toBeDefined()
+    expect(screen.getByText('Relationship')).toBeDefined()
+    expect(screen.getByText('Session Rules')).toBeDefined()
+    expect(screen.getByText('Categories')).toBeDefined()
+    expect(screen.getByText('Notifications')).toBeDefined()
+    expect(screen.getByText('Data & Privacy')).toBeDefined()
+  })
+
+  it('shows ProfileSettings by default', () => {
+    render(<SettingsContent {...defaultProps()} />)
+    expect(screen.getByTestId('profile-settings')).toBeDefined()
+  })
+
+  it('clicking Relationship tab shows RelationshipSettings', () => {
+    render(<SettingsContent {...defaultProps()} />)
+    fireEvent.click(screen.getByText('Relationship'))
+    expect(screen.getByTestId('relationship-settings')).toBeDefined()
+  })
+
+  it('clicking Session Rules tab shows SessionSettingsPanel', () => {
+    render(<SettingsContent {...defaultProps()} />)
+    fireEvent.click(screen.getByText('Session Rules'))
+    expect(screen.getByTestId('session-settings')).toBeDefined()
+  })
+
+  it('clicking Data & Privacy tab shows DataExportPanel', () => {
+    render(<SettingsContent {...defaultProps()} />)
+    fireEvent.click(screen.getByText('Data & Privacy'))
+    expect(screen.getByTestId('data-export')).toBeDefined()
+  })
+
+  it('CategoryManager not shown when couple is null', () => {
+    render(<SettingsContent {...defaultProps()} />)
+    fireEvent.click(screen.getByText('Categories'))
+    expect(screen.queryByTestId('category-manager')).toBeNull()
+  })
+
+  it('clicking Categories when couple exists shows CategoryManager', () => {
+    const props = {
+      ...defaultProps(),
+      couple: {
+        id: 'c1',
+        name: 'Test Couple',
+        relationship_start_date: null,
+        settings: {},
+        created_at: '2025-01-01',
+      },
+    }
+    render(<SettingsContent {...props} />)
+    fireEvent.click(screen.getByText('Categories'))
+    expect(screen.getByTestId('category-manager')).toBeDefined()
+  })
+})
