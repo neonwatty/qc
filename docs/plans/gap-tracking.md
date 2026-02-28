@@ -126,3 +126,31 @@ Each iteration is appended below by the `/gap-analysis` skill.
 - Landing page, layout, navigation, global styles — production is significantly AHEAD of reference (dark mode, HowItWorks, SocialProof, theme toggle, sign out, etc.)
 - Notes advanced features (tag manager, bulk actions, infinite scroll) — require DB schema changes or large architectural work
 - Dashboard ActivityFeed filter tabs — architectural change, current RecentActivity is simpler but functional
+
+### Iteration 5 (2026-02-28)
+
+**Findings:** 6
+**Fixed:** 3
+**Deferred:** 3
+**Dimensions Covered:** Components, Content & Copy, UX Flows
+
+#### Fixed
+
+- [x] Tour slides missing bullet points and feature titles not matching reference — added 3 numbered feature points per slide, renamed titles to "Structured Check-Ins", "Privacy Controls", "Growth Tracking", "Love Languages" with concise descriptions (dimension: Content & Copy, severity: MEDIUM)
+- [x] RequestCard missing category icons, status icons, and priority icons — added lucide-react icons for all 6 categories (Heart, Briefcase, MessageSquare, Bell, Sparkles, MoreHorizontal), 4 statuses (Clock, Check, X, RefreshCw), and high-priority AlertCircle indicator with color-coded badges (dimension: Components, severity: MEDIUM)
+- [x] Requests empty state missing icons — added Inbox icon for received tab and Send icon for sent tab with muted styling (dimension: UX Flows, severity: MEDIUM)
+
+#### Deferred
+
+- [ ] Check-in session missing PromptManager, PromptEditor, DiscussionView, RichTextEditor, NoteTabs, BasicTextInput (6 large components, architectural change to check-in flow)
+- [ ] Onboarding missing Welcome, Quiz, Reminder, and Complete steps (architectural change, 4+ new components)
+- [ ] Missing LoadingStates, FallbackUI, Animations UI component library (40+ specialized components)
+
+#### Intentionally Skipped
+
+- CompletionCelebration share/download/hearts — cosmetic enhancement, low user impact
+- PreparationModal partner simulation — uses mock data in reference, not suitable for production
+- CardStack swipeable interface — mobile UX enhancement, needs touch gesture library
+- Reference onboarding hardcodes "Jeremy" and "Deb" — production correctly uses dynamic names
+- Reference uses `mockUsers` for request cards — production uses real data
+- Loading.tsx files for all routes — already implemented in production (dashboard, notes, growth, settings, reminders, requests, love-languages)

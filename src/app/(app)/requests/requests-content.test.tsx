@@ -6,6 +6,10 @@ vi.mock('react', async () => {
   return { ...actual, useActionState: vi.fn(() => [{}, vi.fn(), false]) }
 })
 vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }))
+vi.mock('lucide-react', () => ({
+  Inbox: () => <span data-testid="icon-inbox" />,
+  Send: () => <span data-testid="icon-send" />,
+}))
 vi.mock('@/hooks/useRealtimeCouple', () => ({ useRealtimeCouple: vi.fn() }))
 vi.mock('@/components/requests/RequestCard', () => ({
   RequestCard: (props: Record<string, unknown>) => (

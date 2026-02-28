@@ -3,6 +3,8 @@
 import { useActionState, useCallback, useState } from 'react'
 import { toast } from 'sonner'
 
+import { Inbox, Send } from 'lucide-react'
+
 import { RequestCard } from '@/components/requests/RequestCard'
 import { RequestForm } from '@/components/requests/RequestForm'
 import { PageContainer } from '@/components/layout/PageContainer'
@@ -189,9 +191,16 @@ export function RequestsContent({
       </div>
 
       {displayed.length === 0 ? (
-        <p className="py-12 text-center text-muted-foreground">
-          No {tab} requests yet.{tab === 'sent' && partnerId ? ' Send one to your partner!' : ''}
-        </p>
+        <div className="py-12 text-center">
+          {tab === 'received' ? (
+            <Inbox className="mx-auto mb-3 h-12 w-12 text-muted-foreground/50" />
+          ) : (
+            <Send className="mx-auto mb-3 h-12 w-12 text-muted-foreground/50" />
+          )}
+          <p className="text-muted-foreground">
+            No {tab} requests yet.{tab === 'sent' && partnerId ? ' Send one to your partner!' : ''}
+          </p>
+        </div>
       ) : (
         <div className="space-y-3">
           {displayed.map((request) => (

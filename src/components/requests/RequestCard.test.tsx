@@ -17,6 +17,22 @@ vi.mock('@/components/ui/card', () => ({
     <div {...props}>{children}</div>
   ),
 }))
+vi.mock('lucide-react', () => {
+  const icon = ({ className }: { className?: string }) => <span className={className} />
+  return {
+    Heart: icon,
+    Briefcase: icon,
+    MessageSquare: icon,
+    Bell: icon,
+    Sparkles: icon,
+    MoreHorizontal: icon,
+    Clock: icon,
+    Check: icon,
+    X: icon,
+    RefreshCw: icon,
+    AlertCircle: icon,
+  }
+})
 
 import { render, screen, fireEvent } from '@testing-library/react'
 import type { DbRequest } from '@/types/database'

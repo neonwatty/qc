@@ -3,6 +3,19 @@
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
+import {
+  Heart,
+  Briefcase,
+  MessageSquare,
+  Bell,
+  Sparkles,
+  MoreHorizontal,
+  Clock,
+  Check,
+  X,
+  RefreshCw,
+  AlertCircle,
+} from 'lucide-react'
 import type { DbRequest } from '@/types/database'
 
 interface Props {
@@ -14,26 +27,26 @@ interface Props {
   isConverting?: boolean
 }
 
-const PRIORITY_COLORS: Record<DbRequest['priority'], string> = {
-  low: 'bg-gray-100 text-gray-800',
-  medium: 'bg-yellow-100 text-yellow-800',
-  high: 'bg-red-100 text-red-800',
+const PRIORITY_CONFIG: Record<DbRequest['priority'], { color: string; icon: boolean }> = {
+  low: { color: 'bg-green-100 text-green-700', icon: false },
+  medium: { color: 'bg-yellow-100 text-yellow-700', icon: false },
+  high: { color: 'bg-red-100 text-red-700', icon: true },
 }
 
-const STATUS_COLORS: Record<DbRequest['status'], string> = {
-  pending: 'bg-blue-100 text-blue-800',
-  accepted: 'bg-green-100 text-green-800',
-  declined: 'bg-red-100 text-red-800',
-  converted: 'bg-purple-100 text-purple-800',
+const STATUS_CONFIG: Record<DbRequest['status'], { color: string; icon: typeof Clock }> = {
+  pending: { color: 'bg-blue-100 text-blue-800', icon: Clock },
+  accepted: { color: 'bg-green-100 text-green-800', icon: Check },
+  declined: { color: 'bg-red-100 text-red-800', icon: X },
+  converted: { color: 'bg-purple-100 text-purple-800', icon: RefreshCw },
 }
 
-const CATEGORY_LABELS: Record<DbRequest['category'], string> = {
-  activity: 'Activity',
-  task: 'Task',
-  reminder: 'Reminder',
-  conversation: 'Conversation',
-  'date-night': 'Date Night',
-  custom: 'Custom',
+const CATEGORY_CONFIG: Record<DbRequest['category'], { label: string; icon: typeof Heart; color: string }> = {
+  activity: { label: 'Activity', icon: Heart, color: 'bg-pink-100 text-pink-700' },
+  task: { label: 'Task', icon: Briefcase, color: 'bg-blue-100 text-blue-700' },
+  reminder: { label: 'Reminder', icon: Bell, color: 'bg-amber-100 text-amber-700' },
+  conversation: { label: 'Conversation', icon: MessageSquare, color: 'bg-purple-100 text-purple-700' },
+  'date-night': { label: 'Date Night', icon: Sparkles, color: 'bg-rose-100 text-rose-700' },
+  custom: { label: 'Custom', icon: MoreHorizontal, color: 'bg-gray-100 text-gray-700' },
 }
 
 function formatDate(dateStr: string): string {
@@ -57,12 +70,17 @@ export function RequestCard({
     <Card>
       <CardContent className="flex items-start justify-between gap-4 p-4">
         <div className="min-w-0 flex-1 space-y-1">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <h3 className="font-medium">{request.title}</h3>
-            <Badge variant="secondary" className={STATUS_COLORS[request.status]}>
+            <Badge variant="secondary" className={`flex items-center gap-1 ${STATUS_CONFIG[request.status].color}`}>
+              {(() => {
+                const StatusIcon = STATUS_CONFIG[request.status].icon
+                return <StatusIcon className="h-3 w-3" />
+              })()}
               {request.status}
             </Badge>
-            <Badge variant="secondary" className={PRIORITY_COLORS[request.priority]}>
+            <Badge variant="secondary" className={`flex items-center gap-1 ${PRIORITY_CONFIG[request.priority].color}`}>
+              {PRIORITY_CONFIG[request.priority].icon && <AlertCircle className="h-3 w-3" />}
               {request.priority}
             </Badge>
             {isConverted && request.converted_to_reminder_id && (
@@ -74,8 +92,14 @@ export function RequestCard({
 
           {request.description && <p className="text-sm text-muted-foreground">{request.description}</p>}
 
-          <div className="flex flex-wrap gap-2 text-xs text-muted-foreground">
-            <span>{CATEGORY_LABELS[request.category]}</span>
+          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+            <Badge variant="outline" className={`flex items-center gap-1 ${CATEGORY_CONFIG[request.category].color}`}>
+              {(() => {
+                const CatIcon = CATEGORY_CONFIG[request.category].icon
+                return <CatIcon className="h-3 w-3" />
+              })()}
+              {CATEGORY_CONFIG[request.category].label}
+            </Badge>
             {request.suggested_date && (
               <>
                 <span>·</span>
