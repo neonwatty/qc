@@ -24,13 +24,15 @@ vi.mock('./check-in-reducer', () => ({
   ],
 }))
 
-const mockFetchActiveCheckIn = vi.fn((_coupleId: string) => Promise.resolve({ data: null, error: null }))
+const mockFetchActiveCheckIn = vi
+  .fn<(coupleId: string) => Promise<{ data: null; error: null }>>()
+  .mockImplementation(() => Promise.resolve({ data: null, error: null }))
 const mockFetchCheckInActionItems = vi.fn()
 
 vi.mock('@/lib/checkin-operations', () => ({
   mapDbActionItem: vi.fn(),
-  fetchActiveCheckIn: (coupleId: string) => mockFetchActiveCheckIn(coupleId),
-  fetchCheckInActionItems: (checkInId: string, coupleId: string) => mockFetchCheckInActionItems(checkInId, coupleId),
+  fetchActiveCheckIn: (...args: [string]) => mockFetchActiveCheckIn(...args),
+  fetchCheckInActionItems: (...args: [string, string]) => mockFetchCheckInActionItems(...args),
   insertCheckIn: vi.fn(),
   updateCheckInStatus: vi.fn(),
   insertNote: vi.fn(),
