@@ -23,6 +23,16 @@ interface Props {
 }
 
 type ReminderFilter = 'all' | 'active' | 'snoozed' | 'overdue' | 'inactive'
+type CategoryFilter = 'all' | DbReminder['category']
+
+const CATEGORY_FILTERS: { id: CategoryFilter; label: string }[] = [
+  { id: 'all', label: 'All Categories' },
+  { id: 'habit', label: 'Habits' },
+  { id: 'check-in', label: 'Check-ins' },
+  { id: 'action-item', label: 'Action Items' },
+  { id: 'special-date', label: 'Special Dates' },
+  { id: 'custom', label: 'Custom' },
+]
 
 function isReminderOverdue(r: DbReminder): boolean {
   return new Date(r.scheduled_for) < new Date() && r.is_active && !r.is_snoozed
@@ -107,6 +117,7 @@ export function RemindersContent({ initialReminders, userId, coupleId, partnerId
   const [reminders, setReminders] = useState(initialReminders)
   const [showForm, setShowForm] = useState(false)
   const [filter, setFilter] = useState<ReminderFilter>('all')
+  const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all')
   const [search, setSearch] = useState('')
   const { handleToggle, handleDelete, handleSnooze, handleUnsnooze } = useReminderHandlers(reminders, setReminders)
 
@@ -150,6 +161,10 @@ export function RemindersContent({ initialReminders, userId, coupleId, partnerId
       return true
     })
 
+    if (categoryFilter !== 'all') {
+      result = result.filter((r) => r.category === categoryFilter)
+    }
+
     if (search.trim()) {
       const term = search.trim().toLowerCase()
       result = result.filter(
@@ -168,7 +183,7 @@ export function RemindersContent({ initialReminders, userId, coupleId, partnerId
     }
 
     return result
-  }, [reminders, filter, search])
+  }, [reminders, filter, categoryFilter, search])
 
   const reminderButton = <Button onClick={() => setShowForm(!showForm)}>{showForm ? 'Cancel' : 'New Reminder'}</Button>
 
@@ -187,7 +202,7 @@ export function RemindersContent({ initialReminders, userId, coupleId, partnerId
 
       <SearchBar value={search} onChange={setSearch} />
 
-      <div className="flex gap-2">
+      <div className="flex gap-2 overflow-x-auto">
         {(['all', 'active', 'snoozed', 'overdue', 'inactive'] as const).map((f) => (
           <button
             key={f}
@@ -195,6 +210,22 @@ export function RemindersContent({ initialReminders, userId, coupleId, partnerId
             className={`rounded-full px-3 py-1 text-sm capitalize ${filter === f ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
           >
             {f}
+          </button>
+        ))}
+      </div>
+
+      <div className="flex gap-2 overflow-x-auto">
+        {CATEGORY_FILTERS.map((cat) => (
+          <button
+            key={cat.id}
+            onClick={() => setCategoryFilter(cat.id)}
+            className={`whitespace-nowrap rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
+              categoryFilter === cat.id
+                ? 'border-primary bg-primary/10 text-primary'
+                : 'border-border text-muted-foreground hover:bg-muted'
+            }`}
+          >
+            {cat.label}
           </button>
         ))}
       </div>

@@ -74,3 +74,28 @@ Each iteration is appended below by the `/gap-analysis` skill.
 - Onboarding step differences (Welcome/Quiz/Reminder) — architectural choice, QC uses server actions
 - Reminders chat-style interface — architectural change from card-based, needs planning
 - Missing public assets (favicon, manifest.json, service worker) — needs asset creation, not code gap
+
+### Iteration 3 (2026-02-28)
+
+**Findings:** 6
+**Fixed:** 2
+**Deferred:** 4
+**Dimensions Covered:** Components, UX Flows
+
+#### Fixed
+
+- [x] Settings missing ThemeSelector / Appearance tab — added ThemeSelector component with Light/Dark toggle and new Appearance tab in settings (dimension: Components, severity: HIGH)
+- [x] Reminders missing category filter badges — added horizontal scrollable category filter row (Habits, Check-ins, Action Items, Special Dates, Custom) with active highlighting (dimension: UX Flows, severity: MEDIUM)
+
+#### Deferred
+
+- [ ] NotificationSettings only 2 toggles vs reference's 5+ notification types with per-channel config (architectural expansion, needs planning)
+- [ ] StatsGrid missing change indicators / trend arrows (needs historical comparison data, DB query change)
+- [ ] Check-in landing missing "Previous Check-ins" history section (page is `'use client'`, needs server component wrapper refactor)
+- [ ] CategoryCard in check-in flow missing prompt preview (production card is settings-context, different purpose)
+
+#### Intentionally Skipped
+
+- Reference's PersonalizationPanel (font size, color presets, HSL editing) — over-engineered for current product stage
+- Reference's count-up animation hook in StatsGrid — cosmetic enhancement, low priority
+- SessionSettingsPanel differences — reference uses Slider components (we don't have Slider primitive), production uses number inputs
