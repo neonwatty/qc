@@ -3,7 +3,7 @@ import { Skeleton, SkeletonGroup } from '@/components/ui/skeleton'
 
 export default function RequestsLoading() {
   return (
-    <PageContainer title="Requests">
+    <PageContainer title="Requests" description="Send and receive thoughtful requests with your partner">
       {/* Tab bar skeleton */}
       <div className="flex gap-2">
         <Skeleton className="h-9 w-28 rounded-lg" />
