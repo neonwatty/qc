@@ -40,3 +40,45 @@ Each iteration is appended below by the `/security-audit` skill.
 - Error Handling (A09)
 - CSRF/Session (A07)
 - Data Exposure (A02)
+
+### Iteration 2 (2026-02-28)
+
+**Categories Audited:** Authorization & Row-Level Security (A01), Secret Management (A02)
+**Findings:** 0 HIGH, 0 MEDIUM (code), 1 MEDIUM (operational)
+**Fixed:** 0 (no code changes needed)
+**Deferred:** 1
+
+#### Audit Results
+
+**RLS (A01) — PASS:**
+
+- All 16+ data tables have RLS enabled with couple-scoped policies
+- Privacy filtering on notes and love_languages correctly implemented
+- 10 SECURITY DEFINER functions all use `SET search_path = ''`
+- All SECURITY DEFINER RPCs validated at app layer before calling (create_couple_for_user, update_couple_setting, convert_request_to_reminder, seed_default_categories)
+- Anon role has zero access (no GRANT statements found)
+- Storage bucket: public read removed in migration 00023, replaced with couple-scoped access
+
+**Secret Management (A02) — PASS:**
+
+- No hardcoded secrets in source code
+- NEXT*PUBLIC* vars contain only public-safe values (URL, anon key)
+- SUPABASE_SERVICE_ROLE_KEY restricted to server-only (lib/supabase/admin.ts)
+- All secrets validated before use with proper error handling
+- .gitignore correctly excludes .env files
+- No secrets leaked in error messages or console logs
+- Webhook signature verification via Svix
+- Cron auth uses timing-safe comparison
+
+#### Deferred
+
+- [ ] Rotate local Supabase personal access token (category: Secret Management, severity: MEDIUM, reason: operational task, not a code fix — token is in local .env which is gitignored)
+
+#### Categories Remaining
+
+- Security Headers (A05)
+- Dependency Vulnerabilities (A06)
+- Rate Limiting (A04)
+- Error Handling (A09)
+- CSRF/Session (A07)
+- Data Exposure (A02)
