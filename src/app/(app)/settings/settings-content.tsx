@@ -7,14 +7,24 @@ import { CategoryManager } from '@/components/settings/CategoryManager'
 import { PromptManager } from '@/components/settings/PromptManager'
 import { DataExportPanel } from '@/components/settings/DataExportPanel'
 import { NotificationSettings } from '@/components/settings/NotificationSettings'
+import { PersonalizationPanel } from '@/components/settings/PersonalizationPanel'
 import { PrivacySettings } from '@/components/settings/PrivacySettings'
 import { ProfileSettings } from '@/components/settings/ProfileSettings'
 import { RelationshipSettings } from '@/components/settings/RelationshipSettings'
+import { ReminderScheduler } from '@/components/settings/ReminderScheduler'
 import { SessionSettingsPanel } from '@/components/settings/SessionSettingsPanel'
 import { ThemeSelector } from '@/components/settings/ThemeSelector'
-import type { DbCouple, DbProfile, DbSessionSettings } from '@/types/database'
+import type { DbCouple, DbProfile, DbReminder, DbSessionSettings } from '@/types/database'
 
-type SettingsTab = 'profile' | 'relationship' | 'session' | 'categories' | 'notifications' | 'appearance' | 'data'
+type SettingsTab =
+  | 'profile'
+  | 'relationship'
+  | 'session'
+  | 'categories'
+  | 'reminders'
+  | 'notifications'
+  | 'appearance'
+  | 'data'
 
 interface Props {
   profile: DbProfile | null
@@ -23,6 +33,7 @@ interface Props {
   partner: { id: string; display_name: string | null; email: string } | null
   pendingInvite: { id: string; invited_email: string; status: string } | null
   userEmail: string
+  reminders: DbReminder[]
 }
 
 const TABS: { id: SettingsTab; label: string }[] = [
@@ -30,6 +41,7 @@ const TABS: { id: SettingsTab; label: string }[] = [
   { id: 'relationship', label: 'Relationship' },
   { id: 'session', label: 'Session Rules' },
   { id: 'categories', label: 'Categories' },
+  { id: 'reminders', label: 'Reminders' },
   { id: 'notifications', label: 'Notifications' },
   { id: 'appearance', label: 'Appearance' },
   { id: 'data', label: 'Data & Privacy' },
@@ -42,8 +54,11 @@ export function SettingsContent({
   partner,
   pendingInvite,
   userEmail,
+  reminders,
 }: Props): React.ReactElement {
   const [activeTab, setActiveTab] = useState<SettingsTab>('profile')
+
+  const coupleSettings = (couple?.settings ?? {}) as Record<string, unknown>
 
   return (
     <PageContainer title="Settings" description="Customize your Quality Control experience">
@@ -78,6 +93,8 @@ export function SettingsContent({
         </div>
       )}
 
+      {activeTab === 'reminders' && couple?.id && <ReminderScheduler reminders={reminders} coupleId={couple.id} />}
+
       {activeTab === 'notifications' && couple?.id && (
         <div className="space-y-6">
           <NotificationSettings coupleId={couple.id} />
@@ -85,7 +102,22 @@ export function SettingsContent({
         </div>
       )}
 
-      {activeTab === 'appearance' && <ThemeSelector />}
+      {activeTab === 'appearance' && (
+        <div className="space-y-8">
+          <ThemeSelector />
+          {couple?.id && (
+            <PersonalizationPanel
+              coupleId={couple.id}
+              currentSettings={{
+                primaryColor: coupleSettings.primaryColor as string | undefined,
+                fontSize: coupleSettings.fontSize as string | undefined,
+                highContrast: coupleSettings.highContrast as boolean | undefined,
+                reducedMotion: coupleSettings.reducedMotion as boolean | undefined,
+              }}
+            />
+          )}
+        </div>
+      )}
 
       {activeTab === 'data' && <DataExportPanel />}
     </PageContainer>
