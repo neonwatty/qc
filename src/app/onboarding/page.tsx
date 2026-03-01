@@ -3,13 +3,16 @@
 import { Heart } from 'lucide-react'
 import { useActionState, useRef, useState } from 'react'
 
+import { QuizStep } from '@/components/onboarding/QuizStep'
+import type { Preferences } from '@/components/onboarding/QuizStep'
+import { ReminderStep } from '@/components/onboarding/ReminderStep'
 import { TourStep } from '@/components/onboarding/TourStep'
 
 import { completeOnboarding } from './actions'
 import type { OnboardingState } from './actions'
 import { StepDisplayName, StepLoveLanguages, StepPartnerEmail, StepRelationshipDate } from './onboarding-steps'
 
-const TOTAL_STEPS = 5
+const TOTAL_STEPS = 7
 
 function StepIndicator({ current, total }: { current: number; total: number }) {
   return (
@@ -30,6 +33,13 @@ export default function OnboardingPage() {
   const [partnerEmail, setPartnerEmail] = useState('')
   const [relationshipStartDate, setRelationshipStartDate] = useState('')
   const [selectedLanguages, setSelectedLanguages] = useState<string[]>([])
+  const [preferences, setPreferences] = useState<Preferences>({
+    communicationStyle: '',
+    checkInFrequency: '',
+    sessionStyle: '',
+  })
+  const [reminderDay, setReminderDay] = useState('sunday')
+  const [reminderTime, setReminderTime] = useState('20:00')
   const formRef = useRef<HTMLFormElement>(null)
 
   const [state, formAction, isPending] = useActionState<OnboardingState, FormData>(completeOnboarding, {
@@ -63,6 +73,9 @@ export default function OnboardingPage() {
           <input type="hidden" name="partnerEmail" value={partnerEmail} />
           <input type="hidden" name="relationshipStartDate" value={relationshipStartDate} />
           <input type="hidden" name="selectedLanguages" value={JSON.stringify(selectedLanguages)} />
+          <input type="hidden" name="preferences" value={JSON.stringify(preferences)} />
+          <input type="hidden" name="reminderDay" value={reminderDay} />
+          <input type="hidden" name="reminderTime" value={reminderTime} />
 
           {step === 1 && (
             <StepDisplayName displayName={displayName} setDisplayName={setDisplayName} setStep={setStep} />
@@ -84,7 +97,27 @@ export default function OnboardingPage() {
               setStep={setStep}
             />
           )}
-          {step === 5 && <TourStep isPending={isPending} onBack={() => setStep(4)} onComplete={handleSubmit} />}
+          {step === 5 && (
+            <QuizStep
+              preferences={preferences}
+              updatePreferences={(prefs) => setPreferences((prev) => ({ ...prev, ...prefs }))}
+              onNext={() => setStep(6)}
+              onBack={() => setStep(4)}
+            />
+          )}
+          {step === 6 && (
+            <ReminderStep
+              reminderDay={reminderDay}
+              reminderTime={reminderTime}
+              onUpdate={(day, time) => {
+                setReminderDay(day)
+                setReminderTime(time)
+              }}
+              onNext={() => setStep(7)}
+              onBack={() => setStep(5)}
+            />
+          )}
+          {step === 7 && <TourStep isPending={isPending} onBack={() => setStep(6)} onComplete={handleSubmit} />}
         </form>
       </div>
     </div>
