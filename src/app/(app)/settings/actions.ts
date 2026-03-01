@@ -15,3 +15,9 @@ export { updateSessionSettings } from './actions/proposals'
 export { createCategory, updateCategory, toggleCategoryActive } from './actions/categories'
 
 export { updateCategoryPrompts } from './actions/prompts'
+
+export { updateReminderSchedule, toggleReminderActive } from './actions/reminders'
+
+export { updatePersonalization } from './actions/personalization'
+
+export { redoOnboarding } from './actions/onboarding'
