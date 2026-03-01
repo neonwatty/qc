@@ -6,6 +6,7 @@ import Link from 'next/link'
 import { Heart } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { PageContainer } from '@/components/layout/PageContainer'
+import { CheckInCard } from '@/components/dashboard/CheckInCard'
 import { QuickActions } from '@/components/dashboard/QuickActions'
 import { StreakDisplay } from '@/components/dashboard/StreakDisplay'
 import { StatsGrid } from '@/components/dashboard/StatsGrid'
@@ -33,6 +34,7 @@ interface DashboardContentProps {
   pendingRequestCount: number
   partnerTopLanguage: { title: string; category: string } | null
   todayActionCount: number
+  frequencyGoal: string | null
 }
 
 export function DashboardContent({
@@ -52,6 +54,7 @@ export function DashboardContent({
   pendingRequestCount,
   partnerTopLanguage,
   todayActionCount,
+  frequencyGoal,
 }: DashboardContentProps): React.ReactNode {
   const router = useRouter()
 
@@ -95,8 +98,14 @@ export function DashboardContent({
       {/* Streak Display */}
       <StreakDisplay streakData={streakData} />
 
-      {/* Today's Reminders + Recent Activity */}
-      <div className="grid gap-4 sm:gap-6 lg:grid-cols-2">
+      {/* Check-in Health + Today's Reminders + Recent Activity */}
+      <div className="grid gap-4 sm:gap-6 lg:grid-cols-3">
+        <CheckInCard
+          lastCheckInDate={lastCheckInDate}
+          totalCheckIns={checkInCount}
+          currentStreak={streakData.currentStreak}
+          frequencyGoal={frequencyGoal}
+        />
         <TodayReminders reminders={todayReminders} />
         <RecentActivity activities={activities} />
       </div>

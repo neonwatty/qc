@@ -1,9 +1,14 @@
+'use client'
+
+import { useState, useMemo } from 'react'
 import { formatDistanceToNow, parseISO } from 'date-fns'
 import { CheckCircle2, StickyNote, Trophy, ListChecks, HandHeart, Clock } from 'lucide-react'
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import type { ActivityItem } from '@/lib/activity'
+
+type ActivityFilter = 'all' | ActivityItem['type']
 
 interface RecentActivityProps {
   activities: ActivityItem[]
@@ -25,6 +30,17 @@ const COLOR_MAP: Record<ActivityItem['type'], string> = {
   'action-item': 'bg-orange-100 text-orange-600 dark:bg-orange-900/50 dark:text-orange-400',
   request: 'bg-pink-100 text-pink-600 dark:bg-pink-900/50 dark:text-pink-400',
 }
+
+const FILTER_OPTIONS: Array<{ id: ActivityFilter; label: string }> = [
+  { id: 'all', label: 'All' },
+  { id: 'check-in', label: 'Check-ins' },
+  { id: 'note', label: 'Notes' },
+  { id: 'milestone', label: 'Milestones' },
+  { id: 'action-item', label: 'Actions' },
+  { id: 'request', label: 'Requests' },
+]
+
+const PAGE_SIZE = 5
 
 function ActivityRow({ activity }: { activity: ActivityItem }): React.ReactNode {
   const relativeTime = formatDistanceToNow(parseISO(activity.timestamp), { addSuffix: true })
@@ -63,6 +79,22 @@ function EmptyState(): React.ReactNode {
 }
 
 export function RecentActivity({ activities, className }: RecentActivityProps): React.ReactNode {
+  const [filter, setFilter] = useState<ActivityFilter>('all')
+  const [displayCount, setDisplayCount] = useState(PAGE_SIZE)
+
+  const filtered = useMemo(() => {
+    if (filter === 'all') return activities
+    return activities.filter((a) => a.type === filter)
+  }, [activities, filter])
+
+  const visible = filtered.slice(0, displayCount)
+  const hasMore = filtered.length > displayCount
+
+  function handleFilterChange(newFilter: ActivityFilter): void {
+    setFilter(newFilter)
+    setDisplayCount(PAGE_SIZE)
+  }
+
   return (
     <Card className={cn('bg-white dark:bg-gray-800 hover:shadow-lg transition-shadow', className)}>
       <CardHeader>
@@ -70,17 +102,45 @@ export function RecentActivity({ activities, className }: RecentActivityProps): 
           <Clock className="h-5 w-5 text-pink-500" />
           Recent Activity
         </CardTitle>
+        {activities.length > 0 && (
+          <div className="flex gap-1.5 overflow-x-auto pt-2">
+            {FILTER_OPTIONS.map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                onClick={() => handleFilterChange(f.id)}
+                className={cn(
+                  'shrink-0 rounded-full px-3 py-1 text-xs font-medium transition-colors',
+                  filter === f.id
+                    ? 'bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-300'
+                    : 'bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-400 dark:hover:bg-gray-600',
+                )}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+        )}
       </CardHeader>
 
       <CardContent>
-        {activities.length > 0 ? (
+        {visible.length > 0 ? (
           <div className="divide-y divide-gray-100 dark:divide-gray-700">
-            {activities.map((activity, index) => (
+            {visible.map((activity, index) => (
               <ActivityRow key={`${activity.type}-${activity.timestamp}-${index}`} activity={activity} />
             ))}
           </div>
         ) : (
           <EmptyState />
+        )}
+        {hasMore && (
+          <button
+            type="button"
+            onClick={() => setDisplayCount((c) => c + PAGE_SIZE)}
+            className="mt-3 w-full rounded-lg border border-gray-200 py-2 text-xs font-medium text-gray-600 transition-colors hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700"
+          >
+            Show more
+          </button>
         )}
       </CardContent>
     </Card>

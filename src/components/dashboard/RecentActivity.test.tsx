@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { render, screen, fireEvent } from '@testing-library/react'
 
 vi.mock('lucide-react', () => ({
   CheckCircle2: () => <span data-testid="icon-checkin" />,
@@ -8,8 +9,6 @@ vi.mock('lucide-react', () => ({
   HandHeart: () => <span data-testid="icon-request" />,
   Clock: () => <span data-testid="icon-clock" />,
 }))
-
-import { render, screen } from '@testing-library/react'
 
 import type { ActivityItem } from '@/lib/activity'
 
@@ -76,5 +75,125 @@ describe('RecentActivity', () => {
     const { container } = render(<RecentActivity activities={[]} className="custom-class" />)
     const card = container.firstElementChild as HTMLElement
     expect(card.className).toContain('custom-class')
+  })
+})
+
+describe('RecentActivity - filters', () => {
+  it('renders filter pills when activities exist', () => {
+    const activities = [makeActivity()]
+    render(<RecentActivity activities={activities} />)
+    expect(screen.getByText('All')).toBeDefined()
+    expect(screen.getByText('Check-ins')).toBeDefined()
+    expect(screen.getByText('Notes')).toBeDefined()
+    expect(screen.getByText('Milestones')).toBeDefined()
+    expect(screen.getByText('Actions')).toBeDefined()
+    expect(screen.getByText('Requests')).toBeDefined()
+  })
+
+  it('does not render filter pills when activities is empty', () => {
+    render(<RecentActivity activities={[]} />)
+    expect(screen.queryByText('Check-ins')).toBeNull()
+  })
+
+  it('filters to show only matching type', () => {
+    const activities = [
+      makeActivity({ title: 'A check-in', type: 'check-in' }),
+      makeActivity({ title: 'A note', type: 'note' }),
+      makeActivity({ title: 'A milestone', type: 'milestone' }),
+    ]
+    render(<RecentActivity activities={activities} />)
+
+    fireEvent.click(screen.getByText('Notes'))
+    expect(screen.getByText('A note')).toBeDefined()
+    expect(screen.queryByText('A check-in')).toBeNull()
+    expect(screen.queryByText('A milestone')).toBeNull()
+  })
+
+  it('shows all when "All" filter is clicked', () => {
+    const activities = [
+      makeActivity({ title: 'A check-in', type: 'check-in' }),
+      makeActivity({ title: 'A note', type: 'note' }),
+    ]
+    render(<RecentActivity activities={activities} />)
+
+    fireEvent.click(screen.getByText('Notes'))
+    expect(screen.queryByText('A check-in')).toBeNull()
+
+    fireEvent.click(screen.getByText('All'))
+    expect(screen.getByText('A check-in')).toBeDefined()
+    expect(screen.getByText('A note')).toBeDefined()
+  })
+
+  it('shows empty state when filter matches no items', () => {
+    const activities = [makeActivity({ title: 'A check-in', type: 'check-in' })]
+    render(<RecentActivity activities={activities} />)
+
+    fireEvent.click(screen.getByText('Notes'))
+    expect(screen.getByText('No activity yet')).toBeDefined()
+  })
+})
+
+describe('RecentActivity - load more', () => {
+  function makeManyActivities(count: number): ActivityItem[] {
+    return Array.from({ length: count }, (_, i) =>
+      makeActivity({ title: `Activity ${i + 1}`, timestamp: new Date(Date.now() - i * 60000).toISOString() }),
+    )
+  }
+
+  it('shows only 5 items initially', () => {
+    const activities = makeManyActivities(10)
+    render(<RecentActivity activities={activities} />)
+    expect(screen.getByText('Activity 1')).toBeDefined()
+    expect(screen.getByText('Activity 5')).toBeDefined()
+    expect(screen.queryByText('Activity 6')).toBeNull()
+  })
+
+  it('shows "Show more" button when > 5 items', () => {
+    const activities = makeManyActivities(10)
+    render(<RecentActivity activities={activities} />)
+    expect(screen.getByText('Show more')).toBeDefined()
+  })
+
+  it('does not show "Show more" when <= 5 items', () => {
+    const activities = makeManyActivities(3)
+    render(<RecentActivity activities={activities} />)
+    expect(screen.queryByText('Show more')).toBeNull()
+  })
+
+  it('shows more items when "Show more" is clicked', () => {
+    const activities = makeManyActivities(8)
+    render(<RecentActivity activities={activities} />)
+
+    expect(screen.queryByText('Activity 6')).toBeNull()
+    fireEvent.click(screen.getByText('Show more'))
+    expect(screen.getByText('Activity 6')).toBeDefined()
+    expect(screen.getByText('Activity 8')).toBeDefined()
+  })
+
+  it('resets display count when filter changes', () => {
+    const activities = [
+      ...Array.from({ length: 8 }, (_, i) =>
+        makeActivity({
+          title: `Check ${i + 1}`,
+          type: 'check-in',
+          timestamp: new Date(Date.now() - i * 60000).toISOString(),
+        }),
+      ),
+      makeActivity({ title: 'A note', type: 'note' }),
+    ]
+    render(<RecentActivity activities={activities} />)
+
+    // Show more to reveal all
+    fireEvent.click(screen.getByText('Show more'))
+    expect(screen.getByText('Check 8')).toBeDefined()
+
+    // Switch to Notes filter — should reset to 5
+    fireEvent.click(screen.getByText('Notes'))
+    expect(screen.getByText('A note')).toBeDefined()
+
+    // Switch back to All — should be back to 5
+    fireEvent.click(screen.getByText('All'))
+    expect(screen.getByText('Check 1')).toBeDefined()
+    expect(screen.queryByText('Check 8')).toBeNull()
   })
 })
