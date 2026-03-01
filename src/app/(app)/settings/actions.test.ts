@@ -80,7 +80,7 @@ describe('updateProfile', () => {
     const fd = makeFormData({ display_name: 'Valid Name' })
     const result = await updateProfile({}, fd)
 
-    expect(result.error).toBe('Update failed')
+    expect(result.error).toBe('Something went wrong. Please try again.')
   })
 })
 
@@ -149,7 +149,7 @@ describe('updateSessionSettings', () => {
     const fd = makeFormData(validSettings)
     const result = await updateSessionSettings({}, fd)
 
-    expect(result.error).toBe('Settings update failed')
+    expect(result.error).toBe('Something went wrong. Please try again.')
   })
 })
 

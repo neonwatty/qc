@@ -114,7 +114,7 @@ describe('createRequest', () => {
     const fd = makeFormData(validRequestData)
     const result = await createRequest({}, fd)
 
-    expect(result.error).toBe('Insert failed')
+    expect(result.error).toBe('Something went wrong. Please try again.')
   })
 })
 
@@ -181,7 +181,7 @@ describe('respondToRequest', () => {
 
     const result = await respondToRequest(mockRequestId, 'accepted')
 
-    expect(result.error).toBe('Update failed')
+    expect(result.error).toBe('Something went wrong. Please try again.')
   })
 })
 
@@ -228,6 +228,6 @@ describe('deleteRequest', () => {
 
     const result = await deleteRequest(mockRequestId)
 
-    expect(result.error).toBe('Delete failed')
+    expect(result.error).toBe('Something went wrong. Please try again.')
   })
 })

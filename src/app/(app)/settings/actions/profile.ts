@@ -6,6 +6,7 @@ import { z } from 'zod'
 
 import { requireAuth } from '@/lib/auth'
 import { leaveCouple, resendInvite } from '@/lib/couples'
+import { sanitizeDbError } from '@/lib/utils'
 import { exportUserData as exportData, type UserData } from '@/lib/data-export'
 import { sendEmail, shouldSendEmail } from '@/lib/email/send'
 import { InviteEmail } from '@/lib/email/templates/invite'
@@ -35,7 +36,7 @@ export async function updateProfile(_prev: SettingsActionState, formData: FormDa
 
   const { error } = await supabase.from('profiles').update(data).eq('id', user.id)
 
-  if (error) return { error: error.message }
+  if (error) return { error: sanitizeDbError(error, 'updateProfile') }
 
   revalidatePath('/settings')
   return { success: true }
@@ -120,7 +121,7 @@ export async function updateCoupleSettings(key: string, value: boolean): Promise
     p_value: value,
   })
 
-  if (error) return { error: error.message }
+  if (error) return { error: sanitizeDbError(error, 'updateCoupleSettings') }
 
   revalidatePath('/settings')
   return {}

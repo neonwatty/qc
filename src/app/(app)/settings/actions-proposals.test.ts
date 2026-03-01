@@ -141,7 +141,7 @@ describe('updateSessionSettings', () => {
     const fd = makeFormData()
     const result = await updateSessionSettings({}, fd)
 
-    expect(result.error).toBe('DB error')
+    expect(result.error).toBe('Something went wrong. Please try again.')
   })
 
   it('calls revalidatePath on success', async () => {

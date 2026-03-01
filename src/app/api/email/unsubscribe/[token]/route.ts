@@ -2,7 +2,14 @@ import { NextRequest, NextResponse } from 'next/server'
 
 import { createAdminClient } from '@/lib/supabase/admin'
 
-const RESPONSE_HEADERS = { 'Content-Type': 'text/html', 'Cache-Control': 'no-store' }
+const RESPONSE_HEADERS: Record<string, string> = {
+  'Content-Type': 'text/html',
+  'Cache-Control': 'no-store',
+  'X-Frame-Options': 'DENY',
+  'X-Content-Type-Options': 'nosniff',
+  'Referrer-Policy': 'strict-origin-when-cross-origin',
+  'Content-Security-Policy': "default-src 'none'; style-src 'unsafe-inline'",
+}
 
 export async function GET(
   _request: NextRequest,

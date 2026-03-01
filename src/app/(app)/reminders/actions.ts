@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
 import { requireAuth } from '@/lib/auth'
+import { sanitizeDbError } from '@/lib/utils'
 import { validate } from '@/lib/validation'
 import type { DbReminder } from '@/types/database'
 
@@ -64,7 +65,7 @@ export async function createReminder(_prev: ReminderActionState, formData: FormD
     .select()
     .single()
 
-  if (error) return { error: error.message }
+  if (error) return { error: sanitizeDbError(error, 'createReminder') }
 
   revalidatePath('/reminders')
   return { success: true, reminder: reminder as DbReminder }
@@ -82,7 +83,7 @@ export async function toggleReminder(reminderId: string, isActive: boolean): Pro
     .eq('id', reminderId)
     .eq('couple_id', profile.couple_id)
 
-  if (error) return { error: error.message }
+  if (error) return { error: sanitizeDbError(error, 'toggleReminder') }
 
   revalidatePath('/reminders')
   return {}
@@ -96,7 +97,7 @@ export async function deleteReminder(reminderId: string): Promise<{ error?: stri
 
   const { error } = await supabase.from('reminders').delete().eq('id', reminderId).eq('couple_id', profile.couple_id)
 
-  if (error) return { error: error.message }
+  if (error) return { error: sanitizeDbError(error, 'deleteReminder') }
 
   revalidatePath('/reminders')
   return {}
@@ -135,7 +136,7 @@ export async function snoozeReminder(
     .eq('id', reminderId)
     .eq('couple_id', profile.couple_id)
 
-  if (error) return { error: error.message }
+  if (error) return { error: sanitizeDbError(error, 'snoozeReminder') }
 
   revalidatePath('/reminders')
   return {}
@@ -153,7 +154,7 @@ export async function unsnoozeReminder(reminderId: string): Promise<{ error?: st
     .eq('id', reminderId)
     .eq('couple_id', profile.couple_id)
 
-  if (error) return { error: error.message }
+  if (error) return { error: sanitizeDbError(error, 'unsnoozeReminder') }
 
   revalidatePath('/reminders')
   return {}

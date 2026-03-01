@@ -94,6 +94,6 @@ describe('updateSessionSettings', () => {
 
     const result = await updateSessionSettings({}, makeFormData())
 
-    expect(result.error).toBe('Update failed')
+    expect(result.error).toBe('Something went wrong. Please try again.')
   })
 })

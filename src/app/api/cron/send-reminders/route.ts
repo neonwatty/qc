@@ -32,7 +32,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     .lte('scheduled_for', now)
 
   if (queryError) {
-    return NextResponse.json({ error: queryError.message }, { status: 500 })
+    console.error('[cron/send-reminders]', queryError.message)
+    return NextResponse.json({ error: 'Internal error' }, { status: 500 })
   }
 
   if (!reminders || reminders.length === 0) {

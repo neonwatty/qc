@@ -5,6 +5,7 @@ import { z } from 'zod'
 
 import { requireAuth } from '@/lib/auth'
 import { sendEmail, shouldSendEmail } from '@/lib/email/send'
+import { sanitizeDbError } from '@/lib/utils'
 import { RequestNotificationEmail } from '@/lib/email/templates/request-notification'
 import { validate } from '@/lib/validation'
 
@@ -55,7 +56,7 @@ export async function createRequest(_prev: RequestActionState, formData: FormDat
     suggested_date: data.suggested_date ?? null,
   })
 
-  if (error) return { error: error.message }
+  if (error) return { error: sanitizeDbError(error, 'createRequest') }
 
   // Send email notification to partner
   try {
@@ -114,7 +115,7 @@ export async function respondToRequest(
 
   const { error } = await supabase.from('requests').update({ status }).eq('id', requestId)
 
-  if (error) return { error: error.message }
+  if (error) return { error: sanitizeDbError(error, 'respondToRequest') }
 
   revalidatePath('/requests')
   return {}
@@ -139,7 +140,7 @@ export async function deleteRequest(requestId: string): Promise<{ error?: string
 
   const { error } = await supabase.from('requests').delete().eq('id', requestId)
 
-  if (error) return { error: error.message }
+  if (error) return { error: sanitizeDbError(error, 'deleteRequest') }
 
   revalidatePath('/requests')
   return {}
@@ -163,7 +164,7 @@ export async function convertRequestToReminder(requestId: string): Promise<{ err
     p_user_id: user.id,
   })
 
-  if (error) return { error: error.message }
+  if (error) return { error: sanitizeDbError(error, 'convertRequestToReminder') }
 
   // Check if RPC returned an error
   if (data && typeof data === 'object' && 'error' in data) {

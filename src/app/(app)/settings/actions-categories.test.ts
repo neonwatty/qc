@@ -111,7 +111,7 @@ describe('createCategory', () => {
     const fd = makeFormData({ name: 'Valid Name' })
     const result = await createCategory({}, fd)
 
-    expect(result.error).toBe('Insert failed')
+    expect(result.error).toBe('Something went wrong. Please try again.')
   })
 
   it('uses default icon when icon not provided', async () => {
@@ -194,7 +194,7 @@ describe('updateCategory', () => {
     const fd = makeFormData({ name: 'Valid Name' })
     const result = await updateCategory(mockCategoryId, {}, fd)
 
-    expect(result.error).toBe('Update failed')
+    expect(result.error).toBe('Something went wrong. Please try again.')
   })
 })
 
@@ -268,6 +268,6 @@ describe('toggleCategoryActive', () => {
 
     const result = await toggleCategoryActive(mockCategoryId, true)
 
-    expect(result.error).toBe('Toggle failed')
+    expect(result.error).toBe('Something went wrong. Please try again.')
   })
 })
