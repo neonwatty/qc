@@ -183,3 +183,35 @@ Each iteration is appended below by the `/gap-analysis` skill.
 - ReminderSchedule timeline widget — needs different data shape than production uses
 - Reminders chat-style 2-column layout — architectural change from single-column list
 - CheckInCard countdown timer — needs useCheckInTimer hook + couple frequency settings not in production schema
+
+### Iteration 7 (2026-03-01)
+
+**Findings:** 10
+**Fixed:** 4
+**Deferred:** 6
+**Dimensions Covered:** Pages & Routes, Components, Content & Copy, UX Flows, Styling & Visual Design, Assets & Media
+
+#### Fixed
+
+- [x] NotificationSettings only had 2 toggles — expanded to 5 notification types matching reference: Check-in Reminders, Partner Check-ins, Milestone Celebrations, Action Item Reminders, Weekly Summaries (dimension: Components, severity: HIGH)
+- [x] NotificationSettings description copy "Control how and when..." → "Configure how and when..." and removed "(coming soon)" from Quiet Hours (dimension: Content & Copy, severity: MEDIUM)
+- [x] Check-in landing page missing "Recent Check-ins" section — added RecentCheckInsSection with real data from Supabase (last 3 completed check-ins with category, time ago, duration) (dimension: Components/UX, severity: HIGH)
+- [x] Love Languages alert text missing "as you discover more about yourself" suffix (dimension: Content & Copy, severity: MEDIUM)
+
+#### Deferred
+
+- [ ] Onboarding missing Quiz step (communication_style, checkInFrequency, sessionStyle preferences) — architectural change, needs new DB columns + step component
+- [ ] Onboarding missing Reminder setup step — architectural, needs ReminderScheduler component
+- [ ] Dashboard missing CheckInCard with countdown timer and progress ring (previously deferred, large component)
+- [ ] Dashboard missing ActivityFeed with filtering, load more, privacy toggle (previously deferred, architectural)
+- [ ] Settings missing PromptLibrary/PromptTemplateEditor — large scope (600+ lines each), needs DB schema for prompt storage
+- [ ] Check-in missing DiscussionView, PromptManager, RichTextEditor — 6+ large components, architectural change to check-in flow
+
+#### Intentionally Skipped
+
+- Reference NotificationSettings uses local state with mock data; production uses Supabase-backed settings — adapted reference patterns for real backend
+- Reference "Recent Check-ins" uses hardcoded mock data; production fetches real completed check-ins from Supabase
+- Reference StatsGrid has 4 engagement metrics with count-up animations; production has 6 data-driven cards — different but both functional
+- Reference QuickActions has 3 floating/embedded variants; production has 6 grid actions with badge counts — production is more feature-rich
+- Missing UI primitive library (LoadingStates, FallbackUI, LazyComponents) — 40+ specialized components, cosmetic polish
+- Missing Radix primitives (scroll-area, accordion, avatar, dropdown-menu, slider, tooltip) — will be added as needed by features
