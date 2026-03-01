@@ -36,10 +36,14 @@ vi.mock('lucide-react', () => ({
 }))
 vi.mock('./actions', () => ({
   createReminder: vi.fn(),
-  deleteReminder: vi.fn(),
-  snoozeReminder: vi.fn(),
-  toggleReminder: vi.fn(),
-  unsnoozeReminder: vi.fn(),
+}))
+vi.mock('./use-reminder-handlers', () => ({
+  useReminderHandlers: vi.fn(() => ({
+    handleToggle: vi.fn(),
+    handleDelete: vi.fn(),
+    handleSnooze: vi.fn(),
+    handleUnsnooze: vi.fn(),
+  })),
 }))
 
 import { render, screen, fireEvent } from '@testing-library/react'
@@ -105,8 +109,10 @@ describe('RemindersContent', () => {
     expect(screen.getByTestId('reminder-r2')).toBeDefined()
   })
 
-  it('renders all 5 filter tabs', () => {
-    render(<RemindersContent {...defaultProps} />)
+  it('renders all 5 filter tabs with counts', () => {
+    const reminders = [makeReminder({ id: 'r1', is_active: true }), makeReminder({ id: 'r2', is_active: true })]
+    render(<RemindersContent {...defaultProps} initialReminders={reminders} />)
+    // Filter labels should be present
     expect(screen.getByText('all')).toBeDefined()
     expect(screen.getByText('active')).toBeDefined()
     expect(screen.getByText('snoozed')).toBeDefined()
@@ -127,9 +133,16 @@ describe('RemindersContent', () => {
 
   it('filter tabs have correct styling for active tab', () => {
     render(<RemindersContent {...defaultProps} />)
-    const allTab = screen.getByText('all')
+    const allTab = screen.getByText('all').closest('button')!
     expect(allTab.className).toContain('bg-primary')
-    const activeTab = screen.getByText('active')
+    const activeTab = screen.getByText('active').closest('button')!
     expect(activeTab.className).toContain('bg-muted')
+  })
+
+  it('renders category filter emoji icons', () => {
+    render(<RemindersContent {...defaultProps} />)
+    expect(screen.getByText('💜')).toBeDefined()
+    expect(screen.getByText('💬')).toBeDefined()
+    expect(screen.getByText('✅')).toBeDefined()
   })
 })

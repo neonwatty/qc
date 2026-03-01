@@ -132,7 +132,7 @@ export function TourStep({ isPending, onBack, onComplete }: TourStepProps) {
       </div>
 
       <div className="flex justify-center gap-2">
-        {/* eslint-disable-next-line security/detect-object-injection */}
+        {}
         {TOUR_SLIDES.map((_, index) => (
           <button
             key={index}

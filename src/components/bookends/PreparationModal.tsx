@@ -134,7 +134,7 @@ export function PreparationModal(): React.ReactNode {
     <Dialog open={isPreparationModalOpen} onOpenChange={closePreparationModal}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white/95 backdrop-blur-md border-rose-200/40">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-rose-600 dark:text-rose-400">
+          <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-rose-500 to-pink-500 bg-clip-text text-transparent">
             Prepare for Your Check-In
           </DialogTitle>
           <DialogDescription className="text-gray-600">

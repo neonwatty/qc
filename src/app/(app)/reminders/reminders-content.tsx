@@ -12,8 +12,9 @@ import { Input } from '@/components/ui/input'
 import { useRealtimeCouple } from '@/hooks/useRealtimeCouple'
 import type { DbReminder } from '@/types/database'
 
-import { createReminder, deleteReminder, snoozeReminder, toggleReminder, unsnoozeReminder } from './actions'
+import { createReminder } from './actions'
 import type { ReminderActionState } from './actions'
+import { useReminderHandlers } from './use-reminder-handlers'
 
 interface Props {
   initialReminders: DbReminder[]
@@ -25,92 +26,54 @@ interface Props {
 type ReminderFilter = 'all' | 'active' | 'snoozed' | 'overdue' | 'inactive'
 type CategoryFilter = 'all' | DbReminder['category']
 
-const CATEGORY_FILTERS: { id: CategoryFilter; label: string }[] = [
-  { id: 'all', label: 'All Categories' },
-  { id: 'habit', label: 'Habits' },
-  { id: 'check-in', label: 'Check-ins' },
-  { id: 'action-item', label: 'Action Items' },
-  { id: 'special-date', label: 'Special Dates' },
-  { id: 'custom', label: 'Custom' },
+const CATEGORY_FILTERS: { id: CategoryFilter; label: string; emoji: string }[] = [
+  { id: 'all', label: 'All Categories', emoji: '' },
+  { id: 'habit', label: 'Habits', emoji: '💜' },
+  { id: 'check-in', label: 'Check-ins', emoji: '💬' },
+  { id: 'action-item', label: 'Action Items', emoji: '✅' },
+  { id: 'special-date', label: 'Special Dates', emoji: '🎉' },
+  { id: 'custom', label: 'Custom', emoji: '⭐' },
 ]
 
 function isReminderOverdue(r: DbReminder): boolean {
   return new Date(r.scheduled_for) < new Date() && r.is_active && !r.is_snoozed
 }
 
-function useReminderHandlers(
-  reminders: DbReminder[],
-  setReminders: React.Dispatch<React.SetStateAction<DbReminder[]>>,
-): {
-  handleToggle: (id: string, isActive: boolean) => Promise<void>
-  handleDelete: (id: string) => Promise<void>
-  handleSnooze: (id: string, duration: '15min' | '1hour' | 'tomorrow') => Promise<void>
-  handleUnsnooze: (id: string) => Promise<void>
-} {
-  async function handleToggle(id: string, isActive: boolean): Promise<void> {
-    setReminders((prev) => prev.map((r) => (r.id === id ? { ...r, is_active: isActive } : r)))
-    const result = await toggleReminder(id, isActive)
-    if (result.error) {
-      toast.error(result.error)
-      setReminders((prev) => prev.map((r) => (r.id === id ? { ...r, is_active: !isActive } : r)))
-    } else {
-      toast.success('Reminder updated')
-    }
+function getFilterCount(reminders: DbReminder[], f: ReminderFilter): number {
+  switch (f) {
+    case 'all':
+      return reminders.length
+    case 'active':
+      return reminders.filter((r) => r.is_active && !r.is_snoozed).length
+    case 'snoozed':
+      return reminders.filter((r) => r.is_snoozed).length
+    case 'overdue':
+      return reminders.filter((r) => isReminderOverdue(r)).length
+    case 'inactive':
+      return reminders.filter((r) => !r.is_active).length
   }
+}
 
-  async function handleDelete(id: string): Promise<void> {
-    const prev = reminders
-    setReminders((r) => r.filter((rem) => rem.id !== id))
-    const result = await deleteReminder(id)
-    if (result.error) {
-      toast.error(result.error)
-      setReminders(prev)
-    } else {
-      toast.success('Reminder deleted')
-    }
-  }
-
-  async function handleSnooze(id: string, duration: '15min' | '1hour' | 'tomorrow'): Promise<void> {
-    const now = new Date()
-    let snoozeUntil: string
-    switch (duration) {
-      case '15min':
-        snoozeUntil = new Date(now.getTime() + 15 * 60 * 1000).toISOString()
-        break
-      case '1hour':
-        snoozeUntil = new Date(now.getTime() + 60 * 60 * 1000).toISOString()
-        break
-      case 'tomorrow': {
-        const tomorrow = new Date(now)
-        tomorrow.setDate(tomorrow.getDate() + 1)
-        tomorrow.setHours(9, 0, 0, 0)
-        snoozeUntil = tomorrow.toISOString()
-        break
-      }
-    }
-    setReminders((prev) => prev.map((r) => (r.id === id ? { ...r, is_snoozed: true, snooze_until: snoozeUntil } : r)))
-    const result = await snoozeReminder(id, duration)
-    if (result.error) {
-      toast.error(result.error)
-      setReminders((prev) => prev.map((r) => (r.id === id ? { ...r, is_snoozed: false, snooze_until: null } : r)))
-    } else {
-      toast.success('Reminder snoozed')
-    }
-  }
-
-  async function handleUnsnooze(id: string): Promise<void> {
-    const prev = reminders
-    setReminders((r) => r.map((rem) => (rem.id === id ? { ...rem, is_snoozed: false, snooze_until: null } : rem)))
-    const result = await unsnoozeReminder(id)
-    if (result.error) {
-      toast.error(result.error)
-      setReminders(prev)
-    } else {
-      toast.success('Reminder unsnoozed')
-    }
-  }
-
-  return { handleToggle, handleDelete, handleSnooze, handleUnsnooze }
+function SearchBar({ value, onChange }: { value: string; onChange: (v: string) => void }): React.ReactElement {
+  return (
+    <div className="relative">
+      <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+      <Input
+        placeholder="Search reminders..."
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="pl-9 pr-9"
+      />
+      {value && (
+        <button
+          onClick={() => onChange('')}
+          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      )}
+    </div>
+  )
 }
 
 export function RemindersContent({ initialReminders, userId, coupleId, partnerId }: Props): React.ReactElement {
@@ -121,7 +84,6 @@ export function RemindersContent({ initialReminders, userId, coupleId, partnerId
   const [search, setSearch] = useState('')
   const { handleToggle, handleDelete, handleSnooze, handleUnsnooze } = useReminderHandlers(reminders, setReminders)
 
-  // Realtime subscription for partner's reminder changes
   useRealtimeCouple<DbReminder>({
     table: 'reminders',
     coupleId,
@@ -173,22 +135,17 @@ export function RemindersContent({ initialReminders, userId, coupleId, partnerId
     }
 
     if (filter === 'all' || filter === 'active') {
-      result.sort((a, b) => {
-        const aOverdue = isReminderOverdue(a)
-        const bOverdue = isReminderOverdue(b)
-        if (aOverdue && !bOverdue) return -1
-        if (!aOverdue && bOverdue) return 1
-        return 0
-      })
+      result.sort((a, b) => Number(isReminderOverdue(b)) - Number(isReminderOverdue(a)))
     }
 
     return result
   }, [reminders, filter, categoryFilter, search])
 
-  const reminderButton = <Button onClick={() => setShowForm(!showForm)}>{showForm ? 'Cancel' : 'New Reminder'}</Button>
-
   return (
-    <PageContainer title="Reminders" action={reminderButton}>
+    <PageContainer
+      title="Reminders"
+      action={<Button onClick={() => setShowForm(!showForm)}>{showForm ? 'Cancel' : 'New Reminder'}</Button>}
+    >
       {showForm && (
         <ReminderForm
           formAction={formAction}
@@ -207,9 +164,16 @@ export function RemindersContent({ initialReminders, userId, coupleId, partnerId
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`rounded-full px-3 py-1 text-sm capitalize ${filter === f ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
+            className={`flex items-center gap-1.5 rounded-full px-3 py-1 text-sm capitalize ${filter === f ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}
           >
             {f}
+            <span
+              className={`inline-flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-xs font-medium ${
+                filter === f ? 'bg-primary-foreground/20' : 'bg-background/60'
+              }`}
+            >
+              {getFilterCount(reminders, f)}
+            </span>
           </button>
         ))}
       </div>
@@ -225,6 +189,7 @@ export function RemindersContent({ initialReminders, userId, coupleId, partnerId
                 : 'border-border text-muted-foreground hover:bg-muted'
             }`}
           >
+            {cat.emoji && <span className="mr-1">{cat.emoji}</span>}
             {cat.label}
           </button>
         ))}
@@ -256,27 +221,5 @@ export function RemindersContent({ initialReminders, userId, coupleId, partnerId
         </div>
       )}
     </PageContainer>
-  )
-}
-
-function SearchBar({ value, onChange }: { value: string; onChange: (v: string) => void }): React.ReactElement {
-  return (
-    <div className="relative">
-      <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-      <Input
-        placeholder="Search reminders..."
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="pl-9 pr-9"
-      />
-      {value && (
-        <button
-          onClick={() => onChange('')}
-          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-        >
-          <X className="h-4 w-4" />
-        </button>
-      )}
-    </div>
   )
 }

@@ -31,6 +31,8 @@ interface DashboardContentProps {
   topLanguages: Array<{ title: string; category: string }>
   todayReminders: Array<{ id: string; title: string; scheduledFor: string; category: string; isOverdue: boolean }>
   pendingRequestCount: number
+  partnerTopLanguage: { title: string; category: string } | null
+  todayActionCount: number
 }
 
 export function DashboardContent({
@@ -48,6 +50,8 @@ export function DashboardContent({
   topLanguages,
   todayReminders,
   pendingRequestCount,
+  partnerTopLanguage,
+  todayActionCount,
 }: DashboardContentProps): React.ReactNode {
   const router = useRouter()
 
@@ -114,6 +118,8 @@ export function DashboardContent({
             totalLanguages={totalLanguages}
             sharedLanguages={sharedLanguages}
             topLanguages={topLanguages}
+            partnerTopLanguage={partnerTopLanguage}
+            todayActionCount={todayActionCount}
           />
         </div>
       </div>

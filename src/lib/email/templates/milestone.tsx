@@ -15,7 +15,6 @@ export function MilestoneEmail({
   growthUrl = 'https://tryqc.co/growth',
   unsubscribeUrl,
 }: MilestoneEmailProps) {
-  // eslint-disable-next-line security/detect-object-injection
   const rarityEmoji =
     {
       common: '⭐',
