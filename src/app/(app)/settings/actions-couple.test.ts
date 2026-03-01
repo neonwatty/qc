@@ -52,12 +52,12 @@ describe('updateCoupleSettings', () => {
     mockSupabase._queryBuilder.eq = vi.fn().mockReturnValueOnce(mockSupabase._queryBuilder)
     mockSupabase.rpc.mockResolvedValueOnce({ data: null, error: null })
 
-    const result = await updateCoupleSettings('enable_reminders', true)
+    const result = await updateCoupleSettings('emailNotifications', true)
 
     expect(result).toEqual({})
     expect(mockSupabase.rpc).toHaveBeenCalledWith('update_couple_setting', {
       p_couple_id: mockCoupleId,
-      p_key: 'enable_reminders',
+      p_key: 'emailNotifications',
       p_value: true,
     })
   })
@@ -70,7 +70,7 @@ describe('updateCoupleSettings', () => {
       error: null,
     })
 
-    const result = await updateCoupleSettings('enable_reminders', true)
+    const result = await updateCoupleSettings('emailNotifications', true)
 
     expect(result.error).toBe('No couple found')
   })
@@ -88,7 +88,7 @@ describe('updateCoupleSettings', () => {
       error: { message: 'RPC failed' },
     })
 
-    const result = await updateCoupleSettings('enable_reminders', true)
+    const result = await updateCoupleSettings('emailNotifications', true)
 
     expect(result.error).toBe('RPC failed')
   })

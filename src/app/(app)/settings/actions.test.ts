@@ -184,6 +184,16 @@ describe('resendInviteAction', () => {
     const { resendInviteAction } = await import('./actions')
     const { resendInvite } = await import('@/lib/couples')
 
+    // Profile lookup for couple_id
+    mockSupabase._queryBuilder.single.mockResolvedValueOnce({
+      data: { couple_id: mockCoupleId },
+      error: null,
+    })
+    // Invite ownership check
+    mockSupabase._queryBuilder.single.mockResolvedValueOnce({
+      data: { couple_id: mockCoupleId },
+      error: null,
+    })
     ;(resendInvite as ReturnType<typeof vi.fn>).mockResolvedValue({ error: null })
 
     const result = await resendInviteAction('cccccccc-cccc-4ccc-8ccc-cccccccccccc')
@@ -196,6 +206,16 @@ describe('resendInviteAction', () => {
     const { resendInviteAction } = await import('./actions')
     const { resendInvite } = await import('@/lib/couples')
 
+    // Profile lookup for couple_id
+    mockSupabase._queryBuilder.single.mockResolvedValueOnce({
+      data: { couple_id: mockCoupleId },
+      error: null,
+    })
+    // Invite ownership check
+    mockSupabase._queryBuilder.single.mockResolvedValueOnce({
+      data: { couple_id: mockCoupleId },
+      error: null,
+    })
     ;(resendInvite as ReturnType<typeof vi.fn>).mockResolvedValue({ error: 'Resend failed' })
 
     const result = await resendInviteAction('cccccccc-cccc-4ccc-8ccc-cccccccccccc')

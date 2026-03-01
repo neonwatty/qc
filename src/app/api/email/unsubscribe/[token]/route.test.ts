@@ -43,12 +43,15 @@ describe('GET /api/email/unsubscribe/[token]', () => {
   it('returns 404 when token is not found in database', async () => {
     mockSupabase._queryBuilder.maybeSingle.mockResolvedValueOnce({ data: null, error: null })
 
-    const res = await callGET('valid-token-123')
+    const res = await callGET('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa')
     const html = await res.text()
 
     expect(res.status).toBe(404)
     expect(html).toContain('Unsubscribe link not found')
-    expect(mockSupabase._queryBuilder.eq).toHaveBeenCalledWith('email_unsubscribe_token', 'valid-token-123')
+    expect(mockSupabase._queryBuilder.eq).toHaveBeenCalledWith(
+      'email_unsubscribe_token',
+      'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa',
+    )
   })
 
   it('returns 200 when user is already unsubscribed', async () => {
@@ -57,7 +60,7 @@ describe('GET /api/email/unsubscribe/[token]', () => {
       error: null,
     })
 
-    const res = await callGET('valid-token-123')
+    const res = await callGET('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa')
     const html = await res.text()
 
     expect(res.status).toBe(200)
@@ -73,7 +76,7 @@ describe('GET /api/email/unsubscribe/[token]', () => {
     })
     // The update().eq() chain: eq returns the queryBuilder by default (no error property = success)
 
-    const res = await callGET('valid-token-123')
+    const res = await callGET('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa')
     const html = await res.text()
 
     expect(res.status).toBe(200)
@@ -92,7 +95,7 @@ describe('GET /api/email/unsubscribe/[token]', () => {
     // First eq call (select chain) returns self for chaining; second eq call (update chain) returns error
     qb.eq.mockReturnValueOnce(qb).mockResolvedValueOnce({ error: { message: 'DB fail' } })
 
-    const res = await callGET('valid-token-123')
+    const res = await callGET('aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa')
     const html = await res.text()
 
     expect(res.status).toBe(500)

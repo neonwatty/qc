@@ -116,11 +116,24 @@ describe('createReminder', () => {
 })
 
 describe('toggleReminder', () => {
+  function setupCoupleProfile(): void {
+    mockSupabase._queryBuilder.single.mockResolvedValueOnce({
+      data: { couple_id: mockCoupleId },
+      error: null,
+    })
+  }
+
   it('toggles a reminder to inactive', async () => {
     const { toggleReminder } = await import('./actions')
 
+    setupCoupleProfile()
     mockSupabase._queryBuilder.update = vi.fn().mockReturnValue(mockSupabase._queryBuilder)
-    mockSupabase._queryBuilder.eq = vi.fn().mockReturnValue({ data: null, error: null })
+    // eq calls: (1) profile .eq('id', user.id), (2) .eq('id', reminderId), (3) .eq('couple_id', ...)
+    mockSupabase._queryBuilder.eq = vi
+      .fn()
+      .mockReturnValueOnce(mockSupabase._queryBuilder)
+      .mockReturnValueOnce(mockSupabase._queryBuilder)
+      .mockResolvedValueOnce({ data: null, error: null })
 
     const result = await toggleReminder(mockReminderId, false)
 
@@ -131,22 +144,42 @@ describe('toggleReminder', () => {
   it('toggles a reminder to active', async () => {
     const { toggleReminder } = await import('./actions')
 
+    setupCoupleProfile()
     mockSupabase._queryBuilder.update = vi.fn().mockReturnValue(mockSupabase._queryBuilder)
-    mockSupabase._queryBuilder.eq = vi.fn().mockReturnValue({ data: null, error: null })
+    mockSupabase._queryBuilder.eq = vi
+      .fn()
+      .mockReturnValueOnce(mockSupabase._queryBuilder)
+      .mockReturnValueOnce(mockSupabase._queryBuilder)
+      .mockResolvedValueOnce({ data: null, error: null })
 
     const result = await toggleReminder(mockReminderId, true)
 
     expect(result).toEqual({})
   })
 
+  it('returns error when no couple', async () => {
+    const { toggleReminder } = await import('./actions')
+
+    mockSupabase._queryBuilder.single.mockResolvedValueOnce({
+      data: { couple_id: null },
+      error: null,
+    })
+
+    const result = await toggleReminder(mockReminderId, true)
+
+    expect(result.error).toBe('You must be in a couple')
+  })
+
   it('returns error on database failure', async () => {
     const { toggleReminder } = await import('./actions')
 
+    setupCoupleProfile()
     mockSupabase._queryBuilder.update = vi.fn().mockReturnValue(mockSupabase._queryBuilder)
-    mockSupabase._queryBuilder.eq = vi.fn().mockReturnValue({
-      data: null,
-      error: { message: 'Toggle failed' },
-    })
+    mockSupabase._queryBuilder.eq = vi
+      .fn()
+      .mockReturnValueOnce(mockSupabase._queryBuilder)
+      .mockReturnValueOnce(mockSupabase._queryBuilder)
+      .mockResolvedValueOnce({ data: null, error: { message: 'Toggle failed' } })
 
     const result = await toggleReminder(mockReminderId, true)
 
@@ -155,11 +188,24 @@ describe('toggleReminder', () => {
 })
 
 describe('deleteReminder', () => {
+  function setupCoupleProfile(): void {
+    mockSupabase._queryBuilder.single.mockResolvedValueOnce({
+      data: { couple_id: mockCoupleId },
+      error: null,
+    })
+  }
+
   it('deletes a reminder', async () => {
     const { deleteReminder } = await import('./actions')
 
+    setupCoupleProfile()
     mockSupabase._queryBuilder.delete = vi.fn().mockReturnValue(mockSupabase._queryBuilder)
-    mockSupabase._queryBuilder.eq = vi.fn().mockReturnValue({ data: null, error: null })
+    // eq calls: (1) profile .eq('id', user.id), (2) .eq('id', reminderId), (3) .eq('couple_id', ...)
+    mockSupabase._queryBuilder.eq = vi
+      .fn()
+      .mockReturnValueOnce(mockSupabase._queryBuilder)
+      .mockReturnValueOnce(mockSupabase._queryBuilder)
+      .mockResolvedValueOnce({ data: null, error: null })
 
     const result = await deleteReminder(mockReminderId)
 
@@ -167,14 +213,29 @@ describe('deleteReminder', () => {
     expect(mockSupabase.from).toHaveBeenCalledWith('reminders')
   })
 
+  it('returns error when no couple', async () => {
+    const { deleteReminder } = await import('./actions')
+
+    mockSupabase._queryBuilder.single.mockResolvedValueOnce({
+      data: { couple_id: null },
+      error: null,
+    })
+
+    const result = await deleteReminder(mockReminderId)
+
+    expect(result.error).toBe('You must be in a couple')
+  })
+
   it('returns error on database failure', async () => {
     const { deleteReminder } = await import('./actions')
 
+    setupCoupleProfile()
     mockSupabase._queryBuilder.delete = vi.fn().mockReturnValue(mockSupabase._queryBuilder)
-    mockSupabase._queryBuilder.eq = vi.fn().mockReturnValue({
-      data: null,
-      error: { message: 'Delete failed' },
-    })
+    mockSupabase._queryBuilder.eq = vi
+      .fn()
+      .mockReturnValueOnce(mockSupabase._queryBuilder)
+      .mockReturnValueOnce(mockSupabase._queryBuilder)
+      .mockResolvedValueOnce({ data: null, error: { message: 'Delete failed' } })
 
     const result = await deleteReminder(mockReminderId)
 
