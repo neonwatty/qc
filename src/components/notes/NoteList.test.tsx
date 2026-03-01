@@ -44,6 +44,7 @@ const mockCategories: DbCategory[] = [
     is_active: true,
     is_system: false,
     sort_order: 0,
+    prompts: [],
     created_at: '2026-01-01T00:00:00Z',
   },
   {
@@ -55,6 +56,7 @@ const mockCategories: DbCategory[] = [
     is_active: true,
     is_system: false,
     sort_order: 1,
+    prompts: [],
     created_at: '2026-01-01T00:00:00Z',
   },
 ]

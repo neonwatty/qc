@@ -25,6 +25,7 @@ function mapDbToCategory(row: DbCategory): Category {
     isActive: row.is_active,
     isSystem: row.is_system,
     sortOrder: row.sort_order,
+    prompts: Array.isArray(row.prompts) ? row.prompts : [],
     createdAt: row.created_at,
   }
 }

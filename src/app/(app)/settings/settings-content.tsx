@@ -4,6 +4,7 @@ import { useState } from 'react'
 
 import { PageContainer } from '@/components/layout/PageContainer'
 import { CategoryManager } from '@/components/settings/CategoryManager'
+import { PromptManager } from '@/components/settings/PromptManager'
 import { DataExportPanel } from '@/components/settings/DataExportPanel'
 import { NotificationSettings } from '@/components/settings/NotificationSettings'
 import { PrivacySettings } from '@/components/settings/PrivacySettings'
@@ -70,7 +71,12 @@ export function SettingsContent({
         <SessionSettingsPanel sessionSettings={sessionSettings} coupleId={couple?.id ?? null} />
       )}
 
-      {activeTab === 'categories' && couple?.id && <CategoryManager coupleId={couple.id} />}
+      {activeTab === 'categories' && couple?.id && (
+        <div className="space-y-8">
+          <CategoryManager coupleId={couple.id} />
+          <PromptManager coupleId={couple.id} />
+        </div>
+      )}
 
       {activeTab === 'notifications' && couple?.id && (
         <div className="space-y-6">
