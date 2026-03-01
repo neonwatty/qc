@@ -32,7 +32,11 @@ describe('NotificationSettings', () => {
   it('renders notification headings and labels', async () => {
     render(<NotificationSettings coupleId="c1" />)
     expect(screen.getByText('Notification Settings')).toBeDefined()
-    expect(screen.getByText('Email Notifications')).toBeDefined()
+    expect(screen.getByText('Check-in Reminders')).toBeDefined()
+    expect(screen.getByText('Partner Check-ins')).toBeDefined()
+    expect(screen.getByText('Milestone Celebrations')).toBeDefined()
+    expect(screen.getByText('Action Item Reminders')).toBeDefined()
+    expect(screen.getByText('Weekly Summaries')).toBeDefined()
     expect(screen.getByText('Quiet Hours')).toBeDefined()
   })
 
@@ -43,7 +47,7 @@ describe('NotificationSettings', () => {
     })
   })
 
-  it('defaults emailNotifications to true when not explicitly false', async () => {
+  it('defaults check-in reminders to true when not explicitly set', async () => {
     mockSingle.mockResolvedValueOnce({
       data: { settings: {} },
       error: null,
@@ -52,16 +56,16 @@ describe('NotificationSettings', () => {
     await waitFor(() => {
       expect(mockSingle).toHaveBeenCalled()
     })
-    const emailSwitch = screen.getByRole('switch', { name: /email notifications/i })
-    expect(emailSwitch.getAttribute('data-state')).toBe('checked')
+    const reminderSwitch = screen.getByRole('switch', { name: /check-in reminders/i })
+    expect(reminderSwitch.getAttribute('data-state')).toBe('checked')
   })
 
-  it('calls updateCoupleSettings when email toggle is clicked', async () => {
+  it('calls updateCoupleSettings when check-in reminders toggle is clicked', async () => {
     render(<NotificationSettings coupleId="c1" />)
     await waitFor(() => expect(mockSingle).toHaveBeenCalled())
 
-    const emailSwitch = screen.getByRole('switch', { name: /email notifications/i })
-    fireEvent.click(emailSwitch)
+    const reminderSwitch = screen.getByRole('switch', { name: /check-in reminders/i })
+    fireEvent.click(reminderSwitch)
 
     await waitFor(() => {
       expect(mockUpdateCoupleSettings).toHaveBeenCalledWith('emailNotifications', false)

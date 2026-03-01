@@ -191,7 +191,7 @@ export default function LoveLanguagesPage(): React.ReactNode {
         <Info className="h-4 w-4 text-rose-600" />
         <AlertDescription className="text-gray-700 font-medium">
           Love Languages help your partner understand what makes you feel most loved and appreciated. Start with a few
-          and refine them over time.
+          and refine them over time as you discover more about yourself.
         </AlertDescription>
       </Alert>
 
