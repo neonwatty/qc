@@ -34,3 +34,14 @@ export function camelToSnakeObject<T extends Record<string, unknown>>(obj: Recor
 
   return result as T
 }
+
+/**
+ * Sanitize database/service error messages to prevent leaking internal details.
+ * Logs the original error for debugging, returns a generic message for the client.
+ */
+export function sanitizeDbError(error: { message: string }, context?: string): string {
+  if (context) {
+    console.error(`[${context}]`, error.message)
+  }
+  return 'Something went wrong. Please try again.'
+}

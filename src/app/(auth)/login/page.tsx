@@ -39,7 +39,7 @@ function LoginForm() {
     })
 
     if (signInError) {
-      setError(signInError.message)
+      setError('Invalid email or password')
       setLoading(false)
       return
     }

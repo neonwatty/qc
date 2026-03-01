@@ -16,7 +16,10 @@ export async function GET(request: Request) {
   const { data: sessionData, error } = await supabase.auth.exchangeCodeForSession(code)
 
   if (error) {
-    return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(error.message)}`)
+    console.error('[auth/callback]', error.message)
+    return NextResponse.redirect(
+      `${origin}/login?error=${encodeURIComponent('Authentication failed. Please try again.')}`,
+    )
   }
 
   const userId = sessionData.user?.id

@@ -60,7 +60,7 @@ describe('GET /auth/callback', () => {
 
     expect(response.status).toBe(307)
     const redirectPath = getRedirectPath(response)
-    expect(redirectPath).toBe('/login?error=Invalid%20code')
+    expect(redirectPath).toBe('/login?error=Authentication%20failed.%20Please%20try%20again.')
     expect(mockSupabase.auth.exchangeCodeForSession).toHaveBeenCalledWith('bad-code')
   })
 

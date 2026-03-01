@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
 import { requireAuth } from '@/lib/auth'
+import { sanitizeDbError } from '@/lib/utils'
 import { validate } from '@/lib/validation'
 
 const sessionSettingsSchema = z.object({
@@ -52,7 +53,7 @@ export async function updateSessionSettings(
 
   const { error } = await supabase.from('session_settings').update(data).eq('couple_id', profile.couple_id)
 
-  if (error) return { error: error.message }
+  if (error) return { error: sanitizeDbError(error, 'updateSessionSettings') }
 
   revalidatePath('/settings')
   return { success: true }

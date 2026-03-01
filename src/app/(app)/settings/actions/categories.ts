@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
 import { requireAuth } from '@/lib/auth'
+import { sanitizeDbError } from '@/lib/utils'
 import { validate } from '@/lib/validation'
 
 const categorySchema = z.object({
@@ -50,7 +51,7 @@ export async function createCategory(_prev: SettingsActionState, formData: FormD
     sort_order: maxOrder + 1,
   })
 
-  if (error) return { error: error.message }
+  if (error) return { error: sanitizeDbError(error, 'category') }
 
   revalidatePath('/settings')
   return { success: true }
@@ -82,7 +83,7 @@ export async function updateCategory(
     .eq('id', categoryId)
     .eq('couple_id', profile.couple_id)
 
-  if (error) return { error: error.message }
+  if (error) return { error: sanitizeDbError(error, 'category') }
 
   revalidatePath('/settings')
   return { success: true }
@@ -101,7 +102,7 @@ export async function toggleCategoryActive(categoryId: string, isActive: boolean
     .eq('id', categoryId)
     .eq('couple_id', profile.couple_id)
 
-  if (error) return { error: error.message }
+  if (error) return { error: sanitizeDbError(error, 'category') }
 
   revalidatePath('/settings')
   return {}

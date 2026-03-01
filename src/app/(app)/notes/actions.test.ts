@@ -87,7 +87,7 @@ describe('createNote', () => {
     const fd = makeFormData({ content: 'Hi', privacy: 'shared', tags: '[]' })
     const result = await createNote({ error: null }, fd)
 
-    expect(result.error).toBe('DB insert failed')
+    expect(result.error).toBe('Something went wrong. Please try again.')
   })
 })
 
@@ -131,7 +131,7 @@ describe('updateNote', () => {
     const fd = makeFormData({ id: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc', content: 'Updated' })
     const result = await updateNote({ error: null }, fd)
 
-    expect(result.error).toBe('Update failed')
+    expect(result.error).toBe('Something went wrong. Please try again.')
   })
 })
 
@@ -170,6 +170,6 @@ describe('deleteNoteById', () => {
 
     const result = await deleteNoteById('cccccccc-cccc-4ccc-8ccc-cccccccccccc')
 
-    expect(result.error).toBe('Delete failed')
+    expect(result.error).toBe('Something went wrong. Please try again.')
   })
 })

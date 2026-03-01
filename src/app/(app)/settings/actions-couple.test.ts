@@ -90,7 +90,7 @@ describe('updateCoupleSettings', () => {
 
     const result = await updateCoupleSettings('emailNotifications', true)
 
-    expect(result.error).toBe('RPC failed')
+    expect(result.error).toBe('Something went wrong. Please try again.')
   })
 })
 

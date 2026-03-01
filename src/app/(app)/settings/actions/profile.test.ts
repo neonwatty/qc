@@ -61,7 +61,7 @@ describe('updateProfile', () => {
     fd.append('display_name', 'Valid Name')
     const result = await updateProfile({}, fd)
 
-    expect(result.error).toBe('DB error')
+    expect(result.error).toBe('Something went wrong. Please try again.')
   })
 })
 

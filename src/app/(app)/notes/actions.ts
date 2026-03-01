@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache'
 import { z } from 'zod'
 
 import { requireAuth } from '@/lib/auth'
+import { sanitizeDbError } from '@/lib/utils'
 import { validate } from '@/lib/validation'
 
 const noteSchema = z.object({
@@ -58,7 +59,7 @@ export async function createNote(_prev: NoteActionState, formData: FormData): Pr
   })
 
   if (insertError) {
-    return { error: insertError.message }
+    return { error: sanitizeDbError(insertError, 'createNote') }
   }
 
   revalidatePath('/notes')
@@ -89,7 +90,7 @@ export async function updateNote(_prev: NoteActionState, formData: FormData): Pr
   const { error: updateError } = await supabase.from('notes').update(input).eq('id', id).eq('author_id', user.id)
 
   if (updateError) {
-    return { error: updateError.message }
+    return { error: sanitizeDbError(updateError, 'updateNote') }
   }
 
   revalidatePath('/notes')
@@ -108,7 +109,7 @@ export async function deleteNoteById(noteId: string): Promise<{ error: string | 
   const { error: deleteError } = await supabase.from('notes').delete().eq('id', input.id).eq('author_id', user.id)
 
   if (deleteError) {
-    return { error: deleteError.message }
+    return { error: sanitizeDbError(deleteError, 'deleteNote') }
   }
 
   revalidatePath('/notes')

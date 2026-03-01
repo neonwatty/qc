@@ -111,7 +111,7 @@ describe('createReminder', () => {
     const fd = makeFormData(validReminderData)
     const result = await createReminder({}, fd)
 
-    expect(result.error).toBe('Insert failed')
+    expect(result.error).toBe('Something went wrong. Please try again.')
   })
 })
 
@@ -183,7 +183,7 @@ describe('toggleReminder', () => {
 
     const result = await toggleReminder(mockReminderId, true)
 
-    expect(result.error).toBe('Toggle failed')
+    expect(result.error).toBe('Something went wrong. Please try again.')
   })
 })
 
@@ -239,6 +239,6 @@ describe('deleteReminder', () => {
 
     const result = await deleteReminder(mockReminderId)
 
-    expect(result.error).toBe('Delete failed')
+    expect(result.error).toBe('Something went wrong. Please try again.')
   })
 })

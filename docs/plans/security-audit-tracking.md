@@ -82,3 +82,29 @@ Each iteration is appended below by the `/security-audit` skill.
 - Error Handling (A09)
 - CSRF/Session (A07)
 - Data Exposure (A02)
+
+### Iteration 3 (2026-02-28)
+
+**Categories Audited:** Security Headers (A05), Error Handling (A09)
+**Findings:** 1 HIGH, 3 MEDIUM, 2 LOW
+**Fixed:** 3 (1 HIGH, 2 MEDIUM)
+**Deferred:** 3
+
+#### Fixed
+
+- [x] Supabase error messages leaked to client in 8+ server action files — could expose DB table/column names and constraint details. Added `sanitizeDbError()` utility, applied to all server actions and API routes (category: Error Handling, severity: HIGH)
+- [x] Auth error details leaked in login/signup/callback — Supabase auth errors like "User already registered" disclosed to users. Replaced with generic messages: "Invalid email or password" (login), "Unable to create account" (signup), "Authentication failed" (callback) (category: Error Handling, severity: MEDIUM)
+- [x] Unsubscribe endpoint returned HTML without security headers — missing CSP, X-Frame-Options, X-Content-Type-Options. Added hardened headers including strict CSP (category: Security Headers, severity: MEDIUM)
+
+#### Deferred
+
+- [ ] CSP uses 'unsafe-inline' for script-src — required by Next.js hydration and Capacitor WKWebView. Would need nonce-based CSP or hash-based approach (category: Security Headers, severity: HIGH, reason: requires deep Next.js/Capacitor investigation, not a quick fix)
+- [ ] No CSP report-uri/report-to for violation monitoring (category: Security Headers, severity: LOW, reason: would need a reporting endpoint)
+- [ ] Missing X-DNS-Prefetch-Control header (category: Security Headers, severity: LOW, reason: CSP connect-src already restricts connections)
+
+#### Categories Remaining
+
+- Dependency Vulnerabilities (A06)
+- Rate Limiting (A04)
+- CSRF/Session (A07)
+- Data Exposure (A02)
