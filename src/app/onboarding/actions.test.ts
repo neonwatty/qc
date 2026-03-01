@@ -20,9 +20,13 @@ vi.mock('@/lib/couples', () => ({
 }))
 vi.mock('@/lib/email/send', () => ({
   sendEmail: vi.fn(),
+  shouldSendEmail: vi.fn().mockResolvedValue(true),
 }))
 vi.mock('@/lib/email/templates/invite', () => ({
   InviteEmail: vi.fn().mockReturnValue(null),
+}))
+vi.mock('@/lib/email/templates/welcome', () => ({
+  WelcomeEmail: vi.fn().mockReturnValue(null),
 }))
 class RedirectError extends Error {
   constructor(public url: string) {
