@@ -11,7 +11,8 @@ export async function GET(
   const { token } = await params
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'
 
-  if (!token || token.length < 10) {
+  const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+  if (!token || !UUID_RE.test(token)) {
     return new NextResponse(unsubscribePage('Invalid unsubscribe link.', false, baseUrl), {
       status: 400,
       headers: RESPONSE_HEADERS,

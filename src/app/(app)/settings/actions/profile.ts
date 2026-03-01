@@ -52,6 +52,16 @@ export async function leaveCoupleAction(): Promise<{ error?: string }> {
 
 export async function resendInviteAction(inviteId: string): Promise<{ error?: string }> {
   const { user, supabase } = await requireAuth()
+
+  // Verify invite belongs to the user's couple
+  const { data: profile } = await supabase.from('profiles').select('couple_id').eq('id', user.id).single()
+  if (!profile?.couple_id) return { error: 'You must be in a couple' }
+
+  const { data: invite } = await supabase.from('couple_invites').select('couple_id').eq('id', inviteId).single()
+  if (!invite || invite.couple_id !== profile.couple_id) {
+    return { error: 'Invite not found' }
+  }
+
   const result = await resendInvite(inviteId)
   if (result.error) return { error: result.error }
 
@@ -91,7 +101,13 @@ export async function resendInviteAction(inviteId: string): Promise<{ error?: st
   return {}
 }
 
+const ALLOWED_SETTING_KEYS = ['privateByDefault', 'shareProgress', 'emailNotifications', 'quietHoursEnabled'] as const
+
 export async function updateCoupleSettings(key: string, value: boolean): Promise<{ error?: string }> {
+  if (!ALLOWED_SETTING_KEYS.includes(key as (typeof ALLOWED_SETTING_KEYS)[number])) {
+    return { error: 'Invalid setting key' }
+  }
+
   const { user, supabase } = await requireAuth()
 
   const { data: profile } = await supabase.from('profiles').select('couple_id').eq('id', user.id).single()

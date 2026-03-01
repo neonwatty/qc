@@ -111,7 +111,7 @@ export async function exportUserData(
     const { data: notes = [] } = await supabase
       .from('notes')
       .select('id, title, content, tags, privacy, created_at')
-      .eq('user_id', userId)
+      .eq('author_id', userId)
       .order('created_at', { ascending: false })
 
     // Get check-ins (couple's check-ins if part of couple)
@@ -145,7 +145,7 @@ export async function exportUserData(
     const { data: reminders = [] } = await supabase
       .from('reminders')
       .select('id, title, message, scheduled_for, created_at')
-      .eq('user_id', userId)
+      .eq('created_by', userId)
       .order('created_at', { ascending: false })
 
     // Get requests (user's requests - sent or received)

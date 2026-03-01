@@ -61,17 +61,34 @@ describe('updateProfile', () => {
 })
 
 describe('resendInviteAction — email flow', () => {
+  const mockCoupleId = 'bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb'
+
+  function setupCoupleAndInviteOwnership(): void {
+    // 1. Profile lookup for couple_id
+    mockSupabase._queryBuilder.single.mockResolvedValueOnce({
+      data: { couple_id: mockCoupleId },
+      error: null,
+    })
+    // 2. Invite ownership check
+    mockSupabase._queryBuilder.single.mockResolvedValueOnce({
+      data: { couple_id: mockCoupleId },
+      error: null,
+    })
+  }
+
   it('sends email when invite has data and email is deliverable', async () => {
     const { resendInviteAction } = await import('./actions/profile')
     const { resendInvite } = await import('@/lib/couples')
     const { shouldSendEmail, sendEmail } = await import('@/lib/email/send')
     const { createAdminClient } = await import('@/lib/supabase/admin')
 
+    setupCoupleAndInviteOwnership()
+
     const inviteData = { token: 'abc', invited_email: 'partner@test.com' }
     ;(resendInvite as ReturnType<typeof vi.fn>).mockResolvedValue({ data: inviteData, error: null })
     ;(shouldSendEmail as ReturnType<typeof vi.fn>).mockResolvedValue(true)
 
-    // Profile lookup for inviter name
+    // 3. Profile lookup for inviter name
     mockSupabase._queryBuilder.single.mockResolvedValueOnce({
       data: { display_name: 'Alice' },
       error: null,
@@ -102,6 +119,8 @@ describe('resendInviteAction — email flow', () => {
     const { resendInvite } = await import('@/lib/couples')
     const { shouldSendEmail } = await import('@/lib/email/send')
 
+    setupCoupleAndInviteOwnership()
+
     const inviteData = { token: 'abc', invited_email: 'blocked@test.com' }
     ;(resendInvite as ReturnType<typeof vi.fn>).mockResolvedValue({ data: inviteData, error: null })
     ;(shouldSendEmail as ReturnType<typeof vi.fn>).mockResolvedValue(false)
@@ -117,6 +136,7 @@ describe('resendInviteAction — email flow', () => {
     const { shouldSendEmail, sendEmail } = await import('@/lib/email/send')
     const { createAdminClient } = await import('@/lib/supabase/admin')
 
+    setupCoupleAndInviteOwnership()
     ;(resendInvite as ReturnType<typeof vi.fn>).mockResolvedValue({
       data: { token: 'abc', invited_email: 'p@test.com' },
       error: null,
@@ -139,6 +159,13 @@ describe('resendInviteAction — email flow', () => {
 })
 
 describe('updateCoupleSettings', () => {
+  it('returns error for invalid setting key', async () => {
+    const { updateCoupleSettings } = await import('./actions/profile')
+
+    const result = await updateCoupleSettings('invalidKey', true)
+    expect(result.error).toBe('Invalid setting key')
+  })
+
   it('returns error when profile has no couple_id', async () => {
     const { updateCoupleSettings } = await import('./actions/profile')
     mockSupabase._queryBuilder.single.mockResolvedValueOnce({
@@ -146,7 +173,7 @@ describe('updateCoupleSettings', () => {
       error: null,
     })
 
-    const result = await updateCoupleSettings('key', true)
+    const result = await updateCoupleSettings('privateByDefault', true)
     expect(result.error).toBe('No couple found')
   })
 })

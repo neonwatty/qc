@@ -85,6 +85,13 @@ describe('leaveCoupleAction', () => {
 })
 
 describe('updateCoupleSettings', () => {
+  it('returns error for invalid setting key', async () => {
+    const { updateCoupleSettings } = await import('./profile')
+
+    const result = await updateCoupleSettings('invalidKey', true)
+    expect(result.error).toBe('Invalid setting key')
+  })
+
   it('returns error when no couple found', async () => {
     const { updateCoupleSettings } = await import('./profile')
     mockSupabase._queryBuilder.single.mockResolvedValueOnce({
@@ -92,7 +99,7 @@ describe('updateCoupleSettings', () => {
       error: null,
     })
 
-    const result = await updateCoupleSettings('key', true)
+    const result = await updateCoupleSettings('privateByDefault', true)
     expect(result.error).toBe('No couple found')
   })
 
@@ -105,12 +112,12 @@ describe('updateCoupleSettings', () => {
     mockSupabase._queryBuilder.eq = vi.fn().mockReturnValue(mockSupabase._queryBuilder)
     mockSupabase.rpc.mockResolvedValueOnce({ data: null, error: null })
 
-    const result = await updateCoupleSettings('notifications', true)
+    const result = await updateCoupleSettings('emailNotifications', true)
 
     expect(result).toEqual({})
     expect(mockSupabase.rpc).toHaveBeenCalledWith('update_couple_setting', {
       p_couple_id: mockCoupleId,
-      p_key: 'notifications',
+      p_key: 'emailNotifications',
       p_value: true,
     })
   })

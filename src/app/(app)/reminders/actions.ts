@@ -71,9 +71,16 @@ export async function createReminder(_prev: ReminderActionState, formData: FormD
 }
 
 export async function toggleReminder(reminderId: string, isActive: boolean): Promise<{ error?: string }> {
-  const { supabase } = await requireAuth()
+  const { user, supabase } = await requireAuth()
 
-  const { error } = await supabase.from('reminders').update({ is_active: isActive }).eq('id', reminderId)
+  const { data: profile } = await supabase.from('profiles').select('couple_id').eq('id', user.id).single()
+  if (!profile?.couple_id) return { error: 'You must be in a couple' }
+
+  const { error } = await supabase
+    .from('reminders')
+    .update({ is_active: isActive })
+    .eq('id', reminderId)
+    .eq('couple_id', profile.couple_id)
 
   if (error) return { error: error.message }
 
@@ -82,9 +89,12 @@ export async function toggleReminder(reminderId: string, isActive: boolean): Pro
 }
 
 export async function deleteReminder(reminderId: string): Promise<{ error?: string }> {
-  const { supabase } = await requireAuth()
+  const { user, supabase } = await requireAuth()
 
-  const { error } = await supabase.from('reminders').delete().eq('id', reminderId)
+  const { data: profile } = await supabase.from('profiles').select('couple_id').eq('id', user.id).single()
+  if (!profile?.couple_id) return { error: 'You must be in a couple' }
+
+  const { error } = await supabase.from('reminders').delete().eq('id', reminderId).eq('couple_id', profile.couple_id)
 
   if (error) return { error: error.message }
 
@@ -96,7 +106,10 @@ export async function snoozeReminder(
   reminderId: string,
   duration: '15min' | '1hour' | 'tomorrow',
 ): Promise<{ error?: string }> {
-  const { supabase } = await requireAuth()
+  const { user, supabase } = await requireAuth()
+
+  const { data: profile } = await supabase.from('profiles').select('couple_id').eq('id', user.id).single()
+  if (!profile?.couple_id) return { error: 'You must be in a couple' }
 
   const now = new Date()
   let snoozeUntil: Date
@@ -120,6 +133,7 @@ export async function snoozeReminder(
     .from('reminders')
     .update({ is_snoozed: true, snooze_until: snoozeUntil.toISOString() })
     .eq('id', reminderId)
+    .eq('couple_id', profile.couple_id)
 
   if (error) return { error: error.message }
 
@@ -128,12 +142,16 @@ export async function snoozeReminder(
 }
 
 export async function unsnoozeReminder(reminderId: string): Promise<{ error?: string }> {
-  const { supabase } = await requireAuth()
+  const { user, supabase } = await requireAuth()
+
+  const { data: profile } = await supabase.from('profiles').select('couple_id').eq('id', user.id).single()
+  if (!profile?.couple_id) return { error: 'You must be in a couple' }
 
   const { error } = await supabase
     .from('reminders')
     .update({ is_snoozed: false, snooze_until: null })
     .eq('id', reminderId)
+    .eq('couple_id', profile.couple_id)
 
   if (error) return { error: error.message }
 
