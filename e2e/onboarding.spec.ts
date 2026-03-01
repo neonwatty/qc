@@ -81,10 +81,10 @@ test.describe('Onboarding Flow', () => {
       await expect(page.getByRole('button', { name: /continue/i })).toBeVisible()
     })
 
-    test('shows step indicator with 5 steps', async ({ noCoupleAuthedPage: page }) => {
-      // The step indicator renders 5 progress bars (welcome, partner, date, love languages, feature tour)
+    test('shows step indicator with 7 steps', async ({ noCoupleAuthedPage: page }) => {
+      // The step indicator renders 7 progress bars (name, partner, date, love languages, quiz, reminder, tour)
       const stepBars = page.locator('.rounded-full.h-2')
-      await expect(stepBars).toHaveCount(5)
+      await expect(stepBars).toHaveCount(7)
     })
   })
 
