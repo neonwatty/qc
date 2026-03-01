@@ -7,30 +7,30 @@ import { useState } from 'react'
 const TOUR_SLIDES = [
   {
     icon: MessageCircle,
-    title: 'Check-Ins',
-    description:
-      'Connect with your partner through guided conversations. Share your thoughts, feelings, and experiences in a structured and meaningful way.',
+    title: 'Structured Check-Ins',
+    description: 'Have meaningful conversations that strengthen your bond.',
+    points: ['Guided conversation topics', 'Time-boxed sessions', 'Track progress over time'],
     illustration: '💬',
   },
   {
     icon: StickyNote,
-    title: 'Notes & Privacy',
-    description:
-      'Keep shared memories and private thoughts. Create notes together or keep personal reflections. Full control over what you share.',
-    illustration: '📝',
+    title: 'Privacy Controls',
+    description: 'Keep some notes private, share others with your partner.',
+    points: ['Private personal reflections', 'Shared relationship notes', 'Draft mode for works-in-progress'],
+    illustration: '🔒',
   },
   {
     icon: TrendingUp,
     title: 'Growth Tracking',
-    description:
-      'Celebrate your journey together. Track milestones, achievements, and special moments. Watch your relationship grow over time.',
-    illustration: '🌱',
+    description: 'Celebrate your relationship milestones together.',
+    points: ['Relationship milestones', 'Progress visualization', 'Achievement celebrations'],
+    illustration: '📈',
   },
   {
     icon: Heart,
     title: 'Love Languages',
-    description:
-      'Discover how you and your partner express love. Create custom actions and reminders based on what matters most to both of you.',
+    description: 'Discover how you and your partner express love.',
+    points: ['Personalized love language profiles', 'Custom actions and reminders', 'Track what matters most'],
     illustration: '❤️',
   },
 ] as const
@@ -115,6 +115,17 @@ export function TourStep({ isPending, onBack, onComplete }: TourStepProps) {
               <div className="mb-2 text-4xl">{currentSlideData.illustration}</div>
               <h3 className="mb-2 text-xl font-bold text-foreground">{currentSlideData.title}</h3>
               <p className="text-sm leading-relaxed text-muted-foreground">{currentSlideData.description}</p>
+            </div>
+
+            <div className="mx-auto max-w-xs space-y-2 rounded-lg border border-border bg-muted/30 p-4">
+              {currentSlideData.points.map((point, index) => (
+                <div key={index} className="flex items-center gap-2.5">
+                  <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-pink-100 dark:bg-pink-900/30">
+                    <span className="text-xs font-bold text-pink-600 dark:text-pink-400">{index + 1}</span>
+                  </div>
+                  <span className="text-sm text-muted-foreground">{point}</span>
+                </div>
+              ))}
             </div>
           </motion.div>
         </AnimatePresence>
