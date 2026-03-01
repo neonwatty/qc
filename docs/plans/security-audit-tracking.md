@@ -108,3 +108,47 @@ Each iteration is appended below by the `/security-audit` skill.
 - Rate Limiting (A04)
 - CSRF/Session (A07)
 - Data Exposure (A02)
+
+### Iteration 4 (2026-02-28)
+
+**Categories Audited:** Dependency Vulnerabilities (A06), CSRF/Session (A07)
+**Findings:** 1 MEDIUM, 5 LOW
+**Fixed:** 1 (MEDIUM)
+**Deferred:** 1
+
+#### Audit Results
+
+**Dependency Vulnerabilities (A06) — PASS (dev-only issues):**
+
+- Zero production vulnerabilities — all 6 findings are in dev-only dependency trees
+- `rollup` path traversal (CWE-22) fixed via `npm audit fix` (4.57.1 → 4.59.0)
+- `ajv` ReDoS fixed via `npm audit fix` (6.12.6 → 6.14.0)
+- `minimatch` ReDoS partially fixed (3.1.2 → 3.1.5, 9.0.5 → 9.0.9)
+- 4 remaining HIGH-rated vulns are all minimatch inside semantic-release's bundled npm — cannot be fixed without breaking downgrade
+- No `.npmrc` customizations, standard `package-lock.json` in use
+
+**CSRF/Session (A07) — PASS:**
+
+- Auth cookies: HttpOnly + Secure + SameSite configured by Supabase SSR
+- Session refresh on every request via middleware `updateSession()`
+- No session fixation vectors — sessions are user-bound via `auth.getUser()`
+- All 11 server action files have built-in Next.js CSRF protection
+- API routes: webhook uses Svix signature verification, cron uses timing-safe Bearer token
+- Zero auth tokens in URLs — only invite/unsubscribe UUIDs (expected)
+- OAuth callback: Supabase handles state/PKCE internally
+- Token storage: auth tokens in HttpOnly cookies only, no localStorage/sessionStorage for auth
+- `sanitizeRedirect()` prevents open redirect attacks
+- CSP includes `form-action 'self'` preventing cross-origin form submission
+
+#### Fixed
+
+- [x] Dev dependency vulnerabilities in rollup, ajv, minimatch — applied `npm audit fix` for non-breaking upgrades (category: Dependency Vulnerabilities, severity: MEDIUM)
+
+#### Deferred
+
+- [ ] minimatch ReDoS inside semantic-release bundled npm — requires breaking downgrade to v24 (category: Dependency Vulnerabilities, severity: LOW, reason: dev-only CI tooling, no production exposure, awaiting upstream fix)
+
+#### Categories Remaining
+
+- Rate Limiting (A04)
+- Data Exposure (A02)
