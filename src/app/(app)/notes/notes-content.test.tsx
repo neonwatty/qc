@@ -91,6 +91,7 @@ const mockCategories = [
     is_active: true,
     is_system: false,
     sort_order: 0,
+    prompts: [],
     created_at: '',
   },
 ]

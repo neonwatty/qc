@@ -239,6 +239,7 @@ export interface Category {
   isActive: boolean
   isSystem: boolean
   sortOrder: number
+  prompts: string[]
   createdAt: string
 }
 

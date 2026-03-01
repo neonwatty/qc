@@ -12,6 +12,9 @@ vi.mock('@/components/layout/PageContainer', () => ({
 vi.mock('@/components/settings/CategoryManager', () => ({
   CategoryManager: () => <div data-testid="category-manager" />,
 }))
+vi.mock('@/components/settings/PromptManager', () => ({
+  PromptManager: () => <div data-testid="prompt-manager" />,
+}))
 vi.mock('@/components/settings/DataExportPanel', () => ({
   DataExportPanel: () => <div data-testid="data-export" />,
 }))

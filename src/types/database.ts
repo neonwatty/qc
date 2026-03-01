@@ -189,6 +189,7 @@ export interface DbCategory {
   is_active: boolean
   is_system: boolean
   sort_order: number
+  prompts: string[]
   created_at: string
 }
 

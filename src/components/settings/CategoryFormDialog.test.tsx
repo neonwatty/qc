@@ -15,6 +15,7 @@ const mockCategory: Category = {
   isActive: true,
   isSystem: false,
   sortOrder: 1,
+  prompts: [],
   createdAt: '2025-01-01',
 }
 
