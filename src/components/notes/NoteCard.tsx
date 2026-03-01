@@ -1,7 +1,7 @@
 'use client'
 
 import { cn } from '@/lib/utils'
-import type { DbNote } from '@/types'
+import type { DbNote, DbCategory } from '@/types'
 
 import { PrivacyBadge } from './PrivacyBadge'
 
@@ -10,6 +10,10 @@ type Props = {
   isOwn: boolean
   onSelect?: (note: DbNote) => void
   onDelete?: (note: DbNote) => void
+  selectMode?: boolean
+  isSelected?: boolean
+  onToggleSelect?: (noteId: string) => void
+  category?: DbCategory | null
   className?: string
 }
 
@@ -25,25 +29,57 @@ function formatRelativeDate(dateStr: string): string {
   return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
 }
 
-export function NoteCard({ note, isOwn, onSelect, onDelete, className }: Props) {
+export function NoteCard({
+  note,
+  isOwn,
+  onSelect,
+  onDelete,
+  selectMode = false,
+  isSelected = false,
+  onToggleSelect,
+  category,
+  className,
+}: Props) {
+  function handleClick() {
+    if (selectMode && isOwn && onToggleSelect) {
+      onToggleSelect(note.id)
+    } else if (!selectMode) {
+      onSelect?.(note)
+    }
+  }
+
   return (
     <div
       role="button"
       tabIndex={0}
-      onClick={() => onSelect?.(note)}
+      onClick={handleClick}
       onKeyDown={(e) => {
-        if (e.key === 'Enter') onSelect?.(note)
+        if (e.key === 'Enter') handleClick()
       }}
       className={cn(
         'group rounded-lg border border-border bg-card p-4 transition-all hover:shadow-md',
         'cursor-pointer focus:outline-none focus:ring-2 focus:ring-ring',
+        selectMode && isSelected && 'ring-2 ring-primary',
+        selectMode && !isOwn && 'opacity-50',
         className,
       )}
     >
       {/* Header */}
       <div className="mb-2 flex items-start justify-between gap-2">
-        <PrivacyBadge privacy={note.privacy} />
-        {isOwn && onDelete && (
+        <div className="flex items-center gap-2">
+          {selectMode && isOwn && (
+            <input
+              type="checkbox"
+              checked={isSelected}
+              onChange={() => onToggleSelect?.(note.id)}
+              onClick={(e) => e.stopPropagation()}
+              className="h-4 w-4 rounded border-border text-primary focus:ring-primary"
+              aria-label={`Select note`}
+            />
+          )}
+          <PrivacyBadge privacy={note.privacy} />
+        </div>
+        {!selectMode && isOwn && onDelete && (
           <button
             onClick={(e) => {
               e.stopPropagation()
@@ -63,6 +99,16 @@ export function NoteCard({ note, isOwn, onSelect, onDelete, className }: Props) 
           </button>
         )}
       </div>
+
+      {/* Category badge */}
+      {category && (
+        <div className="mb-2">
+          <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs text-muted-foreground">
+            <span>{category.icon}</span>
+            <span>{category.name}</span>
+          </span>
+        </div>
+      )}
 
       {/* Content */}
       <p className="mb-3 line-clamp-3 text-sm text-foreground">{note.content}</p>

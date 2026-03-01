@@ -27,6 +27,14 @@ export default async function NotesPage() {
     .eq('couple_id', profile.couple_id)
     .order('created_at', { ascending: false })
 
+  // Fetch active categories for the couple
+  const { data: categories } = await supabase
+    .from('categories')
+    .select('*')
+    .eq('couple_id', profile.couple_id)
+    .eq('is_active', true)
+    .order('sort_order')
+
   // Filter private notes to only show own private notes
   const visibleNotes = (notes ?? []).filter((note) => {
     if (note.privacy === 'private' && note.author_id !== user.id) return false
@@ -34,5 +42,12 @@ export default async function NotesPage() {
     return true
   })
 
-  return <NotesPageContent notes={visibleNotes} currentUserId={user.id} coupleId={profile.couple_id} />
+  return (
+    <NotesPageContent
+      notes={visibleNotes}
+      currentUserId={user.id}
+      coupleId={profile.couple_id}
+      categories={categories ?? []}
+    />
+  )
 }
