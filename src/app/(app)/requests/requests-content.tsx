@@ -161,6 +161,7 @@ export function RequestsContent({
   return (
     <PageContainer
       title="Requests"
+      description="Send and receive thoughtful requests with your partner"
       action={<NewRequestButton showForm={showForm} partnerId={partnerId} onToggle={() => setShowForm(!showForm)} />}
     >
       {showForm && partnerId && (

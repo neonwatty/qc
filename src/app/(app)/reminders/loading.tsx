@@ -3,7 +3,7 @@ import { Skeleton, SkeletonGroup } from '@/components/ui/skeleton'
 
 export default function RemindersLoading() {
   return (
-    <PageContainer title="Reminders">
+    <PageContainer title="Reminders" description="Stay connected with thoughtful reminders for your relationship">
       {/* Filter tabs skeleton */}
       <div className="flex gap-2">
         {Array.from({ length: 4 }, (_, i) => (

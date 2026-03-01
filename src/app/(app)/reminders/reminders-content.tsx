@@ -144,6 +144,7 @@ export function RemindersContent({ initialReminders, userId, coupleId, partnerId
   return (
     <PageContainer
       title="Reminders"
+      description="Stay connected with thoughtful reminders for your relationship"
       action={<Button onClick={() => setShowForm(!showForm)}>{showForm ? 'Cancel' : 'New Reminder'}</Button>}
     >
       {showForm && (

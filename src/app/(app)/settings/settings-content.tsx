@@ -45,7 +45,7 @@ export function SettingsContent({
   const [activeTab, setActiveTab] = useState<SettingsTab>('profile')
 
   return (
-    <PageContainer title="Settings">
+    <PageContainer title="Settings" description="Customize your Quality Control experience">
       <div className="flex gap-2 overflow-x-auto">
         {TABS.map((tab) => (
           <button

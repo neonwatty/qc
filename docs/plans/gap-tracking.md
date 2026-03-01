@@ -215,3 +215,23 @@ Each iteration is appended below by the `/gap-analysis` skill.
 - Reference QuickActions has 3 floating/embedded variants; production has 6 grid actions with badge counts — production is more feature-rich
 - Missing UI primitive library (LoadingStates, FallbackUI, LazyComponents) — 40+ specialized components, cosmetic polish
 - Missing Radix primitives (scroll-area, accordion, avatar, dropdown-menu, slider, tooltip) — will be added as needed by features
+
+### Iteration 8 (2026-03-01)
+
+**Findings:** 3
+**Fixed:** 3
+**Deferred:** 0
+**Dimensions Covered:** Pages & Routes, Content & Copy, UX Flows
+
+#### Fixed
+
+- [x] Reminders page missing description — added "Stay connected with thoughtful reminders for your relationship" to PageContainer + loading skeleton (dimension: Content & Copy, severity: MEDIUM)
+- [x] Requests page missing description — added "Send and receive thoughtful requests with your partner" to PageContainer + loading skeleton (dimension: Content & Copy, severity: MEDIUM)
+- [x] Settings page missing description — added "Customize your Quality Control experience" to PageContainer + loading skeleton (dimension: Content & Copy, severity: MEDIUM)
+
+#### Intentionally Skipped
+
+- StatsGrid change indicators ("+1 this week", "vs last month") — requires historical data comparison queries not in production schema
+- SessionRulesPanel section headers (uppercase tracking-wide labels) — minor styling preference, production uses different but functional section layout
+- ReminderCard expanded detail section (frequency label, assignee display) — production already has these features in a different layout pattern
+- All previously deferred architectural items remain deferred (onboarding quiz/reminder steps, CheckInCard, ActivityFeed, PromptLibrary, DiscussionView, etc.)
