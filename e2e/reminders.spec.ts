@@ -16,9 +16,9 @@ test.describe('Reminders — Page structure', () => {
   test('filter tabs visible: all, active, inactive', async ({ authedPage: page }) => {
     await page.goto('/reminders')
 
-    await expect(page.getByRole('button', { name: /^all$/i })).toBeVisible()
-    await expect(page.getByRole('button', { name: /^active$/i })).toBeVisible()
-    await expect(page.getByRole('button', { name: /^inactive$/i })).toBeVisible()
+    await expect(page.getByRole('button', { name: /^all\s*\d*$/i })).toBeVisible()
+    await expect(page.getByRole('button', { name: /^active\s*\d*$/i })).toBeVisible()
+    await expect(page.getByRole('button', { name: /^inactive\s*\d*$/i })).toBeVisible()
   })
 })
 
@@ -54,7 +54,7 @@ test.describe('Reminders — Filtering', () => {
   test('active filter shows both reminders (both active)', async ({ authedPage: page }) => {
     await page.goto('/reminders')
 
-    await page.getByRole('button', { name: /^active$/i }).click()
+    await page.getByRole('button', { name: /^active\s*\d*$/i }).click()
 
     await expect(page.getByText(/weekly check-in/i).first()).toBeVisible()
     await expect(page.getByText(/anniversary coming up/i).first()).toBeVisible()
@@ -63,7 +63,7 @@ test.describe('Reminders — Filtering', () => {
   test('inactive filter shows empty state', async ({ authedPage: page }) => {
     await page.goto('/reminders')
 
-    await page.getByRole('button', { name: /^inactive$/i }).click()
+    await page.getByRole('button', { name: /^inactive\s*\d*$/i }).click()
 
     await expect(page.getByText(/no inactive reminders/i)).toBeVisible()
   })
@@ -163,7 +163,7 @@ test.describe.serial('Reminders — CRUD', () => {
     // Wait for reminders to load before filtering
     await expect(page.getByText(/weekly check-in/i).first()).toBeVisible({ timeout: 15000 })
 
-    await page.getByRole('button', { name: /^inactive$/i }).click()
+    await page.getByRole('button', { name: /^inactive\s*\d*$/i }).click()
 
     await expect(page.getByText(testTitle).first()).toBeVisible({ timeout: 15000 })
   })
@@ -172,14 +172,14 @@ test.describe.serial('Reminders — CRUD', () => {
     await page.goto('/reminders')
 
     // The reminder was paused in the previous test — switch to inactive to find it
-    await page.getByRole('button', { name: /^inactive$/i }).click()
+    await page.getByRole('button', { name: /^inactive\s*\d*$/i }).click()
     await expect(page.getByText(testTitle).first()).toBeVisible({ timeout: 15000 })
 
     const card = page.locator('.rounded-lg', { has: page.getByText(testTitle) }).first()
     await card.getByRole('button', { name: /delete/i }).click()
 
     await page.reload()
-    await page.getByRole('button', { name: /^inactive$/i }).click()
+    await page.getByRole('button', { name: /^inactive\s*\d*$/i }).click()
     await expect(page.getByText(testTitle)).not.toBeVisible({ timeout: 10000 })
   })
 })
