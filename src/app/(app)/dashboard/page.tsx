@@ -28,6 +28,7 @@ interface DashboardData {
   pendingRequestCount: number
   partnerTopLanguage: { title: string; category: string } | null
   todayActionCount: number
+  frequencyGoal: string | null
 }
 
 async function fetchDashboardData(coupleId: string, userId: string, supabase: SupabaseClient): Promise<DashboardData> {
@@ -67,8 +68,8 @@ async function fetchDashboardData(coupleId: string, userId: string, supabase: Su
       .eq('couple_id', coupleId)
       .eq('privacy', 'shared'),
     getStreakData(coupleId, supabase),
-    getRecentActivity(coupleId, supabase, 5),
-    supabase.from('couples').select('relationship_start_date').eq('id', coupleId).single(),
+    getRecentActivity(coupleId, supabase, 20),
+    supabase.from('couples').select('relationship_start_date, settings').eq('id', coupleId).single(),
     supabase
       .from('check_ins')
       .select('completed_at')
@@ -119,6 +120,8 @@ async function fetchDashboardData(coupleId: string, userId: string, supabase: Su
     streakData: streak,
     activities: activity,
     relationshipStartDate: couple.data?.relationship_start_date ?? null,
+    frequencyGoal:
+      ((couple.data?.settings as Record<string, unknown> | null)?.checkInFrequency as string | null) ?? null,
     lastCheckInDate: lastCheckIn.data?.completed_at ?? null,
     topLanguages: (topLangs.data ?? []).map((l) => ({ title: l.title, category: l.category })),
     todayReminders: (reminders.data ?? []).map((r) => ({
@@ -152,6 +155,7 @@ const DEFAULTS: DashboardData = {
   pendingRequestCount: 0,
   partnerTopLanguage: null,
   todayActionCount: 0,
+  frequencyGoal: null,
 }
 
 export default async function DashboardPage() {

@@ -34,6 +34,9 @@ vi.mock('@/components/dashboard/QuickActions', () => ({
 vi.mock('@/components/dashboard/StreakDisplay', () => ({
   StreakDisplay: () => <div data-testid="streak-display" />,
 }))
+vi.mock('@/components/dashboard/CheckInCard', () => ({
+  CheckInCard: () => <div data-testid="checkin-card" />,
+}))
 vi.mock('@/components/dashboard/StatsGrid', () => ({
   StatsGrid: () => <div data-testid="stats-grid" />,
 }))
@@ -70,6 +73,7 @@ function defaultProps() {
     pendingRequestCount: 0,
     partnerTopLanguage: null,
     todayActionCount: 0,
+    frequencyGoal: null,
   }
 }
 
@@ -116,5 +120,10 @@ describe('DashboardContent', () => {
   it('renders StatsGrid component', () => {
     render(<DashboardContent {...defaultProps()} />)
     expect(screen.getByTestId('stats-grid')).toBeDefined()
+  })
+
+  it('renders CheckInCard component', () => {
+    render(<DashboardContent {...defaultProps()} />)
+    expect(screen.getByTestId('checkin-card')).toBeDefined()
   })
 })
