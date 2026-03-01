@@ -68,6 +68,8 @@ function defaultProps() {
     topLanguages: [],
     todayReminders: [],
     pendingRequestCount: 0,
+    partnerTopLanguage: null,
+    todayActionCount: 0,
   }
 }
 

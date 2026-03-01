@@ -1,8 +1,9 @@
 'use client'
 
 import Link from 'next/link'
-import { Heart, Plus } from 'lucide-react'
+import { Heart, Plus, Sparkles } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
 
@@ -16,6 +17,8 @@ interface LoveLanguagesWidgetProps {
   sharedLanguages?: number
   completedThisWeek?: number
   topLanguages?: TopLanguage[]
+  partnerTopLanguage?: TopLanguage | null
+  todayActionCount?: number
 }
 
 export function LoveLanguagesWidget({
@@ -23,6 +26,8 @@ export function LoveLanguagesWidget({
   sharedLanguages = 0,
   completedThisWeek = 0,
   topLanguages = [],
+  partnerTopLanguage = null,
+  todayActionCount = 0,
 }: LoveLanguagesWidgetProps): React.ReactNode {
   const sharingPercent = totalLanguages > 0 ? Math.round((sharedLanguages / totalLanguages) * 100) : 0
 
@@ -87,6 +92,44 @@ export function LoveLanguagesWidget({
                   {lang.title}
                 </span>
               ))}
+            </div>
+          </div>
+        )}
+
+        {/* Today's Actions */}
+        {totalLanguages > 0 && (
+          <div className="space-y-2">
+            <h4 className="text-sm font-medium text-gray-900 dark:text-white flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-yellow-500" />
+              Today&apos;s Actions
+            </h4>
+            {todayActionCount > 0 ? (
+              <Link
+                href="/love-languages"
+                className="flex items-center justify-between rounded-lg bg-gray-50 p-2 transition-colors hover:bg-gray-100 dark:bg-gray-700/50 dark:hover:bg-gray-700"
+              >
+                <p className="text-sm font-medium text-gray-900 dark:text-white">
+                  {todayActionCount} action{todayActionCount !== 1 ? 's' : ''} planned
+                </p>
+                <Button size="sm" variant="ghost">
+                  View
+                </Button>
+              </Link>
+            ) : (
+              <p className="text-sm text-gray-500 dark:text-gray-400">No actions planned for today</p>
+            )}
+          </div>
+        )}
+
+        {/* Partner's Top Language */}
+        {partnerTopLanguage && (
+          <div className="space-y-2 border-t pt-3">
+            <p className="text-xs text-gray-600 dark:text-gray-400">Partner&apos;s Top Language:</p>
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary" className="text-xs text-gray-700 dark:text-gray-300">
+                {partnerTopLanguage.category}
+              </Badge>
+              <span className="truncate text-sm text-gray-900 dark:text-white">{partnerTopLanguage.title}</span>
             </div>
           </div>
         )}

@@ -17,7 +17,6 @@ export function RequestNotificationEmail({
   requestsUrl = 'https://tryqc.co/requests',
   unsubscribeUrl,
 }: RequestNotificationEmailProps) {
-  // eslint-disable-next-line security/detect-object-injection
   const priorityColor =
     {
       low: '#6b7280',

@@ -154,3 +154,32 @@ Each iteration is appended below by the `/gap-analysis` skill.
 - Reference onboarding hardcodes "Jeremy" and "Deb" — production correctly uses dynamic names
 - Reference uses `mockUsers` for request cards — production uses real data
 - Loading.tsx files for all routes — already implemented in production (dashboard, notes, growth, settings, reminders, requests, love-languages)
+
+### Iteration 6 (2026-02-28)
+
+**Findings:** 7
+**Fixed:** 4
+**Deferred:** 3
+**Dimensions Covered:** Components, UX Flows, Styling & Visual Design
+
+#### Fixed
+
+- [x] Reminders filter buttons missing badge counts — added inline count badges with themed styling on all 5 status filters (dimension: UX Flows, severity: MEDIUM)
+- [x] Reminders category filters missing emoji icons — added emoji (💜💬✅🎉⭐) to category filter buttons (dimension: Content & Copy, severity: MEDIUM)
+- [x] LoveLanguagesWidget missing "Today's Actions" section and partner's top language — added Sparkles-headed section showing action count with link, and border-top partner language preview with Badge (dimension: Components, severity: MEDIUM)
+- [x] PreparationModal dialog title missing gradient text — changed from flat rose-600 to gradient `from-rose-500 to-pink-500 bg-clip-text text-transparent` (dimension: Styling, severity: LOW)
+
+#### Deferred
+
+- [ ] Dashboard missing CheckInCard with countdown timer and progress ring (large component + new hook, architectural)
+- [ ] Dashboard RecentActivity missing filter tabs, load more, privacy toggle (architectural change to ActivityFeed)
+- [ ] Settings missing ReminderScheduler, PersonalizationPanel, and "Redo Onboarding" (3 large components)
+
+#### Intentionally Skipped
+
+- Dashboard QuickActions floating/FAB variant — mobile UX enhancement, needs haptic feedback library
+- StatsGrid animated count-up and change indicators — needs historical comparison data, DB query change (previously deferred)
+- NotificationPreview/NotificationDemo components — cosmetic demo UI, not functional
+- ReminderSchedule timeline widget — needs different data shape than production uses
+- Reminders chat-style 2-column layout — architectural change from single-column list
+- CheckInCard countdown timer — needs useCheckInTimer hook + couple frequency settings not in production schema

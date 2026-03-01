@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-require-imports */
 vi.mock('framer-motion', () => {
   const handler: ProxyHandler<Record<string, unknown>> = {
     get(_, tag: string) {

@@ -5,6 +5,7 @@ import { render, screen } from '@testing-library/react'
 vi.mock('lucide-react', () => ({
   Heart: () => <span data-testid="icon-heart" />,
   Plus: () => <span data-testid="icon-plus" />,
+  Sparkles: () => <span data-testid="icon-sparkles" />,
 }))
 
 vi.mock('@/components/ui/card', () => ({
@@ -18,6 +19,12 @@ vi.mock('@/components/ui/card', () => ({
 vi.mock('@/components/ui/button', () => ({
   Button: ({ children, ...props }: React.PropsWithChildren<Record<string, unknown>>) => (
     <button {...props}>{children}</button>
+  ),
+}))
+
+vi.mock('@/components/ui/badge', () => ({
+  Badge: ({ children, ...props }: React.PropsWithChildren<Record<string, unknown>>) => (
+    <span {...props}>{children}</span>
   ),
 }))
 
@@ -84,5 +91,23 @@ describe('LoveLanguagesWidget', () => {
   it('shows "View All" button', () => {
     render(<LoveLanguagesWidget />)
     expect(screen.getByText('View All')).toBeDefined()
+  })
+
+  it('shows "Today\'s Actions" section with action count', () => {
+    render(<LoveLanguagesWidget totalLanguages={2} todayActionCount={3} />)
+    expect(screen.getByText("Today's Actions")).toBeDefined()
+    expect(screen.getByText('3 actions planned')).toBeDefined()
+  })
+
+  it('shows "No actions planned" when todayActionCount is 0', () => {
+    render(<LoveLanguagesWidget totalLanguages={2} todayActionCount={0} />)
+    expect(screen.getByText('No actions planned for today')).toBeDefined()
+  })
+
+  it('shows partner top language when provided', () => {
+    render(<LoveLanguagesWidget totalLanguages={2} partnerTopLanguage={{ title: 'Quality Time', category: 'time' }} />)
+    expect(screen.getByText("Partner's Top Language:")).toBeDefined()
+    expect(screen.getByText('Quality Time')).toBeDefined()
+    expect(screen.getByText('time')).toBeDefined()
   })
 })
