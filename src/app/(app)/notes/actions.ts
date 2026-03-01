@@ -97,6 +97,32 @@ export async function updateNote(_prev: NoteActionState, formData: FormData): Pr
   return { error: null }
 }
 
+const bulkDeleteSchema = z.object({
+  ids: z
+    .array(z.string().uuid())
+    .min(1, 'At least one note ID is required')
+    .max(50, 'Cannot delete more than 50 notes at once'),
+})
+
+export async function bulkDeleteNotes(noteIds: string[]): Promise<{ error: string | null }> {
+  const { user, supabase } = await requireAuth()
+
+  const { data: input, error: validationError } = validate(bulkDeleteSchema, { ids: noteIds })
+
+  if (validationError || !input) {
+    return { error: validationError ?? 'Validation failed' }
+  }
+
+  const { error: deleteError } = await supabase.from('notes').delete().in('id', input.ids).eq('author_id', user.id)
+
+  if (deleteError) {
+    return { error: sanitizeDbError(deleteError, 'bulkDeleteNotes') }
+  }
+
+  revalidatePath('/notes')
+  return { error: null }
+}
+
 export async function deleteNoteById(noteId: string): Promise<{ error: string | null }> {
   const { user, supabase } = await requireAuth()
 

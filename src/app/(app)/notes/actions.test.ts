@@ -173,3 +173,65 @@ describe('deleteNoteById', () => {
     expect(result.error).toBe('Something went wrong. Please try again.')
   })
 })
+
+describe('bulkDeleteNotes', () => {
+  it('deletes multiple notes with valid ids', async () => {
+    const { bulkDeleteNotes } = await import('./actions')
+
+    mockSupabase._queryBuilder.delete = vi.fn().mockReturnValue(mockSupabase._queryBuilder)
+    mockSupabase._queryBuilder.in = vi.fn().mockReturnValue(mockSupabase._queryBuilder)
+    mockSupabase._queryBuilder.eq = vi.fn().mockReturnValue({ data: null, error: null })
+
+    const ids = ['cccccccc-cccc-4ccc-8ccc-cccccccccccc', 'dddddddd-dddd-4ddd-8ddd-dddddddddddd']
+    const result = await bulkDeleteNotes(ids)
+
+    expect(result).toEqual({ error: null })
+    expect(mockSupabase.from).toHaveBeenCalledWith('notes')
+  })
+
+  it('returns error when ids array is empty', async () => {
+    const { bulkDeleteNotes } = await import('./actions')
+
+    const result = await bulkDeleteNotes([])
+
+    expect(result.error).toBeTruthy()
+    expect(result.error).toContain('At least one note ID is required')
+  })
+
+  it('returns error when ids contain invalid UUIDs', async () => {
+    const { bulkDeleteNotes } = await import('./actions')
+
+    const result = await bulkDeleteNotes(['not-a-uuid', 'also-not-valid'])
+
+    expect(result.error).toBeTruthy()
+  })
+
+  it('returns error on database delete failure', async () => {
+    const { bulkDeleteNotes } = await import('./actions')
+
+    mockSupabase._queryBuilder.delete = vi.fn().mockReturnValue(mockSupabase._queryBuilder)
+    mockSupabase._queryBuilder.in = vi.fn().mockReturnValue(mockSupabase._queryBuilder)
+    mockSupabase._queryBuilder.eq = vi.fn().mockReturnValue({
+      data: null,
+      error: { message: 'Bulk delete failed' },
+    })
+
+    const result = await bulkDeleteNotes(['cccccccc-cccc-4ccc-8ccc-cccccccccccc'])
+
+    expect(result.error).toBe('Something went wrong. Please try again.')
+  })
+
+  it('returns error when exceeding 50 ids', async () => {
+    const { bulkDeleteNotes } = await import('./actions')
+
+    const ids = Array.from({ length: 51 }, (_, i) => {
+      const hex = i.toString(16).padStart(2, '0')
+      return `cccccccc-cccc-4ccc-8ccc-cccccccc${hex}cc`
+    })
+
+    const result = await bulkDeleteNotes(ids)
+
+    expect(result.error).toBeTruthy()
+    expect(result.error).toContain('Cannot delete more than 50 notes at once')
+  })
+})

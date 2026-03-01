@@ -1,5 +1,23 @@
 import { test, expect } from './auth'
 
+// Compute month names dynamically to match seed data intervals
+// Seed milestones: now()-14d, now()-1mo, now()-2d
+function monthLabel(date: Date): RegExp {
+  const label = date.toLocaleString('en-US', { month: 'long', year: 'numeric' })
+  return new RegExp(label, 'i')
+}
+
+const now = new Date()
+const minus14d = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000)
+const minus1mo = new Date(now.getFullYear(), now.getMonth() - 1, now.getDate())
+const minus2d = new Date(now.getTime() - 2 * 24 * 60 * 60 * 1000)
+
+// Unique month groups the 3 seed milestones fall into
+const seedMonths = [
+  ...new Set([minus14d, minus1mo, minus2d].map((d) => d.toLocaleString('en-US', { month: 'long', year: 'numeric' }))),
+]
+const currentMonth = monthLabel(now)
+
 test.describe('Growth Gallery — Page structure', () => {
   test('renders main heading', async ({ authedPage: page }) => {
     await page.goto('/growth')
@@ -40,13 +58,12 @@ test.describe('Growth Gallery — Timeline view (default)', () => {
   test('displays all 3 seed milestones', async ({ authedPage: page }) => {
     await page.goto('/growth')
 
-    // Month groups are collapsed by default — expand them to see milestone titles
-    const feb = page.getByRole('button', { name: /february 2026/i })
-    await expect(feb).toBeVisible({ timeout: 15000 })
-    await feb.click()
-
-    const jan = page.getByRole('button', { name: /january 2026/i })
-    await jan.click()
+    // Expand all month groups that seed milestones fall into
+    for (const month of seedMonths) {
+      const btn = page.getByRole('button', { name: new RegExp(month, 'i') })
+      await expect(btn).toBeVisible({ timeout: 15000 })
+      await btn.click()
+    }
 
     await expect(page.getByText(/first check-in/i).first()).toBeVisible()
     await expect(page.getByText(/6-month anniversary/i).first()).toBeVisible()
@@ -74,14 +91,14 @@ test.describe('Growth Gallery — Timeline view (default)', () => {
   test('clicking Communication filter shows First Check-In', async ({ authedPage: page }) => {
     await page.goto('/growth')
 
-    // Wait for month groups to load, then expand and filter
-    const feb = page.getByRole('button', { name: /february 2026/i })
-    await expect(feb).toBeVisible({ timeout: 15000 })
+    // Wait for month groups to load
+    const firstMonth = page.getByRole('button', { name: monthLabel(minus14d) })
+    await expect(firstMonth).toBeVisible({ timeout: 15000 })
 
     await page.getByRole('button', { name: /communication/i }).click()
 
-    // After filtering, expand the visible month group
-    const monthBtn = page.getByRole('button', { name: /february 2026/i })
+    // After filtering, expand the visible month group (First Check-In = now - 14 days)
+    const monthBtn = page.getByRole('button', { name: monthLabel(minus14d) })
     await monthBtn.click()
 
     await expect(page.getByText(/first check-in/i).first()).toBeVisible()
@@ -91,12 +108,12 @@ test.describe('Growth Gallery — Timeline view (default)', () => {
     await page.goto('/growth')
 
     // Wait for milestones to load (month groups appear)
-    await expect(page.getByRole('button', { name: /february 2026/i })).toBeVisible({ timeout: 15000 })
+    await expect(page.getByRole('button', { name: monthLabel(minus2d) })).toBeVisible({ timeout: 15000 })
 
     await page.getByRole('button', { name: /^Growth/i }).click()
 
-    // "Three in a Row" achieved_at is now() - 2 days = February 2026
-    const monthBtn = page.getByRole('button', { name: /february 2026/i })
+    // "Three in a Row" achieved_at is now() - 2 days
+    const monthBtn = page.getByRole('button', { name: monthLabel(minus2d) })
     await expect(monthBtn).toBeVisible({ timeout: 10000 })
     await monthBtn.click()
 
@@ -183,9 +200,9 @@ test.describe.serial('Growth Gallery — CRUD', () => {
     await page.goto('/growth')
 
     // New milestone will be in the current month group — expand it
-    const feb = page.getByRole('button', { name: /february 2026/i })
-    await expect(feb).toBeVisible({ timeout: 15000 })
-    await feb.click()
+    const monthBtn = page.getByRole('button', { name: currentMonth })
+    await expect(monthBtn).toBeVisible({ timeout: 15000 })
+    await monthBtn.click()
 
     await expect(page.getByText(testTitle).first()).toBeVisible({ timeout: 15000 })
   })
