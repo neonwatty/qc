@@ -152,3 +152,86 @@ Each iteration is appended below by the `/security-audit` skill.
 
 - Rate Limiting (A04)
 - Data Exposure (A02)
+
+### Iteration 5 (2026-02-28)
+
+**Categories Audited:** Rate Limiting (A04), Data Exposure (A02)
+**Findings:** 1 HIGH, 3 MEDIUM, 4 LOW
+**Fixed:** 1 (HIGH)
+**Deferred:** 3 MEDIUM, 4 LOW
+
+#### Audit Results
+
+**Rate Limiting (A04):**
+
+- Existing rate limiter: `lib/rate-limit.ts` with in-memory fixed-window algorithm
+- Only one endpoint currently rate-limited: invite token validation (10 req/min per token)
+- Login/signup are client-side Supabase Auth calls — Supabase has built-in auth rate limiting on their servers
+- Health endpoint is read-only with minimal info exposure
+- Email webhook protected by Svix cryptographic signature verification
+- Unsubscribe tokens use 128-bit UUID entropy (brute force impractical)
+
+**Data Exposure (A02):**
+
+- Email addresses were logged in webhook bounce/complaint handlers — FIXED
+- Privacy flags properly enforced on notes and love_languages (RLS + client-side)
+- Data export requires auth and respects privacy flags
+- Storage uploads require authentication with couple-scoped paths
+- Redirect validation prevents open redirect attacks
+- Unsubscribe token validation prevents injection
+
+#### Fixed
+
+- [x] Email addresses (PII) logged in webhook bounce and complaint handlers — replaced with email_id for logging, removed PII from error messages (category: Data Exposure, severity: HIGH)
+
+#### Deferred
+
+- [ ] No rate limiting on login/signup client-side auth calls (category: Rate Limiting, severity: MEDIUM, reason: Supabase Auth provides server-side rate limiting; adding client-side limits would require middleware/server action wrapper)
+- [ ] `select('*')` queries expose all columns including internal fields like `email_unsubscribe_token` (category: Data Exposure, severity: MEDIUM, reason: requires type refactoring across components; RLS prevents cross-user access; internal use only)
+- [ ] Missing unsubscribe URLs in milestone and request notification emails (category: Data Exposure, severity: MEDIUM, reason: feature gap requiring email template updates and additional DB queries)
+- [ ] No rate limiting on health check endpoint (category: Rate Limiting, severity: LOW, reason: read-only, minimal info)
+- [ ] No rate limiting on unsubscribe endpoint (category: Rate Limiting, severity: LOW, reason: UUID entropy makes brute force impractical)
+- [ ] Invite rate limiter is token-based not IP-based (category: Rate Limiting, severity: LOW, reason: token-based limiting is acceptable for invite flow)
+- [ ] Console logging of non-sensitive error messages in production (category: Data Exposure, severity: LOW, reason: no PII in these logs)
+
+#### Categories Remaining
+
+None — all 10 OWASP categories have been audited.
+
+---
+
+## Audit Summary
+
+| Iteration | Categories                               | Fixed      | Deferred           |
+| --------- | ---------------------------------------- | ---------- | ------------------ |
+| 1         | Auth & Access Control, Input Validation  | 7 (3H, 4M) | 2 (2L)             |
+| 2         | Authorization & RLS, Secret Management   | 0          | 1 (1M operational) |
+| 3         | Security Headers, Error Handling         | 3 (1H, 2M) | 3 (1H, 2L)         |
+| 4         | Dependency Vulnerabilities, CSRF/Session | 1 (1M)     | 1 (1L)             |
+| 5         | Rate Limiting, Data Exposure             | 1 (1H)     | 7 (3M, 4L)         |
+| **Total** | **10/10**                                | **12**     | **14**             |
+
+### Remaining Deferred Items (by severity)
+
+**HIGH (1):**
+
+- CSP uses 'unsafe-inline' for script-src (requires Next.js/Capacitor nonce-based approach)
+
+**MEDIUM (5):**
+
+- Rotate local Supabase personal access token (operational)
+- No rate limiting on login/signup (Supabase provides server-side limiting)
+- `select('*')` queries expose internal fields (type refactoring needed)
+- Missing unsubscribe URLs in some email templates (feature gap)
+- (none critical — all have mitigations in place)
+
+**LOW (8):**
+
+- toHTML javascript: URI sanitization
+- In-memory rate limiter not persistent across instances
+- minimatch ReDoS in semantic-release
+- No rate limiting on health/unsubscribe endpoints
+- Invite rate limiter is token-based not IP-based
+- No CSP report-uri
+- Missing X-DNS-Prefetch-Control
+- Console logging patterns
