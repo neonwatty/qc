@@ -58,10 +58,13 @@ export function DashboardContent({
 }: DashboardContentProps): React.ReactNode {
   const router = useRouter()
 
-  // Revalidate dashboard data when user returns to the page
+  // Revalidate dashboard data when user returns to the page (throttled to once per 30s)
   useEffect(() => {
+    let lastRefresh = Date.now()
+
     function handleVisibilityChange(): void {
-      if (document.visibilityState === 'visible') {
+      if (document.visibilityState === 'visible' && Date.now() - lastRefresh > 30_000) {
+        lastRefresh = Date.now()
         router.refresh()
       }
     }

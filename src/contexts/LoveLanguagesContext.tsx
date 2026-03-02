@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useCallback, useEffect, useState } from 'react'
+import { createContext, useContext, useCallback, useEffect, useState, useMemo } from 'react'
 import type {
   LoveLanguage,
   LoveAction,
@@ -155,14 +155,17 @@ export function LoveLanguagesProvider({ children, coupleId, userId }: LoveLangua
     setDiscoveries,
   })
 
-  const value: LoveLanguagesContextValue = {
-    languages: myLanguages,
-    partnerLanguages,
-    actions,
-    discoveries,
-    isLoading,
-    ...crud,
-  }
+  const value: LoveLanguagesContextValue = useMemo(
+    () => ({
+      languages: myLanguages,
+      partnerLanguages,
+      actions,
+      discoveries,
+      isLoading,
+      ...crud,
+    }),
+    [myLanguages, partnerLanguages, actions, discoveries, isLoading, crud],
+  )
 
   return <LoveLanguagesContext.Provider value={value}>{children}</LoveLanguagesContext.Provider>
 }
