@@ -49,10 +49,11 @@ test.describe('Dashboard', () => {
       await page.goto('/dashboard')
 
       // Scope to main content to avoid matching "Notes" in sidebar navigation
+      // Use .first() since filter pills in RecentActivity may also contain "Check-ins"/"Notes"/etc.
       const main = page.getByRole('main')
-      await expect(main.getByText('Check-ins', { exact: true })).toBeVisible()
-      await expect(main.getByText('Notes', { exact: true })).toBeVisible()
-      await expect(main.getByText('Milestones', { exact: true })).toBeVisible()
+      await expect(main.getByText('Check-ins', { exact: true }).first()).toBeVisible()
+      await expect(main.getByText('Notes', { exact: true }).first()).toBeVisible()
+      await expect(main.getByText('Milestones', { exact: true }).first()).toBeVisible()
       await expect(main.getByText('Action Items', { exact: true })).toBeVisible()
     })
   })
@@ -85,9 +86,9 @@ test.describe('Dashboard', () => {
       await page.goto('/dashboard')
 
       const main = page.getByRole('main')
-      await expect(main.getByText('Check-ins', { exact: true })).toBeVisible()
-      await expect(main.getByText('Notes', { exact: true })).toBeVisible()
-      await expect(main.getByText('Milestones', { exact: true })).toBeVisible()
+      await expect(main.getByText('Check-ins', { exact: true }).first()).toBeVisible()
+      await expect(main.getByText('Notes', { exact: true }).first()).toBeVisible()
+      await expect(main.getByText('Milestones', { exact: true }).first()).toBeVisible()
       await expect(main.getByText('Action Items', { exact: true })).toBeVisible()
     })
   })

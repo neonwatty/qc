@@ -12,6 +12,7 @@ import { useSessionSettings } from '@/contexts/SessionSettingsContext'
 import { useCategories } from '@/hooks/useCategories'
 import { CategoryGrid } from '@/components/checkin/CategoryGrid'
 import { NavigationControls } from '@/components/checkin/NavigationControls'
+import { DiscussionView } from '@/components/checkin/DiscussionView'
 import { ActionItems } from '@/components/checkin/ActionItems'
 import { CompletionCelebration } from '@/components/checkin/CompletionCelebration'
 import { SessionTimer } from '@/components/checkin/SessionTimer'
@@ -91,17 +92,14 @@ export function CategoryDiscussionStep(): React.ReactNode {
 
       <TurnIndicator />
 
-      <div className="text-center space-y-2">
-        <div className="text-4xl">{category?.icon ?? '💬'}</div>
-        <h2 className="text-2xl font-bold text-foreground">{category?.name ?? 'Discussion'}</h2>
-        <p className="text-muted-foreground">{category?.description ?? 'Share your thoughts with your partner.'}</p>
-      </div>
-
-      <div className="rounded-lg border border-border bg-card p-6 text-center">
-        <p className="text-muted-foreground">
-          Take turns sharing your thoughts on this topic. Listen actively and respond with empathy.
-        </p>
-      </div>
+      <DiscussionView
+        categoryId={category?.id ?? ''}
+        categoryName={category?.name ?? 'Discussion'}
+        categoryDescription={category?.description ?? undefined}
+        categoryIcon={category?.icon}
+        prompts={category?.prompts ?? []}
+        onComplete={() => completeStep('category-discussion')}
+      />
 
       <NavigationControls
         currentStep="category-discussion"

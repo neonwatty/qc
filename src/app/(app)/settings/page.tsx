@@ -1,4 +1,5 @@
 import { requireAuth } from '@/lib/auth'
+import type { DbReminder } from '@/types/database'
 
 import { SettingsContent } from './settings-content'
 
@@ -37,6 +38,10 @@ export default async function SettingsPage(): Promise<React.ReactElement> {
         .maybeSingle()
     : { data: null }
 
+  const { data: reminders } = coupleId
+    ? await supabase.from('reminders').select('*').eq('couple_id', coupleId).order('created_at', { ascending: false })
+    : { data: null }
+
   return (
     <SettingsContent
       profile={profile}
@@ -45,6 +50,7 @@ export default async function SettingsPage(): Promise<React.ReactElement> {
       partner={partner}
       pendingInvite={pendingInvite}
       userEmail={user.email ?? ''}
+      reminders={(reminders as DbReminder[]) ?? []}
     />
   )
 }

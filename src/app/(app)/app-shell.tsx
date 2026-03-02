@@ -21,7 +21,10 @@ export function AppShell({ children, displayName, avatarUrl }: AppShellProps): R
         <Header displayName={displayName} avatarUrl={avatarUrl} />
 
         {/* Page Content */}
-        <main className="flex-1 overflow-auto pb-16 lg:pb-0 px-2 sm:px-4 lg:px-8 py-6 safe-area-bottom scroll-smooth">
+        <main
+          id="main-content"
+          className="flex-1 overflow-auto pb-16 lg:pb-0 px-2 sm:px-4 lg:px-8 py-6 safe-area-bottom scroll-smooth"
+        >
           {children}
         </main>
 

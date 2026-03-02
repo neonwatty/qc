@@ -11,8 +11,8 @@ export default async function NotesPage() {
     return (
       <div className="flex min-h-[50vh] items-center justify-center">
         <div className="text-center">
-          <h2 className="mb-2 text-xl font-bold">No couple found</h2>
-          <p className="text-sm text-muted-foreground">Complete onboarding to start using notes.</p>
+          <h2 className="mb-2 text-xl font-bold">Complete onboarding first</h2>
+          <p className="text-sm text-muted-foreground">Set up your couple profile to start using notes.</p>
         </div>
       </div>
     )
@@ -26,6 +26,7 @@ export default async function NotesPage() {
     .select('*')
     .eq('couple_id', profile.couple_id)
     .order('created_at', { ascending: false })
+    .limit(100)
 
   // Fetch active categories for the couple
   const { data: categories } = await supabase

@@ -28,6 +28,7 @@ interface DashboardData {
   pendingRequestCount: number
   partnerTopLanguage: { title: string; category: string } | null
   todayActionCount: number
+  frequencyGoal: string | null
 }
 
 async function fetchDashboardData(coupleId: string, userId: string, supabase: SupabaseClient): Promise<DashboardData> {
@@ -67,8 +68,8 @@ async function fetchDashboardData(coupleId: string, userId: string, supabase: Su
       .eq('couple_id', coupleId)
       .eq('privacy', 'shared'),
     getStreakData(coupleId, supabase),
-    getRecentActivity(coupleId, supabase, 5),
-    supabase.from('couples').select('relationship_start_date').eq('id', coupleId).single(),
+    getRecentActivity(coupleId, supabase, 20),
+    supabase.from('couples').select('relationship_start_date, settings').eq('id', coupleId).single(),
     supabase
       .from('check_ins')
       .select('completed_at')
@@ -109,6 +110,18 @@ async function fetchDashboardData(coupleId: string, userId: string, supabase: Su
     supabase.from('love_actions').select('id', { count: 'exact', head: true }).eq('couple_id', coupleId),
   ])
 
+  // Log any query errors for debugging (counts fallback to 0 gracefully)
+  const queryErrors = [
+    checkIns.error && `check_ins: ${checkIns.error.message}`,
+    notes.error && `notes: ${notes.error.message}`,
+    milestones.error && `milestones: ${milestones.error.message}`,
+    actionItems.error && `action_items: ${actionItems.error.message}`,
+    couple.error && `couple: ${couple.error.message}`,
+  ].filter(Boolean)
+  if (queryErrors.length > 0) {
+    console.error('[dashboard] Query errors:', queryErrors.join('; '))
+  }
+
   return {
     checkInCount: checkIns.count ?? 0,
     noteCount: notes.count ?? 0,
@@ -119,6 +132,8 @@ async function fetchDashboardData(coupleId: string, userId: string, supabase: Su
     streakData: streak,
     activities: activity,
     relationshipStartDate: couple.data?.relationship_start_date ?? null,
+    frequencyGoal:
+      ((couple.data?.settings as Record<string, unknown> | null)?.checkInFrequency as string | null) ?? null,
     lastCheckInDate: lastCheckIn.data?.completed_at ?? null,
     topLanguages: (topLangs.data ?? []).map((l) => ({ title: l.title, category: l.category })),
     todayReminders: (reminders.data ?? []).map((r) => ({
@@ -152,6 +167,7 @@ const DEFAULTS: DashboardData = {
   pendingRequestCount: 0,
   partnerTopLanguage: null,
   todayActionCount: 0,
+  frequencyGoal: null,
 }
 
 export default async function DashboardPage() {

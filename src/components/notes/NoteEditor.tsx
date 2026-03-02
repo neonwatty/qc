@@ -61,7 +61,12 @@ function TagList({ tags, onRemove }: { tags: string[]; onRemove: (tag: string) =
           className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary"
         >
           #{tag}
-          <button type="button" onClick={() => onRemove(tag)} className="rounded-full hover:bg-primary/20">
+          <button
+            type="button"
+            onClick={() => onRemove(tag)}
+            aria-label={`Remove tag ${tag}`}
+            className="rounded-full hover:bg-primary/20"
+          >
             <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
@@ -167,15 +172,28 @@ function NoteEditorForm({ note, onClose }: { note?: DbNote | null; onClose: () =
   const charCount = content.length
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 sm:items-center" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 sm:items-center"
+      onClick={onClose}
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') onClose()
+      }}
+    >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={isEditing ? 'Edit Note' : 'New Note'}
         onClick={(e) => e.stopPropagation()}
         className="flex w-full max-w-2xl flex-col rounded-t-2xl bg-card shadow-2xl sm:rounded-2xl"
         style={{ maxHeight: '90vh' }}
       >
         <div className="flex items-center justify-between border-b border-border p-4">
           <h2 className="text-lg font-semibold">{isEditing ? 'Edit Note' : 'New Note'}</h2>
-          <button onClick={onClose} className="rounded-md p-2 text-muted-foreground hover:bg-muted">
+          <button
+            onClick={onClose}
+            aria-label="Close editor"
+            className="rounded-md p-2 text-muted-foreground hover:bg-muted"
+          >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>

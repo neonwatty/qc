@@ -3,7 +3,7 @@
 /* eslint-disable max-lines */
 /* eslint-disable max-lines-per-function */
 
-import { createContext, useContext, useState, useCallback, useEffect } from 'react'
+import { createContext, useContext, useState, useCallback, useEffect, useMemo } from 'react'
 import type { SessionSettings, SessionTemplate, SessionSettingsProposal } from '@/types'
 import type { DbSessionSettings, DbSessionSettingsProposal } from '@/types/database'
 import { createClient } from '@/lib/supabase/client'
@@ -289,21 +289,20 @@ export function SessionSettingsProvider({ children, coupleId }: SessionSettingsP
     return currentSettings || { ...DEFAULT_SETTINGS, coupleId }
   }, [currentSettings, coupleId])
 
-  return (
-    <SessionSettingsContext.Provider
-      value={{
-        currentSettings,
-        templates: DEFAULT_TEMPLATES,
-        pendingProposal,
-        proposeSettings,
-        respondToProposal,
-        applyTemplate,
-        getActiveSettings,
-      }}
-    >
-      {children}
-    </SessionSettingsContext.Provider>
+  const value = useMemo(
+    () => ({
+      currentSettings,
+      templates: DEFAULT_TEMPLATES,
+      pendingProposal,
+      proposeSettings,
+      respondToProposal,
+      applyTemplate,
+      getActiveSettings,
+    }),
+    [currentSettings, pendingProposal, proposeSettings, respondToProposal, applyTemplate, getActiveSettings],
   )
+
+  return <SessionSettingsContext.Provider value={value}>{children}</SessionSettingsContext.Provider>
 }
 
 export function useSessionSettings(): SessionSettingsContextType {

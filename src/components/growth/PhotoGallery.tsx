@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useMemo } from 'react'
+import Image from 'next/image'
 import { Plus, Heart, Calendar, Award } from 'lucide-react'
 
 import { Button } from '@/components/ui/button'
@@ -66,10 +67,12 @@ export function PhotoGallery({ milestones, onAddMemory }: PhotoGalleryProps): Re
                 onClick={() => setSelectedMilestone(milestone)}
               >
                 {milestone.photoUrl ? (
-                  <img
+                  <Image
                     src={milestone.photoUrl}
                     alt={milestone.title}
-                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-110"
+                    fill
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    className="object-cover transition-transform duration-300 group-hover:scale-110"
                   />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-pink-100 to-purple-100 dark:from-pink-900/30 dark:to-purple-900/30">
@@ -110,11 +113,15 @@ export function PhotoGallery({ milestones, onAddMemory }: PhotoGalleryProps): Re
 
               <div className="space-y-4">
                 {selectedMilestone.photoUrl ? (
-                  <img
-                    src={selectedMilestone.photoUrl}
-                    alt={selectedMilestone.title}
-                    className="w-full rounded-lg object-cover"
-                  />
+                  <div className="relative aspect-video w-full">
+                    <Image
+                      src={selectedMilestone.photoUrl}
+                      alt={selectedMilestone.title}
+                      fill
+                      sizes="(max-width: 672px) 100vw, 672px"
+                      className="rounded-lg object-cover"
+                    />
+                  </div>
                 ) : (
                   <div className="flex h-48 items-center justify-center rounded-lg bg-gradient-to-br from-pink-100 to-purple-100 dark:from-pink-900/30 dark:to-purple-900/30">
                     <span className="text-7xl">{selectedMilestone.icon ?? '🏆'}</span>

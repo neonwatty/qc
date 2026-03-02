@@ -78,7 +78,6 @@ describe('MobileActionBar', () => {
     render(<MobileActionBar />)
     expect(screen.getByText('Check-in')).toBeDefined()
     expect(screen.getByText('Add Note')).toBeDefined()
-    expect(screen.getByText('Gratitude')).toBeDefined()
   })
 
   it('returns null on unmatched route', () => {

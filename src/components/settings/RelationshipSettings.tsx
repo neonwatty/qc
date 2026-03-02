@@ -6,6 +6,7 @@ import { toast } from 'sonner'
 import { leaveCoupleAction, resendInviteAction } from '@/app/(app)/settings/actions'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { RedoOnboardingButton } from '@/components/settings/RedoOnboardingButton'
 import { hapticFeedback } from '@/lib/haptics'
 import type { DbCouple } from '@/types/database'
 
@@ -129,6 +130,10 @@ export function RelationshipSettings({ couple, partner, pendingInvite }: Props):
               Leave Couple
             </Button>
           )}
+
+          <div className="border-t border-border pt-3 mt-3">
+            <RedoOnboardingButton />
+          </div>
         </CardContent>
       </Card>
     </div>

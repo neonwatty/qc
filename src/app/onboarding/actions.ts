@@ -14,7 +14,11 @@ import { validate, emailSchema, nameSchema } from '@/lib/validation'
 const onboardingSchema = z.object({
   displayName: nameSchema,
   partnerEmail: emailSchema,
-  relationshipStartDate: z.string().optional(),
+  relationshipStartDate: z
+    .string()
+    .optional()
+    .refine((val) => !val || !isNaN(Date.parse(val)), { message: 'Invalid date format' })
+    .refine((val) => !val || new Date(val) <= new Date(), { message: 'Date cannot be in the future' }),
   selectedLanguages: z.string().optional(),
   preferences: z.string().optional(),
   reminderDay: z.string().optional(),

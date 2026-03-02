@@ -44,6 +44,10 @@ describe('sendEmail', () => {
       to: 'test@example.com',
       subject: 'Test Subject',
       react: mockReactElement,
+      headers: {
+        'List-Unsubscribe': '<https://tryqc.co/api/email/unsubscribe?email=test%40example.com>',
+        'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+      },
     })
   })
 

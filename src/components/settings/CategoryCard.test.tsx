@@ -47,6 +47,7 @@ describe('CategoryCard (settings)', () => {
     isActive: true,
     isSystem: false,
     sortOrder: 1,
+    prompts: [],
     createdAt: '2025-01-01T00:00:00Z',
   }
 

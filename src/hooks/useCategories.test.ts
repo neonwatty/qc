@@ -44,6 +44,7 @@ function makeDbCategory(overrides: Partial<DbCategory> = {}): DbCategory {
     is_active: true,
     is_system: true,
     sort_order: 1,
+    prompts: [],
     created_at: '2025-01-01T00:00:00Z',
     ...overrides,
   }
@@ -91,6 +92,7 @@ describe('useCategories', () => {
       isActive: true,
       isSystem: true,
       sortOrder: 1,
+      prompts: [],
       createdAt: '2025-01-01T00:00:00Z',
     })
     expect(result.current.categories[1].name).toBe('Intimacy')

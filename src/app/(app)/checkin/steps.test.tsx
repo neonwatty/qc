@@ -43,7 +43,9 @@ vi.mock('@/contexts/SessionSettingsContext', () => ({
 }))
 vi.mock('@/hooks/useCategories', () => ({
   useCategories: vi.fn(() => ({
-    categories: [{ id: 'cat1', name: 'Communication', description: 'Talk more', icon: '💬', sortOrder: 0 }],
+    categories: [
+      { id: 'cat1', name: 'Communication', description: 'Talk more', icon: '💬', sortOrder: 0, prompts: [] },
+    ],
   })),
 }))
 vi.mock('next/navigation', () => ({ useRouter: vi.fn(() => ({ push: vi.fn() })) }))
@@ -64,6 +66,9 @@ vi.mock('@/components/checkin/CategoryGrid', () => ({
 }))
 vi.mock('@/components/checkin/NavigationControls', () => ({
   NavigationControls: () => <div data-testid="nav-controls" />,
+}))
+vi.mock('@/components/checkin/DiscussionView', () => ({
+  DiscussionView: () => <div data-testid="discussion-view" />,
 }))
 vi.mock('@/components/checkin/ActionItems', () => ({
   ActionItems: () => <div data-testid="action-items" />,
@@ -122,10 +127,10 @@ describe('CategoryDiscussionStep', () => {
     expect(screen.getByTestId('turn-indicator')).toBeDefined()
   })
 
-  it('renders category name from mock', async () => {
+  it('renders DiscussionView', async () => {
     const Comp = await load()
     render(<Comp />)
-    expect(screen.getByText('Communication')).toBeDefined()
+    expect(screen.getByTestId('discussion-view')).toBeDefined()
   })
 })
 

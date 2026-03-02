@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion'
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { Plus, Heart, MessageCircle, Camera, Calendar } from 'lucide-react'
+import { Plus, MessageCircle, Camera, Calendar } from 'lucide-react'
 
 import { cn } from '@/lib/utils'
 import { FAB } from '@/components/ui/TouchButton'
@@ -29,28 +29,21 @@ const actionConfigs: PrimaryActionConfig[] = [
     path: '/notes',
     icon: Plus,
     label: 'New Note',
-    action: () => console.log('New note'),
+    action: '/notes?new=1',
     gradient: 'from-blue-500 to-indigo-500',
-  },
-  {
-    path: '/checkin',
-    icon: Heart,
-    label: 'Quick Gratitude',
-    action: () => console.log('Quick gratitude'),
-    gradient: 'from-purple-500 to-pink-500',
   },
   {
     path: '/growth',
     icon: Camera,
     label: 'Add Milestone',
-    action: () => console.log('Add milestone'),
+    action: '/growth?new=1',
     gradient: 'from-green-500 to-teal-500',
   },
   {
     path: /\/settings/,
     icon: Calendar,
     label: 'Schedule Reminder',
-    action: () => console.log('Schedule reminder'),
+    action: '/reminders',
     gradient: 'from-orange-500 to-amber-500',
   },
 ]
@@ -122,21 +115,12 @@ export const MobileActionBar: React.FC<ActionBarProps> = ({ className }) => {
       case '/dashboard':
         return [
           { icon: MessageCircle, label: 'Check-in', href: '/checkin', primary: true },
-          { icon: Plus, label: 'Add Note', action: () => console.log('Add note') },
-          { icon: Heart, label: 'Gratitude', action: () => console.log('Gratitude') },
+          { icon: Plus, label: 'Add Note', href: '/notes?new=1' },
         ]
       case '/notes':
-        return [
-          { icon: Plus, label: 'New Note', action: () => console.log('New note'), primary: true },
-          { icon: Camera, label: 'Photo Note', action: () => console.log('Photo note') },
-        ]
-      case '/checkin':
-        return [{ icon: Heart, label: 'Quick Save', action: () => console.log('Quick save'), primary: true }]
+        return [{ icon: Plus, label: 'New Note', href: '/notes?new=1', primary: true }]
       case '/growth':
-        return [
-          { icon: Camera, label: 'Add Photo', action: () => console.log('Add photo'), primary: true },
-          { icon: Plus, label: 'Milestone', action: () => console.log('Milestone') },
-        ]
+        return [{ icon: Camera, label: 'Milestone', href: '/growth?new=1', primary: true }]
       default:
         return []
     }
@@ -159,35 +143,25 @@ export const MobileActionBar: React.FC<ActionBarProps> = ({ className }) => {
         const Icon = action.icon
         const isPrimary = action.primary
 
-        const ActionButton = (
-          <motion.button
-            key={action.label}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className={cn(
-              'flex flex-col items-center justify-center h-16 px-4 rounded-2xl shadow-lg transition-all',
-              isPrimary
-                ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white flex-1 max-w-40'
-                : 'bg-white text-gray-700 border border-gray-200 min-w-16',
-            )}
-            onClick={'action' in action ? action.action : undefined}
-          >
-            <Icon className={cn('h-5 w-5 mb-1', isPrimary ? 'text-white' : 'text-gray-600')} />
-            <span className={cn('text-xs font-medium', isPrimary ? 'text-white' : 'text-gray-700')}>
-              {action.label}
-            </span>
-          </motion.button>
+        return (
+          <Link key={action.label} href={action.href} className={isPrimary ? 'flex-1' : ''}>
+            <motion.div
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className={cn(
+                'flex flex-col items-center justify-center h-16 px-4 rounded-2xl shadow-lg transition-all',
+                isPrimary
+                  ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white max-w-40'
+                  : 'bg-white text-gray-700 border border-gray-200 min-w-16',
+              )}
+            >
+              <Icon className={cn('h-5 w-5 mb-1', isPrimary ? 'text-white' : 'text-gray-600')} />
+              <span className={cn('text-xs font-medium', isPrimary ? 'text-white' : 'text-gray-700')}>
+                {action.label}
+              </span>
+            </motion.div>
+          </Link>
         )
-
-        if ('href' in action && action.href) {
-          return (
-            <Link key={action.label} href={action.href} className="flex-1">
-              {ActionButton}
-            </Link>
-          )
-        }
-
-        return ActionButton
       })}
     </motion.div>
   )
