@@ -17,9 +17,12 @@ export async function GET(request: Request) {
 
   if (error) {
     console.error('[auth/callback]', error.message)
-    return NextResponse.redirect(
-      `${origin}/login?error=${encodeURIComponent('Authentication failed. Please try again.')}`,
-    )
+    const userMessage = error.message.includes('expired')
+      ? 'Your login link has expired. Please try signing in again.'
+      : error.message.includes('already')
+        ? 'This login link has already been used. Please try signing in again.'
+        : 'Authentication failed. Please try again.'
+    return NextResponse.redirect(`${origin}/login?error=${encodeURIComponent(userMessage)}`)
   }
 
   const userId = sessionData.user?.id

@@ -11,7 +11,12 @@ export default async function RemindersPage(): Promise<React.ReactElement> {
 
   const [{ data: reminders }, { data: partner }] = await Promise.all([
     coupleId
-      ? supabase.from('reminders').select('*').eq('couple_id', coupleId).order('scheduled_for', { ascending: true })
+      ? supabase
+          .from('reminders')
+          .select('*')
+          .eq('couple_id', coupleId)
+          .order('scheduled_for', { ascending: true })
+          .limit(100)
       : Promise.resolve({ data: [] as never[] }),
     coupleId
       ? supabase.from('profiles').select('id').eq('couple_id', coupleId).neq('id', user.id).maybeSingle()

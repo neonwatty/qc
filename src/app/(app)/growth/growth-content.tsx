@@ -8,7 +8,11 @@ import { PageContainer } from '@/components/layout/PageContainer'
 import { Button } from '@/components/ui/button'
 import { Timeline, PhotoGallery, MilestoneCreator } from '@/components/growth'
 import { GrowthProgressBars } from '@/components/growth/GrowthProgressBars'
-import { HealthChart } from '@/components/growth/HealthChart'
+import dynamic from 'next/dynamic'
+
+const HealthChart = dynamic(() => import('@/components/growth/HealthChart').then((m) => ({ default: m.HealthChart })), {
+  loading: () => <div className="h-64 animate-pulse rounded-lg bg-muted" />,
+})
 import { useMilestones } from '@/hooks/useMilestones'
 import { useRealtimeCouple } from '@/hooks/useRealtimeCouple'
 import type { MilestoneInput } from '@/hooks/useMilestones'
