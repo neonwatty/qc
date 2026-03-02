@@ -59,12 +59,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
   switch (payload.type) {
     case 'email.delivered': {
-      console.log('Email delivered:', payload.data.email_id)
       break
     }
 
     case 'email.bounced': {
-      console.log('Email bounced:', payload.data.email_id)
       for (const email of payload.data.to) {
         const { error } = await supabase
           .from('profiles')
@@ -76,7 +74,6 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
 
     case 'email.complained': {
-      console.log('Email complaint:', payload.data.email_id)
       for (const email of payload.data.to) {
         const { error } = await supabase
           .from('profiles')

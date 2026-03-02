@@ -38,6 +38,10 @@ vi.mock('@/lib/utils', () => ({
   cn: (...args: unknown[]) => args.filter(Boolean).join(' '),
 }))
 
+vi.mock('next/image', () => ({
+  default: (props: React.ImgHTMLAttributes<HTMLImageElement>) => <img {...props} />,
+}))
+
 vi.mock('./milestone-card-config', () => {
   const DummyIcon = () => <span data-testid="category-icon" />
   const makeConfig = () => ({

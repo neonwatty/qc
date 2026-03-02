@@ -3,6 +3,8 @@
 import { redirect } from 'next/navigation'
 import { z } from 'zod'
 
+import { headers } from 'next/headers'
+
 import { requireAuth } from '@/lib/auth'
 import { acceptInvite, getInviteByToken } from '@/lib/couples'
 import { createRateLimiter } from '@/lib/rate-limit'
@@ -24,7 +26,9 @@ export async function validateInvite(token: string): Promise<{
   inviterEmail: string | null
   error: string | null
 }> {
-  if (!inviteLimiter.check(token)) {
+  const headersList = await headers()
+  const ip = headersList.get('x-forwarded-for') ?? 'unknown'
+  if (!inviteLimiter.check(ip)) {
     return { valid: false, inviterEmail: null, error: 'Too many requests. Please try again later.' }
   }
 

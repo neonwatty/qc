@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRealtimeCouple } from '@/hooks/useRealtimeCouple'
 import type { Category } from '@/types'
@@ -22,7 +22,7 @@ function mapDbToCategory(row: DbCategory): Category {
 export function useCategories(coupleId: string | null) {
   const [categories, setCategories] = useState<Category[]>([])
   const [isLoading, setIsLoading] = useState(true)
-  const supabase = createClient()
+  const supabase = useMemo(() => createClient(), [])
 
   useEffect(() => {
     async function loadCategories() {
