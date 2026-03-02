@@ -79,21 +79,34 @@ export function NotesPageContent({ notes: initialNotes, currentUserId, coupleId,
     onDelete: (record) => setNotes((prev) => prev.filter((n) => n.id !== record.id)),
   })
 
-  const handleSelect = useCallback((note: DbNote) => {
-    setEditingNote(note)
-    setEditorOpen(true)
-  }, [])
+  const handleSelect = useCallback(
+    (note: DbNote) => {
+      // Only allow editing notes the current user authored
+      if (note.author_id !== currentUserId) {
+        toast.error('You can only edit notes you created')
+        return
+      }
+      setEditingNote(note)
+      setEditorOpen(true)
+    },
+    [currentUserId],
+  )
 
   const handleDelete = useCallback((note: DbNote) => {
     setNotes((prev) => prev.filter((n) => n.id !== note.id))
-    deleteNoteById(note.id).then(({ error }) => {
-      if (error) {
+    deleteNoteById(note.id)
+      .then(({ error }) => {
+        if (error) {
+          toast.error('Failed to delete note')
+          setNotes((prev) => [...prev, note].sort((a, b) => b.created_at.localeCompare(a.created_at)))
+        } else {
+          toast.success('Note deleted')
+        }
+      })
+      .catch(() => {
         toast.error('Failed to delete note')
         setNotes((prev) => [...prev, note].sort((a, b) => b.created_at.localeCompare(a.created_at)))
-      } else {
-        toast.success('Note deleted')
-      }
-    })
+      })
   }, [])
 
   const handleNewNote = useCallback(() => {
@@ -128,14 +141,19 @@ export function NotesPageContent({ notes: initialNotes, currentUserId, coupleId,
     setNotes((prev) => prev.filter((n) => !selectedIds.has(n.id)))
     setSelectedIds(new Set())
     setSelectMode(false)
-    bulkDeleteNotes(ids).then(({ error }) => {
-      if (error) {
+    bulkDeleteNotes(ids)
+      .then(({ error }) => {
+        if (error) {
+          toast.error('Failed to delete notes')
+          setNotes((prev) => [...prev, ...deletedNotes].sort((a, b) => b.created_at.localeCompare(a.created_at)))
+        } else {
+          toast.success(`${ids.length} ${ids.length === 1 ? 'note' : 'notes'} deleted`)
+        }
+      })
+      .catch(() => {
         toast.error('Failed to delete notes')
         setNotes((prev) => [...prev, ...deletedNotes].sort((a, b) => b.created_at.localeCompare(a.created_at)))
-      } else {
-        toast.success(`${ids.length} ${ids.length === 1 ? 'note' : 'notes'} deleted`)
-      }
-    })
+      })
   }, [selectedIds, notes])
 
   const handleExitSelectMode = useCallback(() => {

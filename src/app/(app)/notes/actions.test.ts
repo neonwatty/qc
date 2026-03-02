@@ -97,9 +97,8 @@ describe('updateNote', () => {
 
     mockSupabase._queryBuilder.eq = vi.fn().mockReturnThis()
     mockSupabase._queryBuilder.update = vi.fn().mockReturnValue(mockSupabase._queryBuilder)
-    // Chain resolves with no error at the end
-    mockSupabase._queryBuilder.eq.mockReturnValueOnce(mockSupabase._queryBuilder).mockReturnValue({
-      data: null,
+    mockSupabase._queryBuilder.select = vi.fn().mockReturnValue({
+      data: [{ id: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc' }],
       error: null,
     })
 
@@ -123,10 +122,11 @@ describe('updateNote', () => {
     const { updateNote } = await import('./actions')
 
     mockSupabase._queryBuilder.update = vi.fn().mockReturnValue(mockSupabase._queryBuilder)
-    mockSupabase._queryBuilder.eq = vi
-      .fn()
-      .mockReturnValueOnce(mockSupabase._queryBuilder)
-      .mockReturnValue({ data: null, error: { message: 'Update failed' } })
+    mockSupabase._queryBuilder.eq = vi.fn().mockReturnThis()
+    mockSupabase._queryBuilder.select = vi.fn().mockReturnValue({
+      data: null,
+      error: { message: 'Update failed' },
+    })
 
     const fd = makeFormData({ id: 'cccccccc-cccc-4ccc-8ccc-cccccccccccc', content: 'Updated' })
     const result = await updateNote({ error: null }, fd)

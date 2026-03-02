@@ -87,10 +87,20 @@ export async function updateNote(_prev: NoteActionState, formData: FormData): Pr
     return { error: validationError ?? 'Validation failed' }
   }
 
-  const { error: updateError } = await supabase.from('notes').update(input).eq('id', id).eq('author_id', user.id)
+  const { data, error: updateError } = await supabase
+    .from('notes')
+    .update(input)
+    .eq('id', id)
+    .eq('author_id', user.id)
+    .select()
 
   if (updateError) {
     return { error: sanitizeDbError(updateError, 'updateNote') }
+  }
+
+  // Check if any rows were actually updated (RLS might have blocked it)
+  if (!data || data.length === 0) {
+    return { error: 'You can only edit notes you created' }
   }
 
   revalidatePath('/notes')
