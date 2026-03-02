@@ -9,19 +9,19 @@ export default async function RequestsPage(): Promise<React.ReactElement> {
 
   const coupleId = profile?.couple_id ?? null
 
-  const { data: requests } = coupleId
-    ? await supabase
-        .from('requests')
-        .select('*')
-        .eq('couple_id', coupleId)
-        .order('created_at', { ascending: false })
-        .limit(100)
-    : { data: [] }
-
-  // Get partner profile for creating requests
-  const { data: partner } = coupleId
-    ? await supabase.from('profiles').select('id, display_name').eq('couple_id', coupleId).neq('id', user.id).single()
-    : { data: null }
+  const [{ data: requests }, { data: partner }] = await Promise.all([
+    coupleId
+      ? supabase
+          .from('requests')
+          .select('*')
+          .eq('couple_id', coupleId)
+          .order('created_at', { ascending: false })
+          .limit(100)
+      : Promise.resolve({ data: [] as never[] }),
+    coupleId
+      ? supabase.from('profiles').select('id, display_name').eq('couple_id', coupleId).neq('id', user.id).single()
+      : Promise.resolve({ data: null }),
+  ])
 
   return (
     <RequestsContent

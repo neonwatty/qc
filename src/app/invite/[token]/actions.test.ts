@@ -13,6 +13,9 @@ vi.mock('@/lib/auth', () => ({
 vi.mock('@/lib/supabase/server', () => ({
   createClient: vi.fn(),
 }))
+vi.mock('next/headers', () => ({
+  headers: vi.fn().mockResolvedValue(new Map([['x-forwarded-for', '127.0.0.1']])),
+}))
 vi.mock('@/lib/couples', () => ({
   getInviteByToken: vi.fn(),
   acceptInvite: vi.fn(),

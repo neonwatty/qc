@@ -222,7 +222,7 @@ const MobileSheet: React.FC<MobileSheetProps> = ({
 
             {showCloseButton && (
               <div className={cn('absolute z-10', getCloseButtonPosition(side))}>
-                <TouchButton variant="ghost" size="icon" onClick={onClose} className="h-8 w-8">
+                <TouchButton variant="ghost" size="icon" onClick={onClose} className="h-8 w-8" aria-label="Close">
                   <X className="h-4 w-4" />
                 </TouchButton>
               </div>

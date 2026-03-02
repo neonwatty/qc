@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Image from 'next/image'
 import { motion } from 'framer-motion'
 import { Award, CheckCircle, ChevronDown, ChevronRight, Clock } from 'lucide-react'
 
@@ -117,7 +118,13 @@ function FeaturedVariant({
     >
       {milestone.photoUrl && (
         <div className="relative h-40 w-full">
-          <img src={milestone.photoUrl} alt={milestone.title} className="h-full w-full object-cover" />
+          <Image
+            src={milestone.photoUrl}
+            alt={milestone.title}
+            fill
+            className="object-cover"
+            sizes="(max-width: 768px) 100vw, 50vw"
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
           <div className="absolute bottom-3 left-3">
             <RarityBadge

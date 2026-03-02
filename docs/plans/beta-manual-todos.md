@@ -14,3 +14,7 @@ Items that require human action outside the codebase (service provider settings,
 - [ ] Verify all required environment variables are set in the Vercel dashboard before launch (dimension: ops, severity: MEDIUM)
 - [ ] Set up Resend API key in production (currently intentionally skipped) (dimension: ops, severity: HIGH)
 - [ ] Consider adding CSP report-uri directive for security violation monitoring (dimension: ops, severity: LOW)
+
+### From Iteration 3 (2026-03-02)
+
+- [ ] Add `.github/SECURITY.md` with vulnerability reporting instructions (dimension: ops, severity: LOW)

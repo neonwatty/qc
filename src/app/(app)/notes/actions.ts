@@ -7,6 +7,16 @@ import { requireAuth } from '@/lib/auth'
 import { sanitizeDbError } from '@/lib/utils'
 import { validate } from '@/lib/validation'
 
+function safeParseJsonArray(value: string | null): unknown[] {
+  if (!value) return []
+  try {
+    const parsed = JSON.parse(value)
+    return Array.isArray(parsed) ? parsed : []
+  } catch {
+    return []
+  }
+}
+
 const noteSchema = z.object({
   content: z.string().min(1, 'Content is required').max(5000, 'Content must be 5000 characters or less'),
   privacy: z.enum(['private', 'shared', 'draft']),
@@ -31,7 +41,7 @@ export async function createNote(_prev: NoteActionState, formData: FormData): Pr
   const raw = {
     content: formData.get('content'),
     privacy: formData.get('privacy') ?? 'draft',
-    tags: JSON.parse((formData.get('tags') as string) || '[]'),
+    tags: safeParseJsonArray(formData.get('tags') as string),
     category_id: formData.get('category_id') || null,
     check_in_id: formData.get('check_in_id') || null,
   }
@@ -79,7 +89,7 @@ export async function updateNote(_prev: NoteActionState, formData: FormData): Pr
 
   if (content !== null) raw.content = content
   if (privacy !== null) raw.privacy = privacy
-  if (tags !== null) raw.tags = JSON.parse(tags as string)
+  if (tags !== null) raw.tags = safeParseJsonArray(tags as string)
 
   const { data: input, error: validationError } = validate(updateNoteSchema, raw)
 

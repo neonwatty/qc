@@ -59,7 +59,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   const errors: string[] = []
   const sentReminderIds: string[] = []
 
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://example.com'
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://tryqc.co'
 
   for (const reminder of reminders) {
     const profile = profileMap.get(reminder.created_by)

@@ -99,3 +99,45 @@ Holistic beta-readiness audit across feature completeness, error handling, UX po
 - [ ] Bulk delete undo/soft-delete for notes (dimension: error-handling, severity: MEDIUM)
 - [ ] Add not-found.tsx pages for invalid routes (dimension: error-handling, severity: MEDIUM)
 - [ ] Cookie consent banner for GDPR (dimension: feature, severity: LOW)
+
+### Iteration 3 (2026-03-02)
+
+**Findings:** 50+ total across 5 dimensions (8 HIGH, 15 MEDIUM, 27+ LOW)
+**Code fixes applied:** 10
+**Manual to-dos added:** 1
+**Deferred:** 15
+
+#### Fixed (Code)
+
+- [x] Wrap JSON.parse in try-catch in notes actions to prevent unhandled errors on malformed tags (dimension: error-handling, severity: HIGH)
+- [x] Add aria-label="Close" to MobileSheet close button for screen reader accessibility (dimension: polish, severity: HIGH)
+- [x] Fix invite rate limiter to use IP address instead of token — prevents brute-force on invite tokens (dimension: ops, severity: HIGH)
+- [x] Remove PII (email IDs) from email webhook console.log statements (dimension: ops, severity: HIGH)
+- [x] Replace hardcoded `example.com` fallback URL in cron with `tryqc.co` (dimension: ops, severity: MEDIUM)
+- [x] Fix useCategories hook infinite re-render — memoize Supabase client instance (dimension: performance, severity: HIGH)
+- [x] Parallelize sequential queries in requests page with Promise.all (dimension: performance, severity: MEDIUM)
+- [x] Parallelize 5 sequential queries in settings page with Promise.all (dimension: performance, severity: MEDIUM)
+- [x] Replace raw `<img>` with next/image in MilestoneCard featured variant (dimension: performance, severity: MEDIUM)
+- [x] Add not-found.tsx for (app) route group (dimension: error-handling, severity: MEDIUM)
+
+#### Manual To-Dos Added
+
+- Add SECURITY.md with vulnerability reporting instructions (dimension: ops, severity: LOW)
+
+#### Deferred
+
+- [ ] Offline/network failure detection (dimension: error-handling, severity: HIGH, requires architectural decision)
+- [ ] Context provider route-based splitting (dimension: performance, severity: HIGH, requires architectural redesign)
+- [ ] Dashboard N+1 queries — consolidate into DB view/RPC (dimension: performance, severity: HIGH, needs migration)
+- [ ] Email re-subscription UI (dimension: feature, severity: HIGH, feature work)
+- [ ] Quiet hours enforcement in cron job (dimension: feature, severity: HIGH, needs product decision on schedule format)
+- [ ] In-memory rate limiter not persistent across instances (dimension: ops, severity: HIGH, needs Redis or external store)
+- [ ] Add Suspense boundaries for streaming (dimension: performance, severity: MEDIUM)
+- [ ] Add aria-live regions for dynamic content updates (dimension: polish, severity: MEDIUM)
+- [ ] Avatar upload via Supabase Storage (dimension: feature, severity: MEDIUM, feature work)
+- [ ] Bulk delete undo/soft-delete for notes (dimension: error-handling, severity: MEDIUM)
+- [ ] Missing required field visual indicators on forms (dimension: polish, severity: MEDIUM)
+- [ ] Inconsistent form styling — raw select vs Radix Select (dimension: polish, severity: MEDIUM)
+- [ ] LoveLanguagesContext missing useCallback on realtime handlers (dimension: performance, severity: MEDIUM)
+- [ ] SessionSettingsContext sequential loads could be parallelized (dimension: performance, severity: MEDIUM)
+- [ ] Cookie consent banner for GDPR (dimension: feature, severity: LOW)
