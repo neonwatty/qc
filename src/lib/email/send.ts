@@ -16,11 +16,17 @@ interface SendEmailResult {
 }
 
 export async function sendEmail({ to, subject, react }: SendEmailParams): Promise<SendEmailResult> {
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL ?? 'https://tryqc.co'
+
   const { data, error } = await getResend().emails.send({
     from: EMAIL_FROM,
     to,
     subject,
     react,
+    headers: {
+      'List-Unsubscribe': `<${baseUrl}/api/email/unsubscribe?email=${encodeURIComponent(to)}>`,
+      'List-Unsubscribe-Post': 'List-Unsubscribe=One-Click',
+    },
   })
 
   return { data, error }

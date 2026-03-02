@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useReducer, useCallback, useEffect, useState } from 'react'
+import { createContext, useContext, useReducer, useCallback, useEffect, useState, useMemo } from 'react'
 import type { Note, ActionItem, DbCheckIn, DbActionItem } from '@/types'
 import type {
   CheckInContextValue,
@@ -228,7 +228,6 @@ export function CheckInProvider({ children, coupleId, userId }: CheckInProviderP
     error: null,
   })
   const [actionItems, setActionItems] = useState<ActionItem[]>([])
-
   useEffect(() => {
     async function loadActiveCheckIn() {
       const { data, error } = await fetchActiveCheckIn(coupleId)
@@ -277,15 +276,17 @@ export function CheckInProvider({ children, coupleId, userId }: CheckInProviderP
 
   const mutations = useCheckInMutations({ state, dispatch, coupleId, userId, actionItems })
   const queries = useCheckInQueries(state.session)
-
-  const contextValue: CheckInContextValue = {
-    ...state,
-    coupleId,
-    actionItems,
-    dispatch,
-    ...mutations,
-    ...queries,
-  }
+  const contextValue: CheckInContextValue = useMemo(
+    () => ({
+      ...state,
+      coupleId,
+      actionItems,
+      dispatch,
+      ...mutations,
+      ...queries,
+    }),
+    [state, coupleId, actionItems, dispatch, mutations, queries],
+  )
 
   return <CheckInContext.Provider value={contextValue}>{children}</CheckInContext.Provider>
 }

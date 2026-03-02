@@ -110,6 +110,18 @@ async function fetchDashboardData(coupleId: string, userId: string, supabase: Su
     supabase.from('love_actions').select('id', { count: 'exact', head: true }).eq('couple_id', coupleId),
   ])
 
+  // Log any query errors for debugging (counts fallback to 0 gracefully)
+  const queryErrors = [
+    checkIns.error && `check_ins: ${checkIns.error.message}`,
+    notes.error && `notes: ${notes.error.message}`,
+    milestones.error && `milestones: ${milestones.error.message}`,
+    actionItems.error && `action_items: ${actionItems.error.message}`,
+    couple.error && `couple: ${couple.error.message}`,
+  ].filter(Boolean)
+  if (queryErrors.length > 0) {
+    console.error('[dashboard] Query errors:', queryErrors.join('; '))
+  }
+
   return {
     checkInCount: checkIns.count ?? 0,
     noteCount: notes.count ?? 0,
