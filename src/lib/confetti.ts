@@ -1,10 +1,9 @@
-import confetti from 'canvas-confetti'
-
 /**
  * Celebration burst for check-in completion.
  * Fires from both sides of the screen.
  */
-export function celebrationBurst(): void {
+export async function celebrationBurst(): Promise<void> {
+  const confetti = (await import('canvas-confetti')).default
   const duration = 2000
   const end = Date.now() + duration
 
@@ -35,7 +34,8 @@ export function celebrationBurst(): void {
 /**
  * Milestone achievement confetti -- big center burst.
  */
-export function milestoneConfetti(): void {
+export async function milestoneConfetti(): Promise<void> {
+  const confetti = (await import('canvas-confetti')).default
   confetti({
     particleCount: 100,
     spread: 70,
@@ -47,7 +47,8 @@ export function milestoneConfetti(): void {
 /**
  * Streak milestone confetti -- fire emoji themed burst.
  */
-export function streakConfetti(): void {
+export async function streakConfetti(): Promise<void> {
+  const confetti = (await import('canvas-confetti')).default
   const defaults = {
     spread: 360,
     ticks: 60,

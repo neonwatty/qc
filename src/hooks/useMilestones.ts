@@ -57,12 +57,18 @@ async function fetchMilestones(supabase: ReturnType<typeof createClient>, couple
   return (data ?? []).map(dbRowToMilestone)
 }
 
+const MAX_PHOTO_SIZE = 10 * 1024 * 1024 // 10 MB
+
 async function uploadMilestonePhoto(
   supabase: ReturnType<typeof createClient>,
   coupleId: string | null,
   milestoneId: string,
   file: File,
 ): Promise<string> {
+  if (file.size > MAX_PHOTO_SIZE) {
+    throw new Error(`Photo must be under 10 MB (yours is ${(file.size / 1024 / 1024).toFixed(1)} MB)`)
+  }
+
   const ext = file.name.split('.').pop() ?? 'jpg'
   const path = `${coupleId}/${milestoneId}.${ext}`
 

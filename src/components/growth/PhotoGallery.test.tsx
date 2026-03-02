@@ -46,6 +46,10 @@ vi.mock('date-fns', () => ({
   parseISO: () => new Date('2025-01-15'),
 }))
 
+vi.mock('next/image', () => ({
+  default: (props: React.ImgHTMLAttributes<HTMLImageElement>) => <img {...props} />,
+}))
+
 const { PhotoGallery } = await import('./PhotoGallery')
 
 function makeMilestone(overrides: Partial<Milestone> = {}): Milestone {

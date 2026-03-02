@@ -21,7 +21,7 @@ describe('celebrationBurst', () => {
     const { celebrationBurst } = await import('./confetti')
     vi.stubGlobal('requestAnimationFrame', vi.fn())
 
-    celebrationBurst()
+    await celebrationBurst()
 
     expect(mockConfetti).toHaveBeenCalledTimes(2)
     expect(mockConfetti).toHaveBeenCalledWith(expect.objectContaining({ angle: 60, origin: { x: 0, y: 0.6 } }))
@@ -33,7 +33,7 @@ describe('celebrationBurst', () => {
     const rAF = vi.fn()
     vi.stubGlobal('requestAnimationFrame', rAF)
 
-    celebrationBurst()
+    await celebrationBurst()
 
     expect(rAF).toHaveBeenCalledTimes(1)
   })
@@ -42,7 +42,7 @@ describe('celebrationBurst', () => {
     const { celebrationBurst } = await import('./confetti')
     vi.stubGlobal('requestAnimationFrame', vi.fn())
 
-    celebrationBurst()
+    await celebrationBurst()
 
     expect(mockConfetti).toHaveBeenCalledWith(expect.objectContaining({ colors: ['#ec4899', '#a855f7', '#6366f1'] }))
   })
@@ -51,7 +51,7 @@ describe('celebrationBurst', () => {
 describe('milestoneConfetti', () => {
   it('fires a single burst with 100 particles', async () => {
     const { milestoneConfetti } = await import('./confetti')
-    milestoneConfetti()
+    await milestoneConfetti()
 
     expect(mockConfetti).toHaveBeenCalledTimes(1)
     expect(mockConfetti).toHaveBeenCalledWith(
@@ -61,7 +61,7 @@ describe('milestoneConfetti', () => {
 
   it('uses gold/amber/pink/purple color palette', async () => {
     const { milestoneConfetti } = await import('./confetti')
-    milestoneConfetti()
+    await milestoneConfetti()
 
     expect(mockConfetti).toHaveBeenCalledWith(
       expect.objectContaining({ colors: ['#fbbf24', '#f59e0b', '#d97706', '#ec4899', '#a855f7'] }),
@@ -72,7 +72,7 @@ describe('milestoneConfetti', () => {
 describe('streakConfetti', () => {
   it('fires two bursts with circle and square shapes', async () => {
     const { streakConfetti } = await import('./confetti')
-    streakConfetti()
+    await streakConfetti()
 
     expect(mockConfetti).toHaveBeenCalledTimes(2)
     expect(mockConfetti).toHaveBeenCalledWith(expect.objectContaining({ particleCount: 30, shapes: ['circle'] }))
@@ -81,14 +81,14 @@ describe('streakConfetti', () => {
 
   it('uses zero gravity and 360-degree spread', async () => {
     const { streakConfetti } = await import('./confetti')
-    streakConfetti()
+    await streakConfetti()
 
     expect(mockConfetti).toHaveBeenCalledWith(expect.objectContaining({ gravity: 0, spread: 360, decay: 0.96 }))
   })
 
   it('fires from center', async () => {
     const { streakConfetti } = await import('./confetti')
-    streakConfetti()
+    await streakConfetti()
 
     expect(mockConfetti).toHaveBeenCalledWith(expect.objectContaining({ origin: { x: 0.5, y: 0.5 } }))
   })

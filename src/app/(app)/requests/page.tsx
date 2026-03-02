@@ -10,7 +10,12 @@ export default async function RequestsPage(): Promise<React.ReactElement> {
   const coupleId = profile?.couple_id ?? null
 
   const { data: requests } = coupleId
-    ? await supabase.from('requests').select('*').eq('couple_id', coupleId).order('created_at', { ascending: false })
+    ? await supabase
+        .from('requests')
+        .select('*')
+        .eq('couple_id', coupleId)
+        .order('created_at', { ascending: false })
+        .limit(100)
     : { data: [] }
 
   // Get partner profile for creating requests

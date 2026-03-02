@@ -172,8 +172,17 @@ function NoteEditorForm({ note, onClose }: { note?: DbNote | null; onClose: () =
   const charCount = content.length
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 sm:items-center" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 sm:items-center"
+      onClick={onClose}
+      onKeyDown={(e) => {
+        if (e.key === 'Escape') onClose()
+      }}
+    >
       <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={isEditing ? 'Edit Note' : 'New Note'}
         onClick={(e) => e.stopPropagation()}
         className="flex w-full max-w-2xl flex-col rounded-t-2xl bg-card shadow-2xl sm:rounded-2xl"
         style={{ maxHeight: '90vh' }}

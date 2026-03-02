@@ -63,3 +63,39 @@ Holistic beta-readiness audit across feature completeness, error handling, UX po
 - [ ] Bulk delete undo/soft-delete for notes (dimension: error-handling, severity: MEDIUM)
 - [ ] Relationship date format validation in onboarding (dimension: error-handling, severity: MEDIUM)
 - [ ] Auth callback error details improvement (dimension: error-handling, severity: MEDIUM)
+
+### Iteration 2 (2026-03-01)
+
+**Findings:** Focused on deferred HIGH and MEDIUM items from iteration 1
+**Code fixes applied:** 13
+**Manual to-dos added:** 0
+**Deferred:** 10
+
+#### Fixed (Code)
+
+- [x] Dynamic import for canvas-confetti — reduce initial bundle ~8KB (dimension: performance, severity: HIGH)
+- [x] Dynamic import for HealthChart/recharts via next/dynamic — reduce initial bundle ~95KB (dimension: performance, severity: HIGH)
+- [x] Rate limiting on email webhook endpoint (100 req/60s per IP) (dimension: ops, severity: HIGH)
+- [x] Rate limiting on unsubscribe endpoint (10 req/60s per IP) (dimension: ops, severity: HIGH)
+- [x] Focus trap improvement on NoteEditor modal — role="dialog", aria-modal, Escape key handler (dimension: polish, severity: HIGH)
+- [x] Add error.tsx for checkin route with resume/dashboard recovery actions (dimension: error-handling, severity: MEDIUM)
+- [x] Add .limit(100) to reminders page query (dimension: performance, severity: MEDIUM)
+- [x] Add .limit(100) to requests page query (dimension: performance, severity: MEDIUM)
+- [x] Replace raw img with next/image in PhotoGallery (grid + lightbox) (dimension: performance, severity: MEDIUM)
+- [x] Add 10MB file size validation for milestone photo uploads (dimension: error-handling, severity: MEDIUM)
+- [x] Add relationship date format + future-date validation in onboarding (dimension: error-handling, severity: MEDIUM)
+- [x] Add contextual error messages in auth callback (expired/already used/generic) (dimension: error-handling, severity: MEDIUM)
+- [x] Rewrite health check endpoint with DB connectivity check (dimension: ops, severity: MEDIUM)
+
+#### Deferred
+
+- [ ] Offline/network failure detection (dimension: error-handling, severity: HIGH, requires architectural decision)
+- [ ] Context provider route-based splitting (dimension: performance, severity: HIGH, requires architectural redesign)
+- [ ] Dashboard N+1 queries — consolidate into DB view/RPC (dimension: performance, severity: HIGH, needs migration)
+- [ ] Email re-subscription UI (dimension: feature, severity: HIGH, feature work)
+- [ ] Add Suspense boundaries for streaming (dimension: performance, severity: MEDIUM)
+- [ ] Add aria-live regions for dynamic content updates (dimension: polish, severity: MEDIUM)
+- [ ] Avatar upload via Supabase Storage (dimension: feature, severity: MEDIUM, feature work)
+- [ ] Bulk delete undo/soft-delete for notes (dimension: error-handling, severity: MEDIUM)
+- [ ] Add not-found.tsx pages for invalid routes (dimension: error-handling, severity: MEDIUM)
+- [ ] Cookie consent banner for GDPR (dimension: feature, severity: LOW)
