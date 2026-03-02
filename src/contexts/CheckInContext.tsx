@@ -228,7 +228,6 @@ export function CheckInProvider({ children, coupleId, userId }: CheckInProviderP
     error: null,
   })
   const [actionItems, setActionItems] = useState<ActionItem[]>([])
-
   useEffect(() => {
     async function loadActiveCheckIn() {
       const { data, error } = await fetchActiveCheckIn(coupleId)
