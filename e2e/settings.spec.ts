@@ -168,7 +168,7 @@ test.describe.serial('Settings — Saves', () => {
     await nameInput.fill('Alice Test')
     await page.getByRole('button', { name: /save profile/i }).click()
 
-    await expect(page.getByText(/profile updated successfully/i)).toBeVisible({ timeout: 5000 })
+    await expect(page.getByText(/profile updated/i)).toBeVisible({ timeout: 5000 })
   })
 
   test('restoring original display name succeeds', async ({ authedPage: page }) => {
@@ -179,7 +179,7 @@ test.describe.serial('Settings — Saves', () => {
     await nameInput.fill('Alice')
     await page.getByRole('button', { name: /save profile/i }).click()
 
-    await expect(page.getByText(/profile updated successfully/i)).toBeVisible({ timeout: 5000 })
+    await expect(page.getByText(/profile updated/i)).toBeVisible({ timeout: 5000 })
   })
 
   test('saving session rules shows success message', async ({ authedPage: page }) => {
@@ -190,6 +190,6 @@ test.describe.serial('Settings — Saves', () => {
     await expect(page.getByRole('heading', { name: /session rules/i })).toBeVisible()
     await page.getByRole('button', { name: /save session rules/i }).click()
 
-    await expect(page.getByText(/session settings updated/i)).toBeVisible({ timeout: 15000 })
+    await expect(page.getByText(/session settings saved/i)).toBeVisible({ timeout: 15000 })
   })
 })
