@@ -35,8 +35,17 @@ export function ReminderForm({
       <CardContent>
         <form action={formAction} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="title">Title</Label>
-            <Input id="title" name="title" required maxLength={200} placeholder="e.g., Weekly check-in" />
+            <Label htmlFor="title" required>
+              Title
+            </Label>
+            <Input
+              id="title"
+              name="title"
+              required
+              aria-required="true"
+              maxLength={200}
+              placeholder="e.g., Weekly check-in"
+            />
           </div>
 
           <div className="space-y-2">
@@ -79,8 +88,10 @@ export function ReminderForm({
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="scheduled_for">Scheduled For</Label>
-              <Input id="scheduled_for" name="scheduled_for" type="datetime-local" required />
+              <Label htmlFor="scheduled_for" required>
+                Scheduled For
+              </Label>
+              <Input id="scheduled_for" name="scheduled_for" type="datetime-local" required aria-required="true" />
             </div>
 
             <div className="space-y-2">

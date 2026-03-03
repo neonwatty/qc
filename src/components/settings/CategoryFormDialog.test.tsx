@@ -58,14 +58,14 @@ describe('CategoryFormDialog', () => {
 
   it('renders name, description, icon inputs with correct values', () => {
     renderDialog({ formData: { name: 'My Cat', description: 'My Desc', icon: '🎉' } })
-    expect(screen.getByLabelText('Name')).toHaveValue('My Cat')
+    expect(screen.getByLabelText(/^Name/)).toHaveValue('My Cat')
     expect(screen.getByLabelText('Description (optional)')).toHaveValue('My Desc')
     expect(screen.getByLabelText('Icon')).toHaveValue('🎉')
   })
 
   it('calls onFormDataChange with updated name when name input changes', () => {
     renderDialog()
-    fireEvent.change(screen.getByLabelText('Name'), { target: { value: 'New Name' } })
+    fireEvent.change(screen.getByLabelText(/^Name/), { target: { value: 'New Name' } })
     expect(onFormDataChange).toHaveBeenCalledWith({
       ...defaultFormData,
       name: 'New Name',

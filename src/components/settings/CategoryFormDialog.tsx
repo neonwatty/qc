@@ -30,12 +30,15 @@ export function CategoryFormDialog({
         </DialogHeader>
         <div className="space-y-4 py-4">
           <div className="space-y-2">
-            <Label htmlFor="name">Name</Label>
+            <Label htmlFor="name" required>
+              Name
+            </Label>
             <Input
               id="name"
               value={formData.name}
               onChange={(e) => onFormDataChange({ ...formData, name: e.target.value })}
               placeholder="e.g., Date Night Ideas"
+              aria-required="true"
             />
           </div>
           <div className="space-y-2">

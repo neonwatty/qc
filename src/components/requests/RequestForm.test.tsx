@@ -31,7 +31,7 @@ describe('RequestForm', () => {
 
   it('renders title, description, and suggested_date inputs', () => {
     renderForm()
-    expect(screen.getByLabelText('Title')).toBeDefined()
+    expect(screen.getByLabelText(/Title/)).toBeDefined()
     expect(screen.getByLabelText('Description (optional)')).toBeDefined()
     expect(screen.getByLabelText('Suggested Date (optional)')).toBeDefined()
   })

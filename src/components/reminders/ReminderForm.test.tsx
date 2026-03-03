@@ -57,11 +57,11 @@ describe('ReminderForm', () => {
 
   it('renders all form fields', () => {
     renderForm()
-    expect(screen.getByLabelText('Title')).toBeDefined()
+    expect(screen.getByLabelText(/Title/)).toBeDefined()
     expect(screen.getByLabelText('Message (optional)')).toBeDefined()
     expect(screen.getByLabelText('Category')).toBeDefined()
     expect(screen.getByLabelText('Frequency')).toBeDefined()
-    expect(screen.getByLabelText('Scheduled For')).toBeDefined()
+    expect(screen.getByLabelText(/Scheduled For/)).toBeDefined()
     expect(screen.getByLabelText('Notification')).toBeDefined()
   })
 
