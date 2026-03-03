@@ -110,7 +110,7 @@ test.describe('Requests — New Request form', () => {
     await expect(newRequestBtn).toBeEnabled({ timeout: 15000 })
     await newRequestBtn.click()
 
-    await expect(page.getByLabel(/^title$/i)).toBeVisible()
+    await expect(page.getByLabel(/title/i).first()).toBeVisible()
     await expect(page.getByLabel(/description/i)).toBeVisible()
     await expect(page.getByLabel(/category/i)).toBeVisible()
     await expect(page.getByLabel(/priority/i)).toBeVisible()
@@ -150,7 +150,7 @@ test.describe.serial('Requests — CRUD', () => {
     await expect(newRequestBtn).toBeEnabled({ timeout: 15000 })
     await newRequestBtn.click()
 
-    await page.getByLabel(/^title$/i).fill(testTitle)
+    await page.getByLabel(/title/i).first().fill(testTitle)
 
     await page.getByRole('button', { name: /send request/i }).click()
 

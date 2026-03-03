@@ -83,7 +83,7 @@ test.describe('Reminders — New Reminder form', () => {
 
     await page.getByRole('button', { name: /new reminder/i }).click()
 
-    await expect(page.getByLabel(/^title$/i)).toBeVisible()
+    await expect(page.getByLabel(/title/i).first()).toBeVisible()
     await expect(page.getByLabel(/category/i)).toBeVisible()
     await expect(page.getByLabel(/frequency/i)).toBeVisible()
     await expect(page.getByLabel(/scheduled for/i)).toBeVisible()
@@ -117,7 +117,7 @@ test.describe.serial('Reminders — CRUD', () => {
 
     await page.getByRole('button', { name: /new reminder/i }).click()
 
-    await page.getByLabel(/^title$/i).fill(testTitle)
+    await page.getByLabel(/title/i).first().fill(testTitle)
 
     // Set scheduled_for to a future date
     const tomorrow = new Date()
