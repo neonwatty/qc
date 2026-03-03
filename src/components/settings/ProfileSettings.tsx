@@ -47,12 +47,14 @@ export function ProfileSettings({ profile, userEmail }: Props): React.ReactEleme
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="display_name">Display Name</Label>
+            <Label htmlFor="display_name" required>
+              Display Name
+            </Label>
             <Input
               id="display_name"
               name="display_name"
               defaultValue={profile?.display_name ?? ''}
-              required
+              aria-required="true"
               maxLength={100}
             />
           </div>

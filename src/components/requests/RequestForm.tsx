@@ -25,8 +25,17 @@ export function RequestForm({ formAction, formState, isPending, partnerId, partn
           <input type="hidden" name="requested_for" value={partnerId} />
 
           <div className="space-y-2">
-            <Label htmlFor="title">Title</Label>
-            <Input id="title" name="title" required maxLength={200} placeholder="e.g., Plan a date night" />
+            <Label htmlFor="title" required>
+              Title
+            </Label>
+            <Input
+              id="title"
+              name="title"
+              required
+              aria-required="true"
+              maxLength={200}
+              placeholder="e.g., Plan a date night"
+            />
           </div>
 
           <div className="space-y-2">

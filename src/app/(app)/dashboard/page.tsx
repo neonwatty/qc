@@ -31,123 +31,67 @@ interface DashboardData {
   frequencyGoal: string | null
 }
 
-async function fetchDashboardData(coupleId: string, userId: string, supabase: SupabaseClient): Promise<DashboardData> {
-  const today = new Date()
-  const todayStart = new Date(today.getFullYear(), today.getMonth(), today.getDate()).toISOString()
-  const todayEnd = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1).toISOString()
+interface RpcReminder {
+  id: string
+  title: string
+  scheduled_for: string
+  category: string
+  is_overdue: boolean
+}
 
-  const [
-    checkIns,
-    notes,
-    milestones,
-    actionItems,
-    languages,
-    shared,
-    streak,
-    activity,
-    couple,
-    lastCheckIn,
-    topLangs,
-    reminders,
-    pendingReqs,
-    partnerLang,
-    actionCount,
-  ] = await Promise.all([
-    supabase.from('check_ins').select('id', { count: 'exact', head: true }).eq('couple_id', coupleId),
-    supabase.from('notes').select('id', { count: 'exact', head: true }).eq('couple_id', coupleId),
-    supabase.from('milestones').select('id', { count: 'exact', head: true }).eq('couple_id', coupleId),
-    supabase
-      .from('action_items')
-      .select('id', { count: 'exact', head: true })
-      .eq('couple_id', coupleId)
-      .eq('completed', false),
-    supabase.from('love_languages').select('id', { count: 'exact', head: true }).eq('couple_id', coupleId),
-    supabase
-      .from('love_languages')
-      .select('id', { count: 'exact', head: true })
-      .eq('couple_id', coupleId)
-      .eq('privacy', 'shared'),
+interface RpcSummary {
+  check_in_count: number
+  note_count: number
+  milestone_count: number
+  action_item_count: number
+  total_languages: number
+  shared_languages: number
+  today_action_count: number
+  relationship_start_date: string | null
+  frequency_goal: string | null
+  last_check_in_date: string | null
+  top_languages: Array<{ title: string; category: string }>
+  partner_top_language: { title: string; category: string } | null
+  today_reminders: RpcReminder[]
+  pending_request_count: number
+}
+
+async function fetchDashboardData(coupleId: string, userId: string, supabase: SupabaseClient): Promise<DashboardData> {
+  const [summary, streak, activity] = await Promise.all([
+    supabase.rpc('get_dashboard_summary', { p_couple_id: coupleId, p_user_id: userId }),
     getStreakData(coupleId, supabase),
     getRecentActivity(coupleId, supabase, 20),
-    supabase.from('couples').select('relationship_start_date, settings').eq('id', coupleId).single(),
-    supabase
-      .from('check_ins')
-      .select('completed_at')
-      .eq('couple_id', coupleId)
-      .eq('status', 'completed')
-      .order('completed_at', { ascending: false })
-      .limit(1)
-      .maybeSingle(),
-    supabase
-      .from('love_languages')
-      .select('title, category')
-      .eq('couple_id', coupleId)
-      .eq('privacy', 'shared')
-      .limit(3),
-    supabase
-      .from('reminders')
-      .select('id, title, scheduled_for, category')
-      .eq('couple_id', coupleId)
-      .eq('is_active', true)
-      .gte('scheduled_for', todayStart)
-      .lt('scheduled_for', todayEnd)
-      .order('scheduled_for', { ascending: true })
-      .limit(5),
-    supabase
-      .from('requests')
-      .select('id', { count: 'exact', head: true })
-      .eq('couple_id', coupleId)
-      .eq('requested_for', userId)
-      .eq('status', 'pending'),
-    supabase
-      .from('love_languages')
-      .select('title, category')
-      .eq('couple_id', coupleId)
-      .eq('privacy', 'shared')
-      .neq('user_id', userId)
-      .limit(1)
-      .maybeSingle(),
-    supabase.from('love_actions').select('id', { count: 'exact', head: true }).eq('couple_id', coupleId),
   ])
 
-  // Log any query errors for debugging (counts fallback to 0 gracefully)
-  const queryErrors = [
-    checkIns.error && `check_ins: ${checkIns.error.message}`,
-    notes.error && `notes: ${notes.error.message}`,
-    milestones.error && `milestones: ${milestones.error.message}`,
-    actionItems.error && `action_items: ${actionItems.error.message}`,
-    couple.error && `couple: ${couple.error.message}`,
-  ].filter(Boolean)
-  if (queryErrors.length > 0) {
-    console.error('[dashboard] Query errors:', queryErrors.join('; '))
+  if (summary.error) {
+    console.error('[dashboard] RPC error:', summary.error.message)
   }
 
+  const data = summary.data as RpcSummary | null
+
   return {
-    checkInCount: checkIns.count ?? 0,
-    noteCount: notes.count ?? 0,
-    milestoneCount: milestones.count ?? 0,
-    actionItemCount: actionItems.count ?? 0,
-    totalLanguages: languages.count ?? 0,
-    sharedLanguages: shared.count ?? 0,
+    checkInCount: data?.check_in_count ?? 0,
+    noteCount: data?.note_count ?? 0,
+    milestoneCount: data?.milestone_count ?? 0,
+    actionItemCount: data?.action_item_count ?? 0,
+    totalLanguages: data?.total_languages ?? 0,
+    sharedLanguages: data?.shared_languages ?? 0,
     streakData: streak,
     activities: activity,
-    relationshipStartDate: couple.data?.relationship_start_date ?? null,
-    frequencyGoal:
-      ((couple.data?.settings as Record<string, unknown> | null)?.checkInFrequency as string | null) ?? null,
-    lastCheckInDate: lastCheckIn.data?.completed_at ?? null,
-    topLanguages: (topLangs.data ?? []).map((l) => ({ title: l.title, category: l.category })),
-    todayReminders: (reminders.data ?? []).map((r) => ({
+    relationshipStartDate: data?.relationship_start_date ?? null,
+    frequencyGoal: data?.frequency_goal ?? null,
+    lastCheckInDate: data?.last_check_in_date ?? null,
+    topLanguages: data?.top_languages ?? [],
+    todayReminders: (data?.today_reminders ?? []).map((r) => ({
       id: r.id,
       title: r.title,
       scheduledFor: r.scheduled_for,
       category: r.category,
-      isOverdue: new Date(r.scheduled_for) < today,
+      isOverdue: r.is_overdue,
     })),
-    pendingRequestCount: pendingReqs.count ?? 0,
-    partnerTopLanguage: partnerLang.data
-      ? { title: partnerLang.data.title, category: partnerLang.data.category }
-      : null,
-    todayActionCount: actionCount.count ?? 0,
+    pendingRequestCount: data?.pending_request_count ?? 0,
+    partnerTopLanguage: data?.partner_top_language ?? null,
+    todayActionCount: data?.today_action_count ?? 0,
   }
 }
 

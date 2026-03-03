@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect } from 'react'
+import * as Sentry from '@sentry/nextjs'
 import { AlertTriangle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 
@@ -12,6 +13,7 @@ interface ErrorPageProps {
 export default function InviteError({ error, reset }: ErrorPageProps): React.ReactNode {
   useEffect(() => {
     console.error('Invite error:', error)
+    Sentry.captureException(error)
   }, [error])
 
   return (
