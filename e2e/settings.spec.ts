@@ -163,7 +163,7 @@ test.describe.serial('Settings — Saves', () => {
   test('saving profile with new display name shows success', async ({ authedPage: page }) => {
     await page.goto('/settings')
 
-    const nameInput = page.getByRole('textbox', { name: /display name/i })
+    const nameInput = page.getByLabel(/display name/i)
     await expect(nameInput).toBeVisible()
     await nameInput.clear()
     await nameInput.fill('Alice Test')
@@ -175,7 +175,7 @@ test.describe.serial('Settings — Saves', () => {
   test('restoring original display name succeeds', async ({ authedPage: page }) => {
     await page.goto('/settings')
 
-    const nameInput = page.getByRole('textbox', { name: /display name/i })
+    const nameInput = page.getByLabel(/display name/i)
     await expect(nameInput).toBeVisible()
     await nameInput.clear()
     await nameInput.fill('Alice')

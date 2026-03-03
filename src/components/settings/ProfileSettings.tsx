@@ -54,7 +54,6 @@ export function ProfileSettings({ profile, userEmail }: Props): React.ReactEleme
               id="display_name"
               name="display_name"
               defaultValue={profile?.display_name ?? ''}
-              required
               aria-required="true"
               maxLength={100}
             />
