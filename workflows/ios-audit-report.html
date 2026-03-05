@@ -1,0 +1,659 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>QC iOS/Mobile Audit Report</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', system-ui, sans-serif;
+        background: #f5f5f7;
+        color: #1d1d1f;
+        line-height: 1.5;
+      }
+      .container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 24px;
+      }
+      h1 {
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 4px;
+      }
+      h2 {
+        font-size: 22px;
+        font-weight: 600;
+        margin: 32px 0 16px;
+        border-bottom: 1px solid #d2d2d7;
+        padding-bottom: 8px;
+      }
+      h3 {
+        font-size: 17px;
+        font-weight: 600;
+        margin: 16px 0 8px;
+      }
+      .meta {
+        color: #86868b;
+        font-size: 14px;
+        margin-bottom: 24px;
+      }
+      .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 12px;
+        margin: 16px 0;
+      }
+      .stat-card {
+        background: white;
+        border-radius: 12px;
+        padding: 16px;
+        text-align: center;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      }
+      .stat-card .number {
+        font-size: 32px;
+        font-weight: 700;
+      }
+      .stat-card .label {
+        font-size: 13px;
+        color: #86868b;
+      }
+      .stat-card.pass .number {
+        color: #34c759;
+      }
+      .stat-card.warn .number {
+        color: #ff9500;
+      }
+      .stat-card.fail .number {
+        color: #ff3b30;
+      }
+      .badge {
+        display: inline-block;
+        padding: 2px 10px;
+        border-radius: 12px;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+      .badge-pass {
+        background: #d1f2d9;
+        color: #1b7a2e;
+      }
+      .badge-fail {
+        background: #fdd;
+        color: #c00;
+      }
+      .badge-manual {
+        background: #fff3cd;
+        color: #856404;
+      }
+      .badge-partial {
+        background: #e0e7ff;
+        color: #3730a3;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 12px 0;
+        background: white;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      }
+      th,
+      td {
+        padding: 10px 14px;
+        text-align: left;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: 14px;
+      }
+      th {
+        background: #fafafa;
+        font-weight: 600;
+        color: #555;
+      }
+      .issue-card {
+        background: white;
+        border-radius: 12px;
+        padding: 16px;
+        margin: 12px 0;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        border-left: 4px solid #ff9500;
+      }
+      .issue-card.high {
+        border-left-color: #ff3b30;
+      }
+      .issue-card h4 {
+        font-size: 15px;
+        margin-bottom: 4px;
+      }
+      .issue-card .severity {
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+      .issue-card .severity.high {
+        color: #ff3b30;
+      }
+      .issue-card .severity.medium {
+        color: #ff9500;
+      }
+      .screenshot-row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin: 12px 0;
+      }
+      .screenshot {
+        max-width: 350px;
+        border: 1px solid #d2d2d7;
+        border-radius: 12px;
+        margin: 12px 0;
+      }
+      .screenshot-small {
+        max-width: 250px;
+        border: 1px solid #d2d2d7;
+        border-radius: 12px;
+      }
+      .checklist {
+        list-style: none;
+        padding: 0;
+      }
+      .checklist li {
+        padding: 6px 0;
+        font-size: 14px;
+      }
+      .checklist li::before {
+        margin-right: 8px;
+      }
+      .checklist li.pass::before {
+        content: '\2705';
+      }
+      .checklist li.fail::before {
+        content: '\274C';
+      }
+      .checklist li.warn::before {
+        content: '\26A0\FE0F';
+      }
+      .checklist li.manual::before {
+        content: '\1F91A';
+      }
+      code {
+        background: #f0f0f0;
+        padding: 1px 6px;
+        border-radius: 4px;
+        font-size: 13px;
+      }
+      .overflow-table td:nth-child(3),
+      .overflow-table td:nth-child(4) {
+        text-align: center;
+      }
+      .overflow-table .critical {
+        color: #ff3b30;
+        font-weight: 600;
+      }
+      .overflow-table .ok {
+        color: #34c759;
+      }
+      .caption {
+        font-size: 12px;
+        color: #86868b;
+        margin-top: 4px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>QC iOS/Mobile Audit Report</h1>
+      <p class="meta">
+        Date: 2026-03-05 | Device: Playwright Chromium 393x852 (iPhone 15 Pro viewport) | URL: localhost:3001<br />
+        Account: alice@test.com (seeded) | Workflows: 2 of 4 core (WF1/WF2 skipped)<br />
+        <strong>Revision 2</strong> &mdash; Re-audited after discovering horizontal overflow issues missed in initial
+        pass
+      </p>
+
+      <div class="summary-grid">
+        <div class="stat-card fail">
+          <div class="number">5</div>
+          <div class="label">Issues Found</div>
+        </div>
+        <div class="stat-card fail">
+          <div class="number">5/8</div>
+          <div class="label">Pages Overflow</div>
+        </div>
+        <div class="stat-card">
+          <div class="number">2</div>
+          <div class="label">Skipped (Auth)</div>
+        </div>
+        <div class="stat-card">
+          <div class="number">1</div>
+          <div class="label">Manual Steps</div>
+        </div>
+      </div>
+
+      <!-- ==================== CRITICAL ISSUE ==================== -->
+      <h2>Critical Finding: Horizontal Overflow on Mobile</h2>
+
+      <p>
+        The most significant issue discovered is <strong>horizontal overflow on 5 of 8 pages</strong> at the iPhone 15
+        Pro viewport (393px). Content extends far beyond the viewport, enabling accidental horizontal scrolling that
+        reveals broken whitespace layout. This affects the header, main content, and tab bar.
+      </p>
+
+      <h3>Overflow Measurements</h3>
+      <table class="overflow-table">
+        <tr>
+          <th>Page</th>
+          <th>Scroll Width</th>
+          <th>Overflow (px)</th>
+          <th>Severity</th>
+        </tr>
+        <tr>
+          <td>/dashboard</td>
+          <td>1139px</td>
+          <td class="critical">746px</td>
+          <td class="critical">CRITICAL</td>
+        </tr>
+        <tr>
+          <td>/settings</td>
+          <td>946px</td>
+          <td class="critical">553px</td>
+          <td class="critical">HIGH</td>
+        </tr>
+        <tr>
+          <td>/reminders</td>
+          <td>728px</td>
+          <td class="critical">335px</td>
+          <td class="critical">HIGH</td>
+        </tr>
+        <tr>
+          <td>/growth</td>
+          <td>479px</td>
+          <td style="color: #ff9500; font-weight: 600">86px</td>
+          <td style="color: #ff9500; font-weight: 600">MEDIUM</td>
+        </tr>
+        <tr>
+          <td>/love-languages</td>
+          <td>471px</td>
+          <td style="color: #ff9500; font-weight: 600">78px</td>
+          <td style="color: #ff9500; font-weight: 600">MEDIUM</td>
+        </tr>
+        <tr>
+          <td>/checkin</td>
+          <td>393px</td>
+          <td class="ok">0px</td>
+          <td class="ok">OK</td>
+        </tr>
+        <tr>
+          <td>/notes</td>
+          <td>393px</td>
+          <td class="ok">0px</td>
+          <td class="ok">OK</td>
+        </tr>
+        <tr>
+          <td>/requests</td>
+          <td>393px</td>
+          <td class="ok">0px</td>
+          <td class="ok">OK</td>
+        </tr>
+      </table>
+
+      <h3>Root Cause</h3>
+      <div class="issue-card high">
+        <div class="severity high">High &mdash; Layout</div>
+        <h4>App Shell flex container not constraining width on mobile</h4>
+        <p>
+          In <code>src/app/(app)/app-shell.tsx:20</code>, the main content wrapper
+          <code>flex-1 lg:ml-64 flex flex-col</code> does not constrain its width to the viewport. Child elements
+          (header, main, PageContainer with <code>max-w-6xl</code>) expand the flex item beyond 393px. The parent
+          <code>flex min-h-screen</code> container has no <code>overflow-x: hidden</code>.
+        </p>
+        <p style="margin-top: 8px">
+          <strong>Contributing elements per page:</strong>
+        </p>
+        <ul style="margin-top: 4px; padding-left: 20px; font-size: 14px">
+          <li>
+            <strong>Dashboard (746px):</strong> Decorative <code>absolute -right-6</code> circle in prep banner extends
+            to 1155px; card grids and widgets expand unconstrained
+          </li>
+          <li><strong>Settings (553px):</strong> Horizontal tab strip and form content expand layout to 946px</li>
+          <li>
+            <strong>Reminders (335px):</strong> Chat-style UI and <code>max-w-6xl</code> container expands to 728px
+          </li>
+          <li>
+            <strong>Growth (86px):</strong> Filter button row <code>flex items-center gap-2</code> extends slightly
+          </li>
+          <li><strong>Love Languages (78px):</strong> <code>max-w-6xl</code> PageContainer pushes minor overflow</li>
+        </ul>
+        <p style="margin-top: 8px">
+          <strong>Fix:</strong> Add <code>overflow-x: hidden</code> to the app shell outer container or the
+          <code>flex-1</code> wrapper. Also consider adding <code>max-w-full</code> or <code>w-0 min-w-0</code> to
+          prevent flex children from exceeding viewport bounds.
+        </p>
+      </div>
+
+      <h3>Visual Evidence</h3>
+      <p>
+        Dashboard scrolled to x=746 (right edge) &mdash; showing broken whitespace layout when user accidentally scrolls
+        horizontally:
+      </p>
+      <div class="screenshot-row">
+        <div>
+          <img
+            src="screenshots/ios-audit/overflow-dashboard.jpeg"
+            class="screenshot-small"
+            alt="Dashboard at normal scroll position"
+          />
+          <p class="caption">Normal view (scrollX=0)</p>
+        </div>
+        <div>
+          <img
+            src="screenshots/ios-audit/overflow-dashboard-scrolled.jpeg"
+            class="screenshot-small"
+            alt="Dashboard scrolled right showing overflow"
+          />
+          <p class="caption">Scrolled right (scrollX=746) &mdash; broken</p>
+        </div>
+      </div>
+
+      <!-- ==================== SUMMARY TABLE ==================== -->
+      <h2>Workflow Summary</h2>
+      <table>
+        <tr>
+          <th>#</th>
+          <th>Workflow</th>
+          <th>Status</th>
+          <th>Steps</th>
+          <th>Issues</th>
+          <th>Notes</th>
+        </tr>
+        <tr>
+          <td>1</td>
+          <td>Signup &amp; Onboarding</td>
+          <td><span class="badge badge-manual">SKIP</span></td>
+          <td>-</td>
+          <td>-</td>
+          <td>Production restricts signups</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Partner Invite</td>
+          <td><span class="badge badge-manual">SKIP</span></td>
+          <td>-</td>
+          <td>-</td>
+          <td>Requires invite token from WF1</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>Dashboard Overview</td>
+          <td><span class="badge badge-fail">FAIL</span></td>
+          <td>3/5</td>
+          <td>3</td>
+          <td>Horizontal overflow, raw UUIDs, dark mode contrast</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>Navigation &amp; Tab Bar</td>
+          <td><span class="badge badge-partial">PARTIAL</span></td>
+          <td>4/5</td>
+          <td>2</td>
+          <td>Overflow across pages, dark mode contrast</td>
+        </tr>
+      </table>
+
+      <!-- ==================== WF3 ==================== -->
+      <h2>Workflow 3: Dashboard Overview</h2>
+
+      <h3>Steps</h3>
+      <ol>
+        <li>
+          <strong>Dashboard layout</strong> &mdash; <span class="badge badge-fail">FAIL</span><br />
+          Dashboard renders all expected widgets and components, but the page has
+          <strong>746px horizontal overflow</strong>. Content extends to 1139px in a 393px viewport. Users can
+          accidentally scroll right to see broken whitespace layout.<br />
+          <img
+            src="screenshots/ios-audit/overflow-dashboard.jpeg"
+            class="screenshot"
+            alt="Dashboard full page showing layout"
+          />
+        </li>
+        <li>
+          <strong>Stats grid</strong> &mdash; <span class="badge badge-partial">PARTIAL</span><br />
+          Stats tiles visible (Check-ins: 0, Notes: 0, Milestones: 0, Action Items: 0, Duration: Not set, Last Check-in:
+          Never). Tiles are display-only and do not navigate when tapped.
+        </li>
+        <li>
+          <strong>Quick actions</strong> &mdash; <span class="badge badge-pass">PASS</span><br />
+          "Start Check-in" navigates to /checkin. Back navigation returns to dashboard.
+        </li>
+        <li>
+          <strong>Widgets</strong> &mdash; <span class="badge badge-pass">PASS</span><br />
+          Check-in Health (empty state + CTA), Today's Reminders (empty state), Recent Activity (5 items with filter
+          tabs + "Show more"), Love Languages (empty state + "Add Language" CTA).
+        </li>
+        <li>
+          <strong>iOS conventions</strong> &mdash; <span class="badge badge-fail">FAIL</span><br />
+          Bottom tab bar present, touch targets adequate. However, the horizontal overflow breaks the mobile experience.
+          Dark mode shows cards as unreadable dark rectangles.
+        </li>
+      </ol>
+
+      <h3>Issues</h3>
+      <div class="issue-card high">
+        <div class="severity high">High</div>
+        <h4>Horizontal Overflow (746px)</h4>
+        <p>
+          The dashboard page has 746px of horizontal overflow at 393px viewport. The
+          <code>flex-1 lg:ml-64 flex flex-col</code> wrapper in app-shell.tsx renders at 1139px. A decorative
+          <code>absolute -right-6</code> circle in the prep banner extends even further to 1155px. Users can
+          accidentally scroll horizontally, breaking the entire mobile layout.
+        </p>
+      </div>
+      <div class="issue-card">
+        <div class="severity medium">Medium</div>
+        <h4>Raw UUIDs in Recent Activity</h4>
+        <p>
+          The "Check-in completed" entry in Recent Activity displays raw UUID strings (e.g.,
+          <code>20b05c19-0089-42e7-...</code>) instead of human-readable content like action item summaries or
+          participant names.
+        </p>
+      </div>
+      <div class="issue-card">
+        <div class="severity medium">Medium</div>
+        <h4>Dark Mode Card Contrast</h4>
+        <p>
+          In dark mode, quick action cards appear as dark rectangles with invisible or barely visible text. Card
+          backgrounds and text colors do not have sufficient contrast in dark theme.
+        </p>
+        <img
+          src="screenshots/ios-audit/darkmode-dashboard.jpeg"
+          class="screenshot"
+          alt="Dark mode showing unreadable cards"
+        />
+      </div>
+
+      <h3>iOS HIG Checklist</h3>
+      <ul class="checklist">
+        <li class="pass">Bottom tab bar with 4 tabs + More</li>
+        <li class="pass">No hamburger menu for primary navigation</li>
+        <li class="pass">No floating action buttons</li>
+        <li class="pass">Rounded card corners with subtle shadows</li>
+        <li class="pass">Helpful empty states with CTAs</li>
+        <li class="pass">Adequate touch target sizes</li>
+        <li class="pass">Clean typography, readable at mobile size</li>
+        <li class="fail">Horizontal overflow allows accidental scrolling (746px)</li>
+        <li class="fail">Dark mode card text is invisible/unreadable</li>
+      </ul>
+
+      <!-- ==================== WF4 ==================== -->
+      <h2>Workflow 4: Navigation &amp; Tab Bar</h2>
+
+      <h3>Steps</h3>
+      <ol>
+        <li>
+          <strong>Bottom tab bar</strong> &mdash; <span class="badge badge-pass">PASS</span><br />
+          All 4 tabs (Dashboard, Check-in, Notes, Growth) navigate to correct pages. Active tab is highlighted. "More"
+          button present.
+        </li>
+        <li>
+          <strong>More menu</strong> &mdash; <span class="badge badge-pass">PASS</span><br />
+          Opens with all 8 navigation items (Dashboard, Check-in, Notes, Growth, Reminders, Love Languages, Requests,
+          Settings) + Sign Out. Tapping "Reminders" navigates correctly and closes the menu.
+        </li>
+        <li>
+          <strong>Page transitions</strong> &mdash; <span class="badge badge-pass">PASS</span><br />
+          Smooth navigation between tabs. No layout shift or flash of unstyled content observed.
+        </li>
+        <li>
+          <strong>Swipe-back gesture</strong> &mdash; <span class="badge badge-manual">MANUAL</span><br />
+          Cannot be tested in Playwright browser automation. Requires iOS Simulator or physical device.
+        </li>
+        <li>
+          <strong>Header elements</strong> &mdash; <span class="badge badge-pass">PASS</span><br />
+          QC logo, dark/light mode toggle, and user avatar ("Alice") all present. Theme toggle works correctly.
+        </li>
+        <li>
+          <strong>Cross-page overflow audit</strong> &mdash; <span class="badge badge-fail">FAIL</span><br />
+          5 of 8 app pages have horizontal overflow at mobile viewport. Dashboard (746px), Settings (553px), Reminders
+          (335px), Growth (86px), Love Languages (78px). Only Check-in, Notes, and Requests render correctly at 393px
+          width.
+        </li>
+      </ol>
+
+      <h3>Issues</h3>
+      <div class="issue-card high">
+        <div class="severity high">High</div>
+        <h4>Horizontal Overflow Across 5 Pages</h4>
+        <p>
+          The app shell layout (<code>app-shell.tsx</code>) does not constrain the main content wrapper to viewport
+          width on mobile. This causes horizontal overflow on /dashboard (746px), /settings (553px), /reminders (335px),
+          /growth (86px), and /love-languages (78px). See the
+          <strong>Critical Finding</strong> section above for full analysis.
+        </p>
+      </div>
+      <div class="issue-card">
+        <div class="severity medium">Medium</div>
+        <h4>Dark Mode Card Contrast</h4>
+        <p>
+          When toggling to dark mode, quick action cards and other card elements appear as dark rectangles with
+          invisible or barely visible text. Card text does not render with appropriate dark mode colors.
+        </p>
+      </div>
+
+      <h3>Page-by-Page Screenshots</h3>
+      <p>Affected pages with overflow (viewport-only screenshots):</p>
+      <div class="screenshot-row">
+        <div>
+          <img src="screenshots/ios-audit/overflow-reminders.jpeg" class="screenshot-small" alt="Reminders page" />
+          <p class="caption">Reminders (335px overflow)</p>
+        </div>
+        <div>
+          <img src="screenshots/ios-audit/overflow-settings.jpeg" class="screenshot-small" alt="Settings page" />
+          <p class="caption">Settings (553px overflow)</p>
+        </div>
+        <div>
+          <img src="screenshots/ios-audit/overflow-growth.jpeg" class="screenshot-small" alt="Growth page" />
+          <p class="caption">Growth (86px overflow)</p>
+        </div>
+      </div>
+      <p>Pages with no overflow (correctly constrained):</p>
+      <div class="screenshot-row">
+        <div>
+          <img src="screenshots/ios-audit/ok-checkin.jpeg" class="screenshot-small" alt="Check-in page" />
+          <p class="caption">Check-in (0px overflow)</p>
+        </div>
+        <div>
+          <img src="screenshots/ios-audit/ok-notes.jpeg" class="screenshot-small" alt="Notes page" />
+          <p class="caption">Notes (0px overflow)</p>
+        </div>
+        <div>
+          <img src="screenshots/ios-audit/ok-requests.jpeg" class="screenshot-small" alt="Requests page" />
+          <p class="caption">Requests (0px overflow)</p>
+        </div>
+      </div>
+
+      <h3>iOS HIG Checklist</h3>
+      <ul class="checklist">
+        <li class="pass">Tab bar for primary navigation (not hamburger)</li>
+        <li class="pass">More menu for overflow navigation items</li>
+        <li class="pass">Active tab visually highlighted</li>
+        <li class="pass">Logo, theme toggle, user avatar in header</li>
+        <li class="pass">Dark mode toggle functional</li>
+        <li class="fail">5/8 pages have horizontal overflow at mobile viewport</li>
+        <li class="warn">Dark mode text contrast needs fix on cards</li>
+        <li class="manual">Swipe-back gesture untested (browser limitation)</li>
+      </ul>
+
+      <!-- ==================== OVERALL ==================== -->
+      <h2>Overall iOS HIG Assessment</h2>
+      <p>
+        The QC app has <strong>good iOS HIG patterns</strong> (tab bar, card design, empty states) but is
+        <strong>not mobile-ready</strong> due to the horizontal overflow issue affecting 5 of 8 pages. The layout shell
+        needs a fix before the app can pass mobile QA.
+      </p>
+
+      <h3>What Works Well</h3>
+      <ul class="checklist">
+        <li class="pass">Bottom tab bar (not hamburger menu) for primary navigation</li>
+        <li class="pass">No Material Design anti-patterns (FABs, snackbars, outlined inputs)</li>
+        <li class="pass">Rounded corners and subtle shadows on cards (iOS style)</li>
+        <li class="pass">Good empty states with helpful messages and CTAs</li>
+        <li class="pass">Adequate touch target sizes for mobile</li>
+        <li class="pass">Clean typography with good hierarchy</li>
+        <li class="pass">Navigation structure and transitions work smoothly</li>
+      </ul>
+
+      <h3>What Needs Fixing</h3>
+      <table>
+        <tr>
+          <th>#</th>
+          <th>Issue</th>
+          <th>Severity</th>
+          <th>Location</th>
+          <th>Fix</th>
+        </tr>
+        <tr>
+          <td>1</td>
+          <td>Horizontal overflow on 5/8 pages</td>
+          <td><span class="badge badge-fail">HIGH</span></td>
+          <td><code>app-shell.tsx:20</code></td>
+          <td>Add <code>overflow-x: hidden</code> or <code>max-w-full</code> to flex wrapper</td>
+        </tr>
+        <tr>
+          <td>2</td>
+          <td>Dashboard prep banner decorative circle overflows</td>
+          <td><span class="badge badge-fail">HIGH</span></td>
+          <td>PrepBanner component</td>
+          <td>Clip decorative absolute elements with <code>overflow: hidden</code> on parent</td>
+        </tr>
+        <tr>
+          <td>3</td>
+          <td>Dark mode card text invisible</td>
+          <td><span class="badge badge-partial">MEDIUM</span></td>
+          <td>Quick action cards, widget cards</td>
+          <td>Add proper <code>dark:</code> text color classes to card components</td>
+        </tr>
+        <tr>
+          <td>4</td>
+          <td>Raw UUIDs in Recent Activity</td>
+          <td><span class="badge badge-partial">MEDIUM</span></td>
+          <td>Dashboard Recent Activity widget</td>
+          <td>Resolve action_item UUIDs to human-readable summaries</td>
+        </tr>
+        <tr>
+          <td>5</td>
+          <td>Settings tab strip may expand layout</td>
+          <td><span class="badge badge-partial">MEDIUM</span></td>
+          <td>Settings page tab navigation</td>
+          <td>Make tab strip horizontally scrollable with <code>overflow-x: auto</code></td>
+        </tr>
+      </table>
+    </div>
+  </body>
+</html>
