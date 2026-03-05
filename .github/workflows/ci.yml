@@ -79,6 +79,12 @@ jobs:
       - name: Start local Supabase (background)
         run: supabase start > /tmp/supabase.log 2>&1 &
 
+      - name: Set E2E environment variables
+        run: |
+          echo "NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321" >> $GITHUB_ENV
+          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0" >> $GITHUB_ENV
+          echo "SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU" >> $GITHUB_ENV
+
       - name: Get Playwright version
         id: pw-version
         run: echo "version=$(npx playwright --version | awk '{print $2}')" >> $GITHUB_OUTPUT
@@ -123,15 +129,9 @@ jobs:
           cat /tmp/supabase.log
           exit 1
 
-      - name: Set E2E environment variables
-        run: |
-          echo "NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321" >> $GITHUB_ENV
-          echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=$(supabase status -o json | jq -r '.ANON_KEY')" >> $GITHUB_ENV
-          echo "SUPABASE_SERVICE_ROLE_KEY=$(supabase status -o json | jq -r '.SERVICE_ROLE_KEY')" >> $GITHUB_ENV
-
       - name: Verify Supabase auth is ready
         run: |
-          ANON_KEY=$(supabase status -o json | jq -r '.ANON_KEY')
+          ANON_KEY="$NEXT_PUBLIC_SUPABASE_ANON_KEY"
           for i in $(seq 1 30); do
             HTTP_CODE=$(curl -s -o /tmp/auth-response.json -w '%{http_code}' \
               http://127.0.0.1:54321/auth/v1/token?grant_type=password \
