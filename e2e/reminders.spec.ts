@@ -180,6 +180,6 @@ test.describe.serial('Reminders — CRUD', () => {
 
     await page.reload()
     await page.getByRole('button', { name: /^inactive\s*\d*$/i }).click()
-    await expect(page.getByText(testTitle)).not.toBeVisible({ timeout: 10000 })
+    await expect(page.getByText(testTitle)).toHaveCount(0, { timeout: 10000 })
   })
 })

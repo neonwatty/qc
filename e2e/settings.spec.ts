@@ -169,7 +169,11 @@ test.describe.serial('Settings — Saves', () => {
     await nameInput.fill('Alice Test')
     await page.getByRole('button', { name: /save profile/i }).click()
 
-    await expect(page.locator('[data-sonner-toast]', { hasText: 'Profile updated' })).toBeVisible({ timeout: 15000 })
+    // revalidatePath may remount the component, losing the success state.
+    // Verify the value persisted by reloading and checking the input value.
+    await page.waitForLoadState('networkidle')
+    await page.reload()
+    await expect(page.getByLabel(/display name/i)).toHaveValue('Alice Test', { timeout: 15000 })
   })
 
   test('restoring original display name succeeds', async ({ authedPage: page }) => {
@@ -181,7 +185,11 @@ test.describe.serial('Settings — Saves', () => {
     await nameInput.fill('Alice')
     await page.getByRole('button', { name: /save profile/i }).click()
 
-    await expect(page.locator('[data-sonner-toast]', { hasText: 'Profile updated' })).toBeVisible({ timeout: 15000 })
+    // revalidatePath may remount the component, losing the success state.
+    // Verify the value persisted by reloading and checking the input value.
+    await page.waitForLoadState('networkidle')
+    await page.reload()
+    await expect(page.getByLabel(/display name/i)).toHaveValue('Alice', { timeout: 15000 })
   })
 
   test('saving session rules shows success message', async ({ authedPage: page }) => {
