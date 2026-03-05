@@ -7,7 +7,7 @@ import globals from 'globals'
 
 export default tseslint.config(
   {
-    ignores: ['dist', '.next', 'ios', 'node_modules', 'out', 'playwright-report'],
+    ignores: ['dist', '.next', '.worktrees', 'ios', 'node_modules', 'out', 'playwright-report'],
   },
   js.configs.recommended,
   ...tseslint.configs.recommended,

@@ -11,6 +11,68 @@ import { StaggerContainer, StaggerItem } from '@/components/ui/motion'
 import { format, parseISO } from 'date-fns'
 import type { Milestone } from '@/types'
 
+interface MilestoneLightboxProps {
+  milestone: Milestone | null
+  onClose: () => void
+}
+
+function MilestoneLightbox({ milestone, onClose }: MilestoneLightboxProps): React.ReactElement {
+  return (
+    <Dialog open={milestone !== null} onOpenChange={() => onClose()}>
+      <DialogContent className="max-w-2xl">
+        {milestone && (
+          <>
+            <DialogHeader>
+              <DialogTitle>{milestone.title}</DialogTitle>
+            </DialogHeader>
+
+            <div className="space-y-4">
+              {milestone.photoUrl ? (
+                <div className="relative aspect-video w-full">
+                  <Image
+                    src={milestone.photoUrl}
+                    alt={milestone.title}
+                    fill
+                    sizes="(max-width: 672px) 100vw, 672px"
+                    className="rounded-lg object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="flex h-48 items-center justify-center rounded-lg bg-gradient-to-br from-pink-100 to-purple-100 dark:from-pink-900/30 dark:to-purple-900/30">
+                  <span className="text-7xl">{milestone.icon ?? '🏆'}</span>
+                </div>
+              )}
+
+              <p className="text-gray-600 dark:text-gray-400">{milestone.description}</p>
+
+              <div className="flex flex-wrap gap-3 text-sm text-gray-500">
+                {milestone.achievedAt && (
+                  <div className="flex items-center gap-1">
+                    <Calendar className="h-4 w-4" />
+                    {format(parseISO(milestone.achievedAt), 'MMMM d, yyyy')}
+                  </div>
+                )}
+                <div className="flex items-center gap-1">
+                  <Award className="h-4 w-4" />
+                  {milestone.points} points
+                </div>
+                <Badge variant="outline" className="capitalize">
+                  {milestone.category}
+                </Badge>
+                {milestone.rarity !== 'common' && (
+                  <Badge variant="outline" className="capitalize">
+                    {milestone.rarity}
+                  </Badge>
+                )}
+              </div>
+            </div>
+          </>
+        )}
+      </DialogContent>
+    </Dialog>
+  )
+}
+
 interface PhotoGalleryProps {
   milestones: Milestone[]
   onAddMemory?: () => void
@@ -112,59 +174,7 @@ export function PhotoGallery({ milestones, onAddMemory }: PhotoGalleryProps): Re
         </StaggerContainer>
       )}
 
-      {/* Lightbox dialog */}
-      <Dialog open={selectedMilestone !== null} onOpenChange={() => setSelectedMilestone(null)}>
-        <DialogContent className="max-w-2xl">
-          {selectedMilestone && (
-            <>
-              <DialogHeader>
-                <DialogTitle>{selectedMilestone.title}</DialogTitle>
-              </DialogHeader>
-
-              <div className="space-y-4">
-                {selectedMilestone.photoUrl ? (
-                  <div className="relative aspect-video w-full">
-                    <Image
-                      src={selectedMilestone.photoUrl}
-                      alt={selectedMilestone.title}
-                      fill
-                      sizes="(max-width: 672px) 100vw, 672px"
-                      className="rounded-lg object-cover"
-                    />
-                  </div>
-                ) : (
-                  <div className="flex h-48 items-center justify-center rounded-lg bg-gradient-to-br from-pink-100 to-purple-100 dark:from-pink-900/30 dark:to-purple-900/30">
-                    <span className="text-7xl">{selectedMilestone.icon ?? '🏆'}</span>
-                  </div>
-                )}
-
-                <p className="text-gray-600 dark:text-gray-400">{selectedMilestone.description}</p>
-
-                <div className="flex flex-wrap gap-3 text-sm text-gray-500">
-                  {selectedMilestone.achievedAt && (
-                    <div className="flex items-center gap-1">
-                      <Calendar className="h-4 w-4" />
-                      {format(parseISO(selectedMilestone.achievedAt), 'MMMM d, yyyy')}
-                    </div>
-                  )}
-                  <div className="flex items-center gap-1">
-                    <Award className="h-4 w-4" />
-                    {selectedMilestone.points} points
-                  </div>
-                  <Badge variant="outline" className="capitalize">
-                    {selectedMilestone.category}
-                  </Badge>
-                  {selectedMilestone.rarity !== 'common' && (
-                    <Badge variant="outline" className="capitalize">
-                      {selectedMilestone.rarity}
-                    </Badge>
-                  )}
-                </div>
-              </div>
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
+      <MilestoneLightbox milestone={selectedMilestone} onClose={() => setSelectedMilestone(null)} />
     </div>
   )
 }

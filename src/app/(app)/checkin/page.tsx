@@ -23,7 +23,6 @@ import {
   CompletionStep,
   WarmUpStep,
 } from './steps'
-
 import type { SessionSettings } from '@/types'
 
 interface RecentCheckIn {
