@@ -29,6 +29,74 @@ const NAVIGATION_ITEMS = [
   { name: 'Settings', href: '/settings', icon: Settings, mobileOrder: 8 },
 ] as const
 
+interface MobileSidebarProps {
+  isOpen: boolean
+  onClose: () => void
+  isActive: (href: string) => boolean
+}
+
+function MobileSidebar({ isOpen, onClose, isActive }: MobileSidebarProps): React.ReactNode {
+  if (!isOpen) return null
+
+  return (
+    <div className="lg:hidden fixed inset-0 z-50">
+      <div
+        className="fixed inset-0 bg-black/20 backdrop-blur-sm"
+        onClick={onClose}
+        onKeyDown={(e) => {
+          if (e.key === 'Escape') onClose()
+        }}
+        role="button"
+        tabIndex={0}
+        aria-label="Close menu"
+      />
+      <div className="fixed inset-y-0 right-0 w-64 bg-white dark:bg-gray-900 shadow-xl">
+        <div className="flex flex-col h-full">
+          <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-800">
+            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Menu</h2>
+            <button
+              onClick={onClose}
+              className="flex h-11 w-11 items-center justify-center rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
+          <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+            {NAVIGATION_ITEMS.map((item) => {
+              const Icon = item.icon
+              const active = isActive(item.href)
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  onClick={onClose}
+                  className={cn(
+                    'flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors group',
+                    active
+                      ? 'bg-pink-50 dark:bg-pink-900/20 text-pink-700 dark:text-pink-400 border border-pink-200 dark:border-pink-800'
+                      : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800',
+                  )}
+                >
+                  <Icon
+                    className={cn(
+                      'mr-3 h-5 w-5 flex-shrink-0',
+                      active ? 'text-pink-600' : 'text-gray-400 group-hover:text-gray-500',
+                    )}
+                  />
+                  {item.name}
+                </Link>
+              )
+            })}
+          </nav>
+          <div className="p-4 border-t border-gray-200 dark:border-gray-800">
+            <SignOutButton />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 interface NavigationProps {
   className?: string
 }
@@ -125,64 +193,7 @@ export function Navigation({ className = '' }: NavigationProps): React.ReactNode
         </nav>
       </div>
 
-      {/* Mobile Sidebar Overlay */}
-      {isSidebarOpen && (
-        <div className="lg:hidden fixed inset-0 z-50">
-          <div
-            className="fixed inset-0 bg-black/20 backdrop-blur-sm"
-            onClick={() => setIsSidebarOpen(false)}
-            onKeyDown={(e) => {
-              if (e.key === 'Escape') setIsSidebarOpen(false)
-            }}
-            role="button"
-            tabIndex={0}
-            aria-label="Close menu"
-          />
-          <div className="fixed inset-y-0 right-0 w-64 bg-white dark:bg-gray-900 shadow-xl">
-            <div className="flex flex-col h-full">
-              <div className="flex items-center justify-between p-4 border-b border-gray-100 dark:border-gray-800">
-                <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Menu</h2>
-                <button
-                  onClick={() => setIsSidebarOpen(false)}
-                  className="flex h-11 w-11 items-center justify-center rounded-full text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800"
-                >
-                  <X className="h-5 w-5" />
-                </button>
-              </div>
-              <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-                {NAVIGATION_ITEMS.map((item) => {
-                  const Icon = item.icon
-                  const active = isActive(item.href)
-                  return (
-                    <Link
-                      key={item.name}
-                      href={item.href}
-                      onClick={() => setIsSidebarOpen(false)}
-                      className={cn(
-                        'flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors group',
-                        active
-                          ? 'bg-pink-50 dark:bg-pink-900/20 text-pink-700 dark:text-pink-400 border border-pink-200 dark:border-pink-800'
-                          : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800',
-                      )}
-                    >
-                      <Icon
-                        className={cn(
-                          'mr-3 h-5 w-5 flex-shrink-0',
-                          active ? 'text-pink-600' : 'text-gray-400 group-hover:text-gray-500',
-                        )}
-                      />
-                      {item.name}
-                    </Link>
-                  )
-                })}
-              </nav>
-              <div className="p-4 border-t border-gray-200 dark:border-gray-800">
-                <SignOutButton />
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <MobileSidebar isOpen={isSidebarOpen} onClose={() => setIsSidebarOpen(false)} isActive={isActive} />
     </>
   )
 }

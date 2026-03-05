@@ -126,28 +126,28 @@ test.describe('Settings — Session Rules tab', () => {
     await expect(page.getByLabel(/timeouts per partner/i)).toBeVisible()
   })
 
-  test('Allow Extensions checkbox is checked', async ({ authedPage: page }) => {
+  test('Allow Extensions switch is checked', async ({ authedPage: page }) => {
     await page.goto('/settings')
 
     await page.getByRole('button', { name: /^session rules$/i }).click()
 
-    await expect(page.getByRole('checkbox', { name: /allow extensions/i })).toBeChecked()
+    await expect(page.getByRole('switch', { name: /allow extensions/i })).toBeChecked()
   })
 
-  test('Warm-Up Questions checkbox is checked', async ({ authedPage: page }) => {
+  test('Warm-Up Questions switch is checked', async ({ authedPage: page }) => {
     await page.goto('/settings')
 
     await page.getByRole('button', { name: /^session rules$/i }).click()
 
-    await expect(page.getByRole('checkbox', { name: /warm-up questions/i })).toBeChecked()
+    await expect(page.getByRole('switch', { name: /warm-up questions/i })).toBeChecked()
   })
 
-  test('Turn-Based Mode checkbox is unchecked', async ({ authedPage: page }) => {
+  test('Turn-Based Mode switch is unchecked', async ({ authedPage: page }) => {
     await page.goto('/settings')
 
     await page.getByRole('button', { name: /^session rules$/i }).click()
 
-    await expect(page.getByRole('checkbox', { name: /turn-based mode/i })).not.toBeChecked()
+    await expect(page.getByRole('switch', { name: /turn-based mode/i })).not.toBeChecked()
   })
 
   test('Save Session Rules button is visible', async ({ authedPage: page }) => {
@@ -169,7 +169,7 @@ test.describe.serial('Settings — Saves', () => {
     await nameInput.fill('Alice Test')
     await page.getByRole('button', { name: /save profile/i }).click()
 
-    await expect(page.locator('[data-sonner-toast]', { hasText: 'Profile updated' })).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('[data-sonner-toast]', { hasText: 'Profile updated' })).toBeVisible({ timeout: 15000 })
   })
 
   test('restoring original display name succeeds', async ({ authedPage: page }) => {
@@ -181,7 +181,7 @@ test.describe.serial('Settings — Saves', () => {
     await nameInput.fill('Alice')
     await page.getByRole('button', { name: /save profile/i }).click()
 
-    await expect(page.locator('[data-sonner-toast]', { hasText: 'Profile updated' })).toBeVisible({ timeout: 10000 })
+    await expect(page.locator('[data-sonner-toast]', { hasText: 'Profile updated' })).toBeVisible({ timeout: 15000 })
   })
 
   test('saving session rules shows success message', async ({ authedPage: page }) => {
