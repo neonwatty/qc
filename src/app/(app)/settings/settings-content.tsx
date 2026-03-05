@@ -62,12 +62,12 @@ export function SettingsContent({
 
   return (
     <PageContainer title="Settings" description="Customize your Quality Control experience">
-      <div className="flex gap-2 overflow-x-auto">
+      <div className="flex gap-2 overflow-x-auto scrollbar-hidden min-w-0">
         {TABS.map((tab) => (
           <button
             key={tab.id}
             onClick={() => setActiveTab(tab.id)}
-            className={`whitespace-nowrap rounded-full px-4 py-1.5 text-sm font-medium ${
+            className={`shrink-0 whitespace-nowrap rounded-full px-4 py-2.5 text-sm font-medium min-h-[44px] ${
               activeTab === tab.id ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
             }`}
           >

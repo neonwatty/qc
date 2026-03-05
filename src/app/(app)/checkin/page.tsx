@@ -155,13 +155,14 @@ function CheckInLanding(): React.ReactNode {
   const topicCount = preparation?.myTopics?.length ?? 0
 
   const handleStartQuickCheckIn = (): void => {
-    const categoryList = topicCount > 0 ? preparation!.myTopics.map((t) => t.content) : categories.map((c) => c.id)
+    const categoryList = topicCount > 0 ? preparation!.myTopics.map((t) => t.content) : categories.map((c) => c.name)
     startCheckIn(categoryList)
   }
 
   const handleStartCategoryCheckIn = (): void => {
     if (selectedCategory) {
-      startCheckIn([selectedCategory])
+      const categoryName = categories.find((c) => c.id === selectedCategory)?.name ?? selectedCategory
+      startCheckIn([categoryName])
     }
   }
 

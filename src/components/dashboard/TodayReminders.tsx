@@ -72,7 +72,7 @@ function EmptyState(): React.ReactNode {
       <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-100 dark:bg-gray-800">
         <CalendarClock className="h-6 w-6 text-gray-400 dark:text-gray-500" />
       </div>
-      <p className="mt-3 text-sm font-medium text-gray-700 dark:text-gray-300">No reminders today</p>
+      <p className="mt-3 text-sm font-medium text-gray-700 dark:text-gray-200">No reminders today</p>
       <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">Enjoy your day, or set up a reminder for later.</p>
     </div>
   )
@@ -93,7 +93,7 @@ export function TodayReminders({ reminders, className }: TodayRemindersProps): R
           {hasReminders && (
             <Link
               href="/reminders"
-              className="flex items-center gap-1 text-sm font-medium text-pink-600 hover:text-pink-700 dark:text-pink-400 dark:hover:text-pink-300 transition-colors"
+              className="flex items-center gap-1 text-sm font-medium min-h-[44px] text-pink-600 hover:text-pink-700 dark:text-pink-400 dark:hover:text-pink-300 transition-colors"
             >
               View All
               <ArrowRight className="h-3.5 w-3.5" />

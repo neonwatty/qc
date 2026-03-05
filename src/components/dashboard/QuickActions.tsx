@@ -90,7 +90,7 @@ export function QuickActions({ className, pendingRequests, todayReminders }: Qui
                 </span>
               )}
             </div>
-            <p className="mt-2 text-sm text-gray-700 dark:text-gray-300 font-medium">{action.description}</p>
+            <p className="mt-2 text-sm text-gray-700 dark:text-gray-200 font-medium">{action.description}</p>
             <Link href={action.href} className="mt-4 inline-block">
               <Button variant={action.primary ? 'default' : 'outline'} className="w-full">
                 {action.label}

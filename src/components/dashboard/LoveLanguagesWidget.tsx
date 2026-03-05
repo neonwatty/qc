@@ -40,15 +40,13 @@ export function LoveLanguagesWidget({
               <Heart className="h-5 w-5 text-red-500" />
               Love Languages
             </CardTitle>
-            <CardDescription className="text-gray-700 dark:text-gray-300">
+            <CardDescription className="text-gray-700 dark:text-gray-200">
               Express love in meaningful ways
             </CardDescription>
           </div>
-          <Link href="/love-languages">
-            <Button variant="ghost" size="sm">
-              View All
-            </Button>
-          </Link>
+          <Button variant="ghost" asChild>
+            <Link href="/love-languages">View All</Link>
+          </Button>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -56,15 +54,15 @@ export function LoveLanguagesWidget({
         <div className="grid grid-cols-3 gap-2 text-center">
           <div className="space-y-1">
             <p className="text-2xl font-bold text-red-500">{totalLanguages}</p>
-            <p className="text-xs text-gray-600 dark:text-gray-400">Languages</p>
+            <p className="text-xs text-gray-600 dark:text-gray-300">Languages</p>
           </div>
           <div className="space-y-1">
             <p className="text-2xl font-bold text-pink-500">{sharedLanguages}</p>
-            <p className="text-xs text-gray-600 dark:text-gray-400">Shared</p>
+            <p className="text-xs text-gray-600 dark:text-gray-300">Shared</p>
           </div>
           <div className="space-y-1">
             <p className="text-2xl font-bold text-green-500">{completedThisWeek}</p>
-            <p className="text-xs text-gray-600 dark:text-gray-400">This Week</p>
+            <p className="text-xs text-gray-600 dark:text-gray-300">This Week</p>
           </div>
         </div>
 
@@ -111,9 +109,7 @@ export function LoveLanguagesWidget({
                 <p className="text-sm font-medium text-gray-900 dark:text-white">
                   {todayActionCount} action{todayActionCount !== 1 ? 's' : ''} planned
                 </p>
-                <Button size="sm" variant="ghost">
-                  View
-                </Button>
+                <Button variant="ghost">View</Button>
               </Link>
             ) : (
               <p className="text-sm text-gray-500 dark:text-gray-400">No actions planned for today</p>
@@ -124,7 +120,7 @@ export function LoveLanguagesWidget({
         {/* Partner's Top Language */}
         {partnerTopLanguage && (
           <div className="space-y-2 border-t pt-3">
-            <p className="text-xs text-gray-600 dark:text-gray-400">Partner&apos;s Top Language:</p>
+            <p className="text-xs text-gray-600 dark:text-gray-300">Partner&apos;s Top Language:</p>
             <div className="flex items-center gap-2">
               <Badge variant="secondary" className="text-xs text-gray-700 dark:text-gray-300">
                 {partnerTopLanguage.category}
@@ -137,13 +133,13 @@ export function LoveLanguagesWidget({
         {/* Empty state */}
         {totalLanguages === 0 && (
           <div className="text-center py-4">
-            <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">No love languages added yet</p>
-            <Link href="/love-languages">
-              <Button size="sm" variant="outline">
+            <p className="text-sm text-gray-700 dark:text-gray-200 mb-2">No love languages added yet</p>
+            <Button variant="outline" asChild>
+              <Link href="/love-languages">
                 <Plus className="h-4 w-4 mr-1" />
                 Add Language
-              </Button>
-            </Link>
+              </Link>
+            </Button>
           </div>
         )}
       </CardContent>

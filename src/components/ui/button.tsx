@@ -17,19 +17,19 @@ const buttonVariants = cva(
         destructive:
           'bg-red-600 text-white shadow-lg hover:bg-red-700 active:bg-red-800 font-bold border-2 border-red-700/30',
         outline:
-          'border-2 border-[hsl(350_85%_50%)] bg-white/95 text-[hsl(350_85%_50%)] shadow-lg hover:bg-[hsl(350_85%_50%)] hover:text-white active:bg-[hsl(350_85%_45%)] font-bold backdrop-blur-sm',
+          'border-2 border-[hsl(350_85%_50%)] bg-white/95 dark:bg-gray-800 text-[hsl(350_85%_50%)] dark:text-pink-300 dark:border-pink-400 shadow-lg hover:bg-[hsl(350_85%_50%)] hover:text-white active:bg-[hsl(350_85%_45%)] font-bold backdrop-blur-sm',
         secondary:
-          'bg-gray-200 text-gray-900 shadow-lg hover:bg-gray-300 active:bg-gray-400 font-bold border-2 border-gray-400/50',
+          'bg-gray-200 dark:bg-gray-700 text-gray-900 dark:text-gray-100 shadow-lg hover:bg-gray-300 dark:hover:bg-gray-600 active:bg-gray-400 dark:active:bg-gray-500 font-bold border-2 border-gray-400/50 dark:border-gray-500/50',
         ghost:
           'text-gray-800 dark:text-gray-200 bg-transparent hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-gray-100 active:bg-gray-200 dark:active:bg-gray-600 font-semibold border border-gray-300 dark:border-gray-600',
         link: 'text-[hsl(350_85%_50%)] underline-offset-4 hover:underline active:underline font-bold',
       },
       size: {
-        default: 'h-10 px-4 py-2',
-        sm: 'h-9 rounded-md px-3 text-xs',
+        default: 'h-11 px-4 py-2',
+        sm: 'h-10 rounded-md px-3 text-xs',
         lg: 'h-11 rounded-md px-8',
         xl: 'h-12 rounded-md px-10 text-base',
-        icon: 'h-10 w-10',
+        icon: 'h-11 w-11',
       },
     },
     defaultVariants: {

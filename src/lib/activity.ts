@@ -57,8 +57,9 @@ export async function getRecentActivity(
   const items: ActivityItem[] = []
 
   if (checkIns.data) {
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
     for (const row of checkIns.data) {
-      const categories = (row.categories as string[]) ?? []
+      const categories = ((row.categories as string[]) ?? []).filter((c) => !UUID_RE.test(c))
       items.push({
         type: 'check-in',
         title: 'Check-in completed',

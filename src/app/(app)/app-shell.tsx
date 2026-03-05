@@ -12,12 +12,12 @@ interface AppShellProps {
 
 export function AppShell({ children, displayName, avatarUrl }: AppShellProps): React.ReactNode {
   return (
-    <div className="flex min-h-screen lg:h-screen safe-area-inset">
+    <div className="flex min-h-screen lg:h-screen safe-area-inset overflow-x-hidden">
       {/* Desktop Sidebar Navigation */}
       <Navigation />
 
       {/* Main Content Area */}
-      <div className="flex-1 lg:ml-64 flex flex-col">
+      <div className="flex-1 min-w-0 lg:ml-64 flex flex-col">
         <Header displayName={displayName} avatarUrl={avatarUrl} />
 
         {/* Page Content */}
