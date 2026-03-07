@@ -167,7 +167,7 @@ authedTest.describe('Workflow 7: Love Languages', () => {
   authedTest('Step 1: Load love languages page', async ({ authedPage: page }) => {
     await page.goto('/love-languages')
 
-    await expect(page.getByRole('heading', { name: /love languages/i })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Love Languages', exact: true })).toBeVisible()
   })
 
   authedTest('Step 2: Verify tabs', async ({ authedPage: page }) => {
