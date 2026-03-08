@@ -192,6 +192,12 @@ Partner sync uses Supabase Realtime via the `useRealtimeCouple` hook:
 - Server actions validate inputs with Zod before any mutation
 - Never pass sensitive data (service keys, tokens) as component props
 
+## LSP Usage
+
+When navigating code, always prefer the LSP tool (`goToDefinition`, `findReferences`, `documentSymbol`, `hover`) over Grep/Glob for symbol lookup. Use Grep only for text patterns that are not code symbols (e.g. string literals, comments, config values).
+
+If the LSP tool is unavailable or returns errors, stop and inform the user. Either the `typescript-lsp` plugin needs to be reinstalled (`/plugin` → Discover → `typescript-lsp`) or the language server binary is missing (`npm install -g typescript-language-server typescript`). Do not silently fall back to Grep.
+
 ## Conventions
 
 ### Code Style
