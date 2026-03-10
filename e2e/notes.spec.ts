@@ -226,10 +226,15 @@ test.describe.serial('Notes — CRUD', () => {
     const countBefore = await noteCards.count()
 
     await noteCards.first().hover()
-    await page
-      .getByLabel(/delete note/i)
-      .first()
-      .click()
+
+    // Wait for the delete server action to complete before reloading
+    await Promise.all([
+      page.waitForResponse((resp) => resp.request().method() === 'POST' && resp.status() === 200, { timeout: 15000 }),
+      page
+        .getByLabel(/delete note/i)
+        .first()
+        .click(),
+    ])
 
     // Reload and verify at least one copy was removed
     await page.reload()
