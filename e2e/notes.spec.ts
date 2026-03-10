@@ -68,20 +68,24 @@ test.describe('Notes — Filtering', () => {
     await expect(page.getByText(/savings target/i).first()).toBeVisible()
   })
 
-  test('Private filter shows empty state', async ({ authedPage: page }) => {
+  test('Private filter hides shared notes', async ({ authedPage: page }) => {
     await page.goto('/notes')
 
     await page.getByRole('button', { name: /^private$/i }).click()
 
-    await expect(page.getByRole('heading', { name: /no notes found/i })).toBeVisible()
+    // Shared seed notes must not appear under the Private filter
+    await expect(page.getByText(/pausing before reacting/i)).not.toBeVisible()
+    await expect(page.getByText(/savings target/i)).not.toBeVisible()
   })
 
-  test('Drafts filter shows empty state', async ({ authedPage: page }) => {
+  test('Drafts filter hides shared notes', async ({ authedPage: page }) => {
     await page.goto('/notes')
 
     await page.getByRole('button', { name: /^drafts$/i }).click()
 
-    await expect(page.getByRole('heading', { name: /no notes found/i })).toBeVisible()
+    // Shared seed notes must not appear under the Drafts filter
+    await expect(page.getByText(/pausing before reacting/i)).not.toBeVisible()
+    await expect(page.getByText(/savings target/i)).not.toBeVisible()
   })
 })
 
@@ -222,10 +226,15 @@ test.describe.serial('Notes — CRUD', () => {
     const countBefore = await noteCards.count()
 
     await noteCards.first().hover()
-    await page
-      .getByLabel(/delete note/i)
-      .first()
-      .click()
+
+    // Wait for the delete server action to complete before reloading
+    await Promise.all([
+      page.waitForResponse((resp) => resp.request().method() === 'POST' && resp.status() === 200, { timeout: 15000 }),
+      page
+        .getByLabel(/delete note/i)
+        .first()
+        .click(),
+    ])
 
     // Reload and verify at least one copy was removed
     await page.reload()

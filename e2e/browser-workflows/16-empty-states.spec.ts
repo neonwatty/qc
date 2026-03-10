@@ -22,20 +22,24 @@ test.describe('Workflow 16: Empty States', () => {
   })
 
   test.describe('Notes — Empty filters', () => {
-    test('Private filter shows "No notes found" empty state', async ({ authedPage: page }) => {
+    test('Private filter hides shared notes', async ({ authedPage: page }) => {
       await page.goto('/notes')
 
       await page.getByRole('button', { name: /^private$/i }).click()
 
-      await expect(page.getByRole('heading', { name: /no notes found/i })).toBeVisible()
+      // Shared seed notes must not appear under the Private filter
+      await expect(page.getByText(/pausing before reacting/i)).not.toBeVisible()
+      await expect(page.getByText(/savings target/i)).not.toBeVisible()
     })
 
-    test('Drafts filter shows "No notes found" empty state', async ({ authedPage: page }) => {
+    test('Drafts filter hides shared notes', async ({ authedPage: page }) => {
       await page.goto('/notes')
 
       await page.getByRole('button', { name: /^drafts$/i }).click()
 
-      await expect(page.getByRole('heading', { name: /no notes found/i })).toBeVisible()
+      // Shared seed notes must not appear under the Drafts filter
+      await expect(page.getByText(/pausing before reacting/i)).not.toBeVisible()
+      await expect(page.getByText(/savings target/i)).not.toBeVisible()
     })
 
     test('Search for non-existent term shows empty state', async ({ authedPage: page }) => {

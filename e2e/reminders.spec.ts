@@ -176,7 +176,12 @@ test.describe.serial('Reminders — CRUD', () => {
     await expect(page.getByText(testTitle).first()).toBeVisible({ timeout: 15000 })
 
     const card = page.locator('.rounded-lg', { has: page.getByText(testTitle) }).first()
-    await card.getByRole('button', { name: /delete/i }).click()
+
+    // Wait for the delete server action to complete before reloading
+    await Promise.all([
+      page.waitForResponse((resp) => resp.request().method() === 'POST' && resp.status() === 200, { timeout: 15000 }),
+      card.getByRole('button', { name: /delete/i }).click(),
+    ])
 
     await page.reload()
     await page.getByRole('button', { name: /^inactive\s*\d*$/i }).click()
