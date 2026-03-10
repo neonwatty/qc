@@ -75,6 +75,7 @@ test.describe.serial('Workflow 15: Settings — Save session rules', () => {
     await expect(page.getByRole('heading', { name: /session rules/i })).toBeVisible()
     await page.getByRole('button', { name: /save session rules/i }).click()
 
-    await expect(page.getByText(/session settings saved/i)).toBeVisible({ timeout: 15000 })
+    // Check for inline success message (more reliable than toast in CI)
+    await expect(page.getByText('Session settings updated')).toBeVisible({ timeout: 15000 })
   })
 })

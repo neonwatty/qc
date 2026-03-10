@@ -91,9 +91,7 @@ test.describe('Workflow 12: Reminders — Filter tabs', () => {
     await page.getByRole('button', { name: /^inactive\s*\d*$/i }).click()
 
     // Should show inactive reminders or empty state message
-    await expect(page.getByText(/no inactive reminders/i).or(page.locator('.space-y-3').first())).toBeVisible({
-      timeout: 10000,
-    })
+    await expect(page.getByText(/no inactive reminders/i)).toBeVisible({ timeout: 10000 })
   })
 
   test('all filter shows all reminders', async ({ authedPage: page }) => {

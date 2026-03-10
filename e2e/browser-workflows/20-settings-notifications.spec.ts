@@ -59,7 +59,7 @@ test.describe('Workflow 20: Settings — Notifications & Personalization', () =>
 
       // Reload the page
       await page.reload()
-      await page.waitForLoadState('domcontentloaded')
+      await page.waitForLoadState('networkidle')
 
       // Verify theme persisted via localStorage
       const themeAfterReload = await page.evaluate(() => document.documentElement.classList.contains('dark'))
