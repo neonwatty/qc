@@ -29,7 +29,7 @@ You are performing one complete gap analysis iteration. Report progress at each 
 4. Clone or update the reference app:
 
    ```bash
-   git clone https://github.com/neonwatty/qc-app /tmp/qc-app 2>/dev/null || git -C /tmp/qc-app pull origin main
+   git clone https://github.com/mean-weasel/qc-app /tmp/qc-app 2>/dev/null || git -C /tmp/qc-app pull origin main
    ```
 
 5. Review which dimensions and files were already covered in prior iterations. Focus effort on uncovered ground.

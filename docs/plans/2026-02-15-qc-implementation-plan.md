@@ -4,14 +4,14 @@
 
 **Goal:** Migrate the QC relationship wellness app from a client-side localStorage prototype into a full-stack app with Supabase auth, Postgres persistence, real-time partner sync, Stripe subscriptions, and Resend email.
 
-**Architecture:** Template-first approach. Clone `neonwatty/nextjs-supabase-template` as the new `qc` repo, lay a sequential foundation (migrations, types, shared hooks, merged deps), then dispatch 8 parallel agents each owning a complete feature vertical. Post-agent integration merges outputs and verifies the build.
+**Architecture:** Template-first approach. Clone `mean-weasel/nextjs-supabase-template` as the new `qc` repo, lay a sequential foundation (migrations, types, shared hooks, merged deps), then dispatch 8 parallel agents each owning a complete feature vertical. Post-agent integration merges outputs and verifies the build.
 
 **Tech Stack:** Next.js 16, React 19, TypeScript 5.9 strict, Supabase (Postgres + RLS + Realtime + Storage), Stripe, Resend + React Email, Zustand 5, Tailwind CSS 4, Framer Motion, Radix UI, Capacitor (iOS)
 
 **Source repos:**
 
-- Template: `neonwatty/nextjs-supabase-template` (local: `/Users/jeremywatt/Desktop/nextjs-supabase-template/`)
-- QC prototype: `neonwatty/qc-app` (GitHub, ~43K lines, 201 files)
+- Template: `mean-weasel/nextjs-supabase-template` (local: `/Users/jeremywatt/Desktop/nextjs-supabase-template/`)
+- QC prototype: `mean-weasel/qc-app` (GitHub, ~43K lines, 201 files)
 
 ---
 
@@ -21,13 +21,13 @@
 
 **Files:**
 
-- Create: new repo `neonwatty/qc` cloned from template
+- Create: new repo `mean-weasel/qc` cloned from template
 
 **Step 1: Create the repo**
 
 ```bash
 cd ~/Desktop
-gh repo create neonwatty/qc --template neonwatty/nextjs-supabase-template --clone --public
+gh repo create mean-weasel/qc --template mean-weasel/nextjs-supabase-template --clone --public
 cd qc
 ```
 
@@ -1305,7 +1305,7 @@ Expected: No errors (or only errors from missing components that agents will cre
 
 ## Phase 2: Parallel Agent Dispatch (8 agents)
 
-> Each agent below is an independent subagent that reads from the QC prototype (`neonwatty/qc-app`) and writes into the new `qc` repo. Agents do NOT depend on each other -- they share the foundation from Phase 1 but write to non-overlapping file paths.
+> Each agent below is an independent subagent that reads from the QC prototype (`mean-weasel/qc-app`) and writes into the new `qc` repo. Agents do NOT depend on each other -- they share the foundation from Phase 1 but write to non-overlapping file paths.
 >
 > **Dispatch all 8 agents simultaneously.**
 
@@ -1680,13 +1680,13 @@ git push origin main
 **Step 2: Verify on GitHub**
 
 ```bash
-gh repo view neonwatty/qc --web
+gh repo view mean-weasel/qc --web
 ```
 
 **Step 3: Final status**
 
 ```bash
-echo "Migration complete. QC repo is live at github.com/neonwatty/qc"
+echo "Migration complete. QC repo is live at github.com/mean-weasel/qc"
 ```
 
 ---

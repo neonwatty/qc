@@ -4,9 +4,9 @@
 
 ## Summary
 
-QC (Quality Control) is a relationship wellness app for couples -- structured check-ins, notes with privacy levels, growth milestones, love languages, reminders, partner requests, and session settings. The current prototype (neonwatty/qc-app, ~43K lines, 201 files) is client-side only with localStorage persistence.
+QC (Quality Control) is a relationship wellness app for couples -- structured check-ins, notes with privacy levels, growth milestones, love languages, reminders, partner requests, and session settings. The current prototype (mean-weasel/qc-app, ~43K lines, 201 files) is client-side only with localStorage persistence.
 
-This design describes migrating QC into a new repo (`neonwatty/qc`) built on top of `neonwatty/nextjs-supabase-template`, adding Supabase auth, Postgres persistence with RLS, real-time partner sync, Resend email notifications, Stripe subscriptions, and Capacitor iOS builds.
+This design describes migrating QC into a new repo (`mean-weasel/qc`) built on top of `mean-weasel/nextjs-supabase-template`, adding Supabase auth, Postgres persistence with RLS, real-time partner sync, Resend email notifications, Stripe subscriptions, and Capacitor iOS builds.
 
 The migration uses a template-first approach with 8 parallel subagents, each owning a complete feature vertical.
 

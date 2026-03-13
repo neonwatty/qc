@@ -19,7 +19,7 @@ Production-ready Next.js 16 template with Supabase auth, Resend email, and a ful
 ### 1. Create a new repo from this template
 
 ```bash
-gh repo create my-app --template neonwatty/nextjs-supabase-template --clone
+gh repo create my-app --template mean-weasel/nextjs-supabase-template --clone
 cd my-app
 ```
 
