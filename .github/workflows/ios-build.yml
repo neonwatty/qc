@@ -56,17 +56,15 @@ jobs:
           ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
         run: |
           mkdir -p ~/.appstoreconnect/private_keys
-          echo "$ASC_AUTH_KEY_P8" | base64 --decode > ~/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8
-
-      - name: Verify API key
-        env:
-          ASC_KEY_ID: ${{ secrets.ASC_KEY_ID }}
-        run: |
           KEY_FILE=~/.appstoreconnect/private_keys/AuthKey_${ASC_KEY_ID}.p8
-          echo "Key file exists: $(test -f "$KEY_FILE" && echo yes || echo no)"
+          echo "$ASC_AUTH_KEY_P8" | base64 --decode > "$KEY_FILE"
+          # If decode produced another base64 string, decode again
+          if head -1 "$KEY_FILE" | grep -qv "BEGIN"; then
+            echo "Double-encoded detected, decoding again..."
+            base64 --decode < "$KEY_FILE" > "${KEY_FILE}.tmp" && mv "${KEY_FILE}.tmp" "$KEY_FILE"
+          fi
           echo "Key file size: $(wc -c < "$KEY_FILE") bytes"
           head -1 "$KEY_FILE"
-          tail -1 "$KEY_FILE"
 
       - name: Build & upload to TestFlight
         working-directory: ios/App
