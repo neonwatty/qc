@@ -74,7 +74,7 @@ jobs:
       - name: Install Supabase CLI
         uses: supabase/setup-cli@v1
         with:
-          version: 2.78.1
+          version: 2.75.0
 
       - name: Start local Supabase (foreground, blocks until ready)
         run: supabase start
