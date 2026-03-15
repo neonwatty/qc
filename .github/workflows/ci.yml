@@ -76,35 +76,14 @@ jobs:
         with:
           version: 2.67.1
 
-      - name: Start local Supabase (foreground, blocks until ready)
-        run: supabase start
+      - name: Start local Supabase (background)
+        run: supabase start > /tmp/supabase.log 2>&1 &
 
       - name: Set E2E environment variables
         run: |
           echo "NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321" >> $GITHUB_ENV
           echo "NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0" >> $GITHUB_ENV
           echo "SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU" >> $GITHUB_ENV
-
-      - name: Verify Supabase auth is ready
-        run: |
-          ANON_KEY="$NEXT_PUBLIC_SUPABASE_ANON_KEY"
-          for i in $(seq 1 30); do
-            HTTP_CODE=$(curl -s -o /tmp/auth-response.json -w '%{http_code}' \
-              http://127.0.0.1:54321/auth/v1/token?grant_type=password \
-              -H "apikey: $ANON_KEY" \
-              -H "Content-Type: application/json" \
-              -d '{"email":"alice@test.com","password":"password123"}') || true
-            BODY=$(cat /tmp/auth-response.json 2>/dev/null || echo "no response")
-            if [ "$HTTP_CODE" = "200" ]; then
-              echo "Auth verified: login works (attempt $i)"
-              exit 0
-            fi
-            echo "Auth not ready (attempt $i): HTTP $HTTP_CODE - $BODY"
-            sleep 5
-          done
-          echo "Auth service failed after 30 attempts"
-          docker logs supabase_auth_qc 2>&1 | tail -40
-          exit 1
 
       - name: Get Playwright version
         id: pw-version
@@ -136,6 +115,41 @@ jobs:
 
       - name: Build app
         run: npx next build
+
+      - name: Wait for Supabase to be ready
+        run: |
+          for i in $(seq 1 90); do
+            if supabase status > /dev/null 2>&1; then
+              echo "Supabase ready (attempt $i)"
+              exit 0
+            fi
+            sleep 3
+          done
+          echo "Supabase failed to start within timeout"
+          cat /tmp/supabase.log
+          exit 1
+
+      - name: Verify Supabase auth is ready
+        run: |
+          ANON_KEY="$NEXT_PUBLIC_SUPABASE_ANON_KEY"
+          for i in $(seq 1 30); do
+            HTTP_CODE=$(curl -s -o /tmp/auth-response.json -w '%{http_code}' \
+              http://127.0.0.1:54321/auth/v1/token?grant_type=password \
+              -H "apikey: $ANON_KEY" \
+              -H "Content-Type: application/json" \
+              -d '{"email":"alice@test.com","password":"password123"}') || true
+            BODY=$(cat /tmp/auth-response.json 2>/dev/null || echo "no response")
+            if [ "$HTTP_CODE" = "200" ]; then
+              echo "Auth verified: login works (attempt $i)"
+              exit 0
+            fi
+            echo "Auth not ready (attempt $i): HTTP $HTTP_CODE - $BODY"
+            sleep 5
+          done
+          echo "Auth service failed after 30 attempts"
+          cat /tmp/supabase.log | tail -40
+          docker logs supabase_auth_qc 2>&1 | tail -40
+          exit 1
 
       - name: Run Playwright tests
         run: npx playwright test --shard=${{ matrix.shard }}/2
