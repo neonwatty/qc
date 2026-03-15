@@ -96,6 +96,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     if (referencedPaths.has(objectPath)) continue
 
     // Skip if within grace period (protect in-progress uploads)
+    if (!obj.created_at) continue
     const createdAt = new Date(obj.created_at).getTime()
     if (now - createdAt < GRACE_PERIOD_MS) {
       skipped++
