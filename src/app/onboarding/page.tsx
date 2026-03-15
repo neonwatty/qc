@@ -52,7 +52,7 @@ export default function OnboardingPage() {
   useEffect(() => {
     if (state.success) {
       if (!state.emailSent) {
-        toast.warning('Your account is set up, but the invite email couldn\'t be sent. You can resend it from Settings.')
+        toast.warning("Your account is set up, but the invite email couldn't be sent. You can resend it from Settings.")
       }
       router.push('/dashboard')
     }

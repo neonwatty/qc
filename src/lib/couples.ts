@@ -159,24 +159,6 @@ export async function resendInvite(inviteId: string): Promise<{ data: DbCoupleIn
 
 export type InviteValidationStatus = 'valid' | 'accepted' | 'expired' | 'not_found'
 
-export async function getInviteByToken(token: string): Promise<{
-  data: DbCoupleInvite | null
-  error: string | null
-}> {
-  const admin = createAdminClient()
-
-  const { data, error } = await admin
-    .from('couple_invites')
-    .select('*')
-    .eq('token', token)
-    .eq('status', 'pending')
-    .gt('expires_at', new Date().toISOString())
-    .single()
-
-  if (error) return { data: null, error: error.message }
-  return { data, error: null }
-}
-
 export async function getInviteStatusByToken(token: string): Promise<{
   status: InviteValidationStatus
   invite: DbCoupleInvite | null

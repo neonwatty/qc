@@ -21,13 +21,16 @@ export const milestoneSchema = z.object({
   icon: z
     .string()
     .max(10)
-    .refine((val) => !val || /\S/.test(val.replace(/[\u200B-\u200D\uFEFF]/g, '')), 'Icon must contain a visible character')
+    .refine(
+      (val) => !val || /\S/.test(val.replace(/[\u200B-\u200D\uFEFF]/g, '')),
+      'Icon must contain a visible character',
+    )
     .optional(),
 })
 
 export const loveActionSchema = z.object({
   title: z.string().min(1).max(200),
-  description: z.string().max(2000).optional(),
+  description: z.string().max(2000).nullable().optional(),
   language_id: z.string().uuid(),
   status: z.enum(['suggested', 'planned', 'recurring']).optional(),
   frequency: z.enum(['once', 'weekly', 'monthly', 'surprise']).optional(),
