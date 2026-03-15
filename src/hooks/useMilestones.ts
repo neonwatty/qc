@@ -94,6 +94,17 @@ function buildDbUpdates(updates: Partial<Milestone>): Record<string, unknown> {
   return dbUpdates
 }
 
+async function enforceMilestoneCap(supabase: ReturnType<typeof createClient>, coupleId: string): Promise<void> {
+  const { count } = await supabase
+    .from('milestones')
+    .select('*', { count: 'exact', head: true })
+    .eq('couple_id', coupleId)
+
+  if (count !== null && count >= 200) {
+    throw new Error('You\u2019ve reached the maximum of 200 milestones. Delete some to create new ones.')
+  }
+}
+
 async function sendMilestoneEmailAsync(milestoneId: string): Promise<void> {
   try {
     const mod = await import('@/app/(app)/growth/actions')
@@ -141,6 +152,8 @@ export function useMilestones(coupleId: string | null): UseMilestonesReturn {
   const createMilestone = useCallback(
     async (input: MilestoneInput): Promise<Milestone> => {
       if (!coupleId) throw new Error('No couple linked')
+      await enforceMilestoneCap(supabase, coupleId)
+
       try {
         setError(null)
         const { data, error: insertError } = await supabase
